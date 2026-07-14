@@ -1,0 +1,31 @@
+# zRegions - main configuration
+# Documentation: https://docs.groupez.dev/zregions
+
+# Language of the messages. A file messages_<language>.yml must exist in this
+# folder (shipped: en, fr, es, it). Missing keys fall back to English defaults.
+language: en
+
+# Enables verbose logging (useful when reporting an issue).
+debug: false
+
+# Multi-server (network) support. The messaging layer ships in v2, but the data
+# model is network-ready from v1: every region is stamped with this server name.
+multi-server:
+  # Set to true when several servers share the same MySQL/MariaDB database.
+  enabled: false
+  # The logical name of THIS server on the network ("global" = single-server).
+  server: global
+
+# Region storage.
+storage:
+  # SQLITE (local file, default) or MYSQL / MARIADB (required for multi-server).
+  type: SQLITE
+  # Prefix applied to every zRegions table.
+  table-prefix: zregions_
+  # Credentials, only used for MYSQL / MARIADB.
+  database:
+    host: 127.0.0.1
+    port: 3306
+    database: zregions
+    user: root
+    password: ""

@@ -1,0 +1,44 @@
+# zRegions - English messages (MiniMessage format)
+# Placeholders like <region> or <position> are replaced by the plugin.
+
+prefix: '<dark_gray>[<gradient:#38bdf8:#2563eb>zRegions</gradient><dark_gray>]<reset> '
+
+commands:
+  player-only: '<prefix><red>This command can only be used by a player.'
+  no-permission: '<prefix><red>You don''t have permission to do this.'
+  unknown: '<prefix><red>Unknown sub-command. Use <yellow>/rg help</yellow>.'
+  reloaded: '<prefix><green>Configuration and messages reloaded.'
+  help:
+    header: '<prefix><gray>Available commands:'
+    entry: '<gray> • <yellow>/rg <usage></yellow> <dark_gray>- <gray><description>'
+
+selection:
+  pos1: '<prefix><gray>Position <yellow>1</yellow> set to <yellow><position></yellow>.'
+  pos2: '<prefix><gray>Position <yellow>2</yellow> set to <yellow><position></yellow>.'
+  incomplete: '<prefix><red>Select two positions first (<yellow>/rg pos1</yellow> and <yellow>/rg pos2</yellow>).'
+  world-mismatch: '<prefix><red>Both positions must be in the same world.'
+
+region:
+  created: '<prefix><green>Region <yellow><region></yellow> created (<gray><shape></gray>, priority <gray><priority></gray>).'
+  already-exists: '<prefix><red>A region named <yellow><region></yellow> already exists in this world.'
+  not-found: '<prefix><red>No region named <yellow><region></yellow> was found.'
+  removed: '<prefix><green>Region <yellow><region></yellow> removed.'
+  list:
+    header: '<prefix><gray>Regions in <yellow><world></yellow> (<count>):'
+    entry: '<gray> • <yellow><region></yellow> <dark_gray>(<gray><shape></gray>, priority <gray><priority></gray><dark_gray>)'
+    empty: '<prefix><gray>No region in this world yet.'
+  info:
+    header: '<prefix><gray>Region <yellow><region></yellow>:'
+    world: '<gray> World: <yellow><world></yellow>'
+    shape: '<gray> Shape: <yellow><shape></yellow>'
+    priority: '<gray> Priority: <yellow><priority></yellow>'
+    members: '<gray> Members: <yellow><members></yellow>'
+    flags: '<gray> Flags: <yellow><flags></yellow>'
+
+flag:
+  set: '<prefix><green>Flag <yellow><flag></yellow> set to <yellow><value></yellow> for <yellow><target></yellow> in <yellow><region></yellow>.'
+  unknown: '<prefix><red>Unknown flag <yellow><flag></yellow>.'
+  invalid-value: '<prefix><red>Invalid value <yellow><value></yellow> for flag <yellow><flag></yellow>.'
+
+protection:
+  denied: '<prefix><red>You can''t do that here.'

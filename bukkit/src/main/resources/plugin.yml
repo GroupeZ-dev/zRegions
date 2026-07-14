@@ -1,0 +1,28 @@
+name: zRegions
+version: '${version}'
+main: fr.maxlego08.zregions.bukkit.ZRegionsBukkitLoader
+api-version: '1.20'
+authors: [Maxlego08]
+website: https://groupez.dev
+folia-supported: true
+softdepend: [zMenu, PlaceholderAPI, WorldEdit, LuckPerms, WorldGuard]
+libraries:
+  - org.xerial:sqlite-jdbc:3.46.0.0
+
+commands:
+  region:
+    aliases: [rg]
+    description: Manage regions
+  zregions:
+    description: zRegions admin
+
+permissions:
+  zregions.use:
+    description: Allows using the /region command
+    default: true
+  zregions.admin:
+    description: Allows administrating zRegions
+    default: op
+  zregions.bypass:
+    description: Bypasses every region protection
+    default: op

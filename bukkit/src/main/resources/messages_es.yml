@@ -1,0 +1,44 @@
+# zRegions - Mensajes en español (formato MiniMessage)
+# Las etiquetas como <region> o <position> son reemplazadas por el plugin.
+
+prefix: '<dark_gray>[<gradient:#38bdf8:#2563eb>zRegions</gradient><dark_gray>]<reset> '
+
+commands:
+  player-only: '<prefix><red>Este comando solo puede ser usado por un jugador.'
+  no-permission: '<prefix><red>No tienes permiso para hacer esto.'
+  unknown: '<prefix><red>Subcomando desconocido. Usa <yellow>/rg help</yellow>.'
+  reloaded: '<prefix><green>Configuración y mensajes recargados.'
+  help:
+    header: '<prefix><gray>Comandos disponibles:'
+    entry: '<gray> • <yellow>/rg <usage></yellow> <dark_gray>- <gray><description>'
+
+selection:
+  pos1: '<prefix><gray>Posición <yellow>1</yellow> establecida en <yellow><position></yellow>.'
+  pos2: '<prefix><gray>Posición <yellow>2</yellow> establecida en <yellow><position></yellow>.'
+  incomplete: '<prefix><red>Selecciona primero dos posiciones (<yellow>/rg pos1</yellow> y <yellow>/rg pos2</yellow>).'
+  world-mismatch: '<prefix><red>Ambas posiciones deben estar en el mismo mundo.'
+
+region:
+  created: '<prefix><green>Región <yellow><region></yellow> creada (<gray><shape></gray>, prioridad <gray><priority></gray>).'
+  already-exists: '<prefix><red>Ya existe una región llamada <yellow><region></yellow> en este mundo.'
+  not-found: '<prefix><red>No se encontró ninguna región llamada <yellow><region></yellow>.'
+  removed: '<prefix><green>Región <yellow><region></yellow> eliminada.'
+  list:
+    header: '<prefix><gray>Regiones en <yellow><world></yellow> (<count>):'
+    entry: '<gray> • <yellow><region></yellow> <dark_gray>(<gray><shape></gray>, prioridad <gray><priority></gray><dark_gray>)'
+    empty: '<prefix><gray>Todavía no hay regiones en este mundo.'
+  info:
+    header: '<prefix><gray>Región <yellow><region></yellow>:'
+    world: '<gray> Mundo: <yellow><world></yellow>'
+    shape: '<gray> Forma: <yellow><shape></yellow>'
+    priority: '<gray> Prioridad: <yellow><priority></yellow>'
+    members: '<gray> Miembros: <yellow><members></yellow>'
+    flags: '<gray> Flags: <yellow><flags></yellow>'
+
+flag:
+  set: '<prefix><green>Flag <yellow><flag></yellow> establecido en <yellow><value></yellow> para <yellow><target></yellow> en <yellow><region></yellow>.'
+  unknown: '<prefix><red>Flag <yellow><flag></yellow> desconocido.'
+  invalid-value: '<prefix><red>Valor <yellow><value></yellow> inválido para el flag <yellow><flag></yellow>.'
+
+protection:
+  denied: '<prefix><red>No puedes hacer eso aquí.'
