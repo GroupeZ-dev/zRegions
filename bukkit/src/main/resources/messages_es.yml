@@ -7,10 +7,26 @@ commands:
   player-only: '<prefix><red>Este comando solo puede ser usado por un jugador.'
   no-permission: '<prefix><red>No tienes permiso para hacer esto.'
   unknown: '<prefix><red>Subcomando desconocido. Usa <yellow>/rg help</yellow>.'
+  player-not-found: '<prefix><red>Jugador <yellow><player></yellow> desconocido.'
   reloaded: '<prefix><green>Configuración y mensajes recargados.'
   help:
     header: '<prefix><gray>Comandos disponibles:'
     entry: '<gray> • <yellow>/rg <usage></yellow> <dark_gray>- <gray><description>'
+  descriptions:
+    help: 'Muestra esta ayuda'
+    pos1: 'Establece la primera esquina de la selección'
+    pos2: 'Establece la segunda esquina de la selección'
+    create: 'Crea una región a partir de tu selección'
+    remove: 'Elimina una región'
+    list: 'Lista las regiones de un mundo'
+    info: 'Muestra los detalles de una región'
+    flag: 'Establece, elimina o segmenta un flag de región'
+    addmember: 'Añade un propietario o miembro a una región'
+    removemember: 'Elimina un miembro de una región'
+    setpriority: 'Cambia la prioridad de una región'
+    setparent: 'Establece o quita la región padre'
+    redefine: 'Reemplaza la forma de una región con tu selección'
+    reload: 'Recarga la configuración y los mensajes'
 
 selection:
   pos1: '<prefix><gray>Posición <yellow>1</yellow> establecida en <yellow><position></yellow>.'
@@ -22,7 +38,15 @@ region:
   created: '<prefix><green>Región <yellow><region></yellow> creada (<gray><shape></gray>, prioridad <gray><priority></gray>).'
   already-exists: '<prefix><red>Ya existe una región llamada <yellow><region></yellow> en este mundo.'
   not-found: '<prefix><red>No se encontró ninguna región llamada <yellow><region></yellow>.'
+  ambiguous: '<prefix><red>Hay varias regiones llamadas <yellow><region></yellow> (mundos: <yellow><worlds></yellow>). Usa <yellow>mundo:<region></yellow>.'
   removed: '<prefix><green>Región <yellow><region></yellow> eliminada.'
+  priority-set: '<prefix><green>Prioridad de <yellow><region></yellow> establecida en <yellow><priority></yellow>.'
+  parent-set: '<prefix><green>La región <yellow><region></yellow> ahora hereda de <yellow><parent></yellow>.'
+  parent-cleared: '<prefix><green>La región <yellow><region></yellow> ya no tiene región padre.'
+  parent-cycle: '<prefix><red>Imposible: esto crearía un ciclo de herencia.'
+  redefined: '<prefix><green>Región <yellow><region></yellow> redefinida a partir de tu selección.'
+  redefine-global: '<prefix><red>La región global no tiene forma que redefinir.'
+  redefine-world-mismatch: '<prefix><red>Tu selección está en <yellow><world></yellow> pero la región se encuentra en <yellow><region_world></yellow>.'
   list:
     header: '<prefix><gray>Regiones en <yellow><world></yellow> (<count>):'
     entry: '<gray> • <yellow><region></yellow> <dark_gray>(<gray><shape></gray>, prioridad <gray><priority></gray><dark_gray>)'
@@ -35,10 +59,20 @@ region:
     members: '<gray> Miembros: <yellow><members></yellow>'
     flags: '<gray> Flags: <yellow><flags></yellow>'
 
+member:
+  added: '<prefix><green><player> ahora es <yellow><role></yellow> de <yellow><region></yellow>.'
+  removed: '<prefix><green><player> eliminado de <yellow><region></yellow>.'
+  not-member: '<prefix><red><player> no es miembro de <yellow><region></yellow>.'
+  invalid-role: '<prefix><red>Rol <yellow><role></yellow> desconocido. Usa <yellow>owner</yellow> o <yellow>member</yellow>.'
+
 flag:
   set: '<prefix><green>Flag <yellow><flag></yellow> establecido en <yellow><value></yellow> para <yellow><target></yellow> en <yellow><region></yellow>.'
+  unset: '<prefix><green>Flag <yellow><flag></yellow> eliminado para <yellow><target></yellow> en <yellow><region></yellow>.'
   unknown: '<prefix><red>Flag <yellow><flag></yellow> desconocido.'
   invalid-value: '<prefix><red>Valor <yellow><value></yellow> inválido para el flag <yellow><flag></yellow>.'
+  invalid-target: '<prefix><red>Objetivo <yellow><target></yellow> desconocido. Usa <yellow>owner</yellow>, <yellow>member</yellow>, <yellow>visitor</yellow> o <yellow>all</yellow>.'
 
 protection:
   denied: '<prefix><red>No puedes hacer eso aquí.'
+  entry-denied: '<prefix><red>No puedes entrar en <yellow><region></yellow>.'
+  exit-denied: '<prefix><red>No puedes salir de <yellow><region></yellow>.'

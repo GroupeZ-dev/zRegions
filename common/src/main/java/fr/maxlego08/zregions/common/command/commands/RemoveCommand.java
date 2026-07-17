@@ -29,9 +29,8 @@ public class RemoveCommand extends RegionCommand {
         }
 
         String name = optionalName.get();
-        Optional<Region> optionalRegion = findRegion(plugin, name);
+        Optional<Region> optionalRegion = resolveRegion(plugin, sender, name);
         if (optionalRegion.isEmpty()) {
-            plugin.getMessages().send(sender, Message.REGION_NOT_FOUND, "region", name);
             return;
         }
 

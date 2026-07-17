@@ -133,6 +133,29 @@ public final class ZRegion implements Region {
         this.priority = priority;
     }
 
+    /**
+     * A copy of this region with another parent, carrying over members and flag
+     * values. Structural fields are final: the manager swaps the copy into its
+     * caches under the write lock (the shape is unchanged, the index stays valid).
+     */
+    public ZRegion copyWithParent(UUID newParentId) {
+        return copyInto(new ZRegion(this.id, this.name, this.worldName, this.shape,
+                this.priority, newParentId, this.global));
+    }
+
+    /** A copy of this region with another shape (see {@link #copyWithParent}). */
+    public ZRegion copyWithShape(RegionShape newShape) {
+        return copyInto(new ZRegion(this.id, this.name, this.worldName, newShape,
+                this.priority, this.parentId, this.global));
+    }
+
+    private ZRegion copyInto(ZRegion target) {
+        this.members.forEach(target::putMember);
+        this.flagValues.forEach((key, values) -> values.forEach((groupTarget, value) ->
+                target.setFlagValue(key, groupTarget, value)));
+        return target;
+    }
+
     /** A defensive snapshot of the raw flag values, used by the manager for persistence. */
     public Map<String, Map<GroupTarget, Object>> flagValuesSnapshot() {
         Map<String, Map<GroupTarget, Object>> snapshot = new HashMap<>();

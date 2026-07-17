@@ -1,6 +1,7 @@
 package fr.maxlego08.zregions.common.command;
 
 import fr.maxlego08.zregions.common.command.abstraction.RegionCommand;
+import fr.maxlego08.zregions.common.command.commands.AddMemberCommand;
 import fr.maxlego08.zregions.common.command.commands.CreateCommand;
 import fr.maxlego08.zregions.common.command.commands.FlagCommand;
 import fr.maxlego08.zregions.common.command.commands.HelpCommand;
@@ -8,8 +9,12 @@ import fr.maxlego08.zregions.common.command.commands.InfoCommand;
 import fr.maxlego08.zregions.common.command.commands.ListCommand;
 import fr.maxlego08.zregions.common.command.commands.Pos1Command;
 import fr.maxlego08.zregions.common.command.commands.Pos2Command;
+import fr.maxlego08.zregions.common.command.commands.RedefineCommand;
 import fr.maxlego08.zregions.common.command.commands.ReloadCommand;
 import fr.maxlego08.zregions.common.command.commands.RemoveCommand;
+import fr.maxlego08.zregions.common.command.commands.RemoveMemberCommand;
+import fr.maxlego08.zregions.common.command.commands.SetParentCommand;
+import fr.maxlego08.zregions.common.command.commands.SetPriorityCommand;
 import fr.maxlego08.zregions.common.command.tabcomplete.CompletionSupplier;
 import fr.maxlego08.zregions.common.command.tabcomplete.TabCompleter;
 import fr.maxlego08.zregions.common.command.util.ArgumentList;
@@ -44,6 +49,11 @@ public class RegionCommandManager {
         register(new ListCommand());
         register(new InfoCommand());
         register(new FlagCommand());
+        register(new AddMemberCommand());
+        register(new RemoveMemberCommand());
+        register(new SetPriorityCommand());
+        register(new SetParentCommand());
+        register(new RedefineCommand());
         register(new ReloadCommand());
     }
 

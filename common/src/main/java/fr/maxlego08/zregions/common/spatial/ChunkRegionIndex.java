@@ -4,6 +4,7 @@ import fr.maxlego08.zregions.api.region.Region;
 import fr.maxlego08.zregions.api.shape.BoundingBox;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +32,20 @@ public final class ChunkRegionIndex {
 
     /** Adds a region to the index. Must be called under the manager's write lock. */
     public void add(Region region) {
+        addInternal(region);
+        publish();
+    }
+
+    /**
+     * Bulk insertion publishing the snapshot ONCE — {@link #publish()} copies the
+     * whole index, so per-region publishing would make a boot with n regions O(n²).
+     */
+    public void addAll(Collection<Region> regions) {
+        regions.forEach(this::addInternal);
+        publish();
+    }
+
+    private void addInternal(Region region) {
         BoundingBox box = region.getShape().getBoundingBox();
         if (box.chunkCount() > LARGE_THRESHOLD_CHUNKS) {
             this.largeRegions.add(region);
@@ -41,7 +56,6 @@ public final class ChunkRegionIndex {
                 this.byChunk.computeIfAbsent(BoundingBox.chunkKey(chunkX, chunkZ), key -> new ArrayList<>(2)).add(region);
             }
         }
-        publish();
     }
 
     /** Removes a region from the index. Must be called under the manager's write lock. */

@@ -3,6 +3,8 @@ plugins {
     id("com.gradleup.shadow") version "9.0.0" apply false
 }
 
+version = "1.0.0"
+
 allprojects {
     apply(plugin = "java-library")
 

@@ -7,7 +7,7 @@ import fr.maxlego08.zregions.common.plugin.ZRegionsPlugin;
 import fr.maxlego08.zregions.common.sender.RegionSender;
 
 /**
- * Reloads the configuration file.
+ * Reloads the configuration file and the messages of the (possibly changed) language.
  */
 public class ReloadCommand extends RegionCommand {
 
@@ -17,7 +17,7 @@ public class ReloadCommand extends RegionCommand {
 
     @Override
     public void execute(ZRegionsPlugin plugin, RegionSender sender, ArgumentList args) {
-        plugin.getConfiguration().reload();
+        plugin.reload();
         plugin.getMessages().send(sender, Message.RELOADED);
     }
 }

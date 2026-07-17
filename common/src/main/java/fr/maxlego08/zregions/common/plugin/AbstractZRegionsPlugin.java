@@ -8,6 +8,7 @@ import fr.maxlego08.zregions.common.config.ZRegionsConfiguration;
 import fr.maxlego08.zregions.common.flag.Flags;
 import fr.maxlego08.zregions.common.flag.ZFlagRegistry;
 import fr.maxlego08.zregions.common.locale.MessageService;
+import fr.maxlego08.zregions.common.movement.RegionMovementTracker;
 import fr.maxlego08.zregions.common.region.ZRegionManager;
 import fr.maxlego08.zregions.common.selection.SelectionManager;
 import fr.maxlego08.zregions.common.storage.RegionStorage;
@@ -28,6 +29,7 @@ public abstract class AbstractZRegionsPlugin implements ZRegionsPlugin {
     private ZFlagRegistry flagRegistry;
     private SelectionManager selectionManager;
     private ZRegionManager regionManager;
+    private RegionMovementTracker movementTracker;
     private RegionCommandManager commandManager;
     private boolean running = false;
 
@@ -61,6 +63,7 @@ public abstract class AbstractZRegionsPlugin implements ZRegionsPlugin {
         this.selectionManager = new SelectionManager();
         this.regionManager = new ZRegionManager(this);
         this.regionManager.loadAllBlocking();
+        this.movementTracker = new RegionMovementTracker(this);
 
         // 5. commands & platform wiring
         this.commandManager = new RegionCommandManager(this);
@@ -74,6 +77,12 @@ public abstract class AbstractZRegionsPlugin implements ZRegionsPlugin {
         getLogger().info("zRegions " + getBootstrap().getVersion() + " enabled ("
                 + this.regionManager.getRegions().size() + " region(s) loaded, server '"
                 + this.configuration.getServerName() + "').");
+    }
+
+    @Override
+    public final void reload() {
+        this.configuration.reload();
+        this.messages.load(provideConfigurationAdapter(resolveMessagesFile()));
     }
 
     public final void disable() {
@@ -156,5 +165,10 @@ public abstract class AbstractZRegionsPlugin implements ZRegionsPlugin {
     @Override
     public SelectionManager getSelectionManager() {
         return this.selectionManager;
+    }
+
+    @Override
+    public RegionMovementTracker getMovementTracker() {
+        return this.movementTracker;
     }
 }

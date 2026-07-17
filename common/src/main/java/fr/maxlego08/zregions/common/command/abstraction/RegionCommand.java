@@ -4,11 +4,13 @@ import fr.maxlego08.zregions.api.region.Region;
 import fr.maxlego08.zregions.common.command.tabcomplete.CompletionSupplier;
 import fr.maxlego08.zregions.common.command.util.ArgumentList;
 import fr.maxlego08.zregions.common.locale.Message;
+import fr.maxlego08.zregions.common.platform.RegionPlayer;
 import fr.maxlego08.zregions.common.plugin.ZRegionsPlugin;
 import fr.maxlego08.zregions.common.sender.RegionSender;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * A {@code /rg} sub-command, written once in the common module (LuckPerms' Command
@@ -60,16 +62,66 @@ public abstract class RegionCommand {
         return this.permission == null || sender.hasPermission(this.permission);
     }
 
-    /** Reminds the sender how to use this command (rendered as a help entry line). */
-    protected void sendUsage(ZRegionsPlugin plugin, RegionSender sender) {
-        plugin.getMessages().send(sender, Message.HELP_ENTRY, "usage", this.usage, "description", this.usage);
+    /** The localized description of this command (language file), falling back to its usage. */
+    public String getDescription(ZRegionsPlugin plugin) {
+        return plugin.getMessages().rawPath("commands.descriptions." + this.descriptionKeySuffix, this.usage);
     }
 
-    /** Finds a region by name across all worlds, case-insensitively. */
+    /** Reminds the sender how to use this command (rendered as a help entry line). */
+    protected void sendUsage(ZRegionsPlugin plugin, RegionSender sender) {
+        plugin.getMessages().send(sender, Message.HELP_ENTRY,
+                "usage", this.usage,
+                "description", getDescription(plugin));
+    }
+
+    /** Quiet lookup for tab completion: first case-insensitive match across all worlds. */
     protected Optional<Region> findRegion(ZRegionsPlugin plugin, String name) {
         return plugin.getRegionManager().getRegions().stream()
                 .filter(region -> region.getName().equalsIgnoreCase(name))
                 .findFirst();
+    }
+
+    /**
+     * Resolves a region for command execution, disambiguating same-named regions
+     * across worlds: an explicit {@code world:name} wins, then a match in the
+     * sender's own world, then a unique cross-world match. On failure this sends
+     * REGION_NOT_FOUND or REGION_AMBIGUOUS itself and returns empty — callers
+     * just return.
+     */
+    protected Optional<Region> resolveRegion(ZRegionsPlugin plugin, RegionSender sender, String input) {
+        int colon = input.indexOf(':');
+        if (colon > 0 && colon < input.length() - 1) {
+            Optional<Region> exact = plugin.getRegionManager()
+                    .getRegion(input.substring(0, colon), input.substring(colon + 1));
+            if (exact.isPresent()) {
+                return exact;
+            }
+        }
+
+        List<Region> matches = plugin.getRegionManager().getRegions().stream()
+                .filter(region -> region.getName().equalsIgnoreCase(input))
+                .toList();
+        if (matches.isEmpty()) {
+            plugin.getMessages().send(sender, Message.REGION_NOT_FOUND, "region", input);
+            return Optional.empty();
+        }
+
+        Optional<RegionPlayer> player = sender.asPlayer();
+        if (player.isPresent()) {
+            for (Region region : matches) {
+                if (region.getWorldName().equals(player.get().getWorldName())) {
+                    return Optional.of(region);
+                }
+            }
+        }
+        if (matches.size() == 1) {
+            return Optional.of(matches.get(0));
+        }
+
+        plugin.getMessages().send(sender, Message.REGION_AMBIGUOUS,
+                "region", input,
+                "worlds", matches.stream().map(Region::getWorldName).collect(Collectors.joining(", ")));
+        return Optional.empty();
     }
 
     /** Completions over the names of all known regions. */

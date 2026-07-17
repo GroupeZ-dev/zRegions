@@ -7,10 +7,26 @@ commands:
   player-only: '<prefix><red>Cette commande ne peut être utilisée que par un joueur.'
   no-permission: '<prefix><red>Vous n''avez pas la permission de faire cela.'
   unknown: '<prefix><red>Sous-commande inconnue. Utilisez <yellow>/rg help</yellow>.'
+  player-not-found: '<prefix><red>Joueur <yellow><player></yellow> introuvable.'
   reloaded: '<prefix><green>Configuration et messages rechargés.'
   help:
     header: '<prefix><gray>Commandes disponibles :'
     entry: '<gray> • <yellow>/rg <usage></yellow> <dark_gray>- <gray><description>'
+  descriptions:
+    help: 'Affiche cette aide'
+    pos1: 'Définit le premier coin de la sélection'
+    pos2: 'Définit le second coin de la sélection'
+    create: 'Crée une région à partir de votre sélection'
+    remove: 'Supprime une région'
+    list: 'Liste les régions d''un monde'
+    info: 'Affiche les détails d''une région'
+    flag: 'Définit, retire ou cible un flag de région'
+    addmember: 'Ajoute un propriétaire ou un membre à une région'
+    removemember: 'Retire un membre d''une région'
+    setpriority: 'Change la priorité d''une région'
+    setparent: 'Définit ou retire le parent d''une région'
+    redefine: 'Remplace la forme d''une région par votre sélection'
+    reload: 'Recharge la configuration et les messages'
 
 selection:
   pos1: '<prefix><gray>Position <yellow>1</yellow> définie sur <yellow><position></yellow>.'
@@ -22,7 +38,15 @@ region:
   created: '<prefix><green>Région <yellow><region></yellow> créée (<gray><shape></gray>, priorité <gray><priority></gray>).'
   already-exists: '<prefix><red>Une région nommée <yellow><region></yellow> existe déjà dans ce monde.'
   not-found: '<prefix><red>Aucune région nommée <yellow><region></yellow> n''a été trouvée.'
+  ambiguous: '<prefix><red>Plusieurs régions se nomment <yellow><region></yellow> (mondes : <yellow><worlds></yellow>). Utilisez <yellow>monde:<region></yellow>.'
   removed: '<prefix><green>Région <yellow><region></yellow> supprimée.'
+  priority-set: '<prefix><green>Priorité de <yellow><region></yellow> définie sur <yellow><priority></yellow>.'
+  parent-set: '<prefix><green>La région <yellow><region></yellow> hérite désormais de <yellow><parent></yellow>.'
+  parent-cleared: '<prefix><green>La région <yellow><region></yellow> n''a plus de parent.'
+  parent-cycle: '<prefix><red>Impossible : cela créerait un cycle d''héritage.'
+  redefined: '<prefix><green>Région <yellow><region></yellow> redéfinie à partir de votre sélection.'
+  redefine-global: '<prefix><red>La région globale n''a pas de forme à redéfinir.'
+  redefine-world-mismatch: '<prefix><red>Votre sélection est dans <yellow><world></yellow> mais la région se trouve dans <yellow><region_world></yellow>.'
   list:
     header: '<prefix><gray>Régions dans <yellow><world></yellow> (<count>) :'
     entry: '<gray> • <yellow><region></yellow> <dark_gray>(<gray><shape></gray>, priorité <gray><priority></gray><dark_gray>)'
@@ -35,10 +59,20 @@ region:
     members: '<gray> Membres : <yellow><members></yellow>'
     flags: '<gray> Flags : <yellow><flags></yellow>'
 
+member:
+  added: '<prefix><green><player> est désormais <yellow><role></yellow> de <yellow><region></yellow>.'
+  removed: '<prefix><green><player> retiré de <yellow><region></yellow>.'
+  not-member: '<prefix><red><player> n''est pas membre de <yellow><region></yellow>.'
+  invalid-role: '<prefix><red>Rôle <yellow><role></yellow> inconnu. Utilisez <yellow>owner</yellow> ou <yellow>member</yellow>.'
+
 flag:
   set: '<prefix><green>Flag <yellow><flag></yellow> défini sur <yellow><value></yellow> pour <yellow><target></yellow> dans <yellow><region></yellow>.'
+  unset: '<prefix><green>Flag <yellow><flag></yellow> retiré pour <yellow><target></yellow> dans <yellow><region></yellow>.'
   unknown: '<prefix><red>Flag <yellow><flag></yellow> inconnu.'
   invalid-value: '<prefix><red>Valeur <yellow><value></yellow> invalide pour le flag <yellow><flag></yellow>.'
+  invalid-target: '<prefix><red>Cible <yellow><target></yellow> inconnue. Utilisez <yellow>owner</yellow>, <yellow>member</yellow>, <yellow>visitor</yellow> ou <yellow>all</yellow>.'
 
 protection:
   denied: '<prefix><red>Vous ne pouvez pas faire cela ici.'
+  entry-denied: '<prefix><red>Vous ne pouvez pas entrer dans <yellow><region></yellow>.'
+  exit-denied: '<prefix><red>Vous ne pouvez pas quitter <yellow><region></yellow>.'

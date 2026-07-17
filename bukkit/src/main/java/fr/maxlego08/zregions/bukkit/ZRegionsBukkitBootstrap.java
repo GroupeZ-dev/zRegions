@@ -165,10 +165,22 @@ public final class ZRegionsBukkitBootstrap implements ZRegionsBootstrap, LoaderB
         return Optional.of(this.plugin.getPlayerFactory().wrap(player));
     }
 
+    /**
+     * Bukkit's getOfflinePlayer(name) fabricates a profile for ANY name — an
+     * unknown player must resolve to empty, or member commands would silently
+     * persist garbage UUIDs on typos.
+     */
     @Override
     @SuppressWarnings("deprecation")
     public Optional<UUID> lookupUniqueId(String username) {
-        return Optional.ofNullable(Bukkit.getOfflinePlayer(username)).map(OfflinePlayer::getUniqueId);
+        Player online = Bukkit.getPlayerExact(username);
+        if (online != null) {
+            return Optional.of(online.getUniqueId());
+        }
+        OfflinePlayer offline = Bukkit.getOfflinePlayer(username);
+        return offline.hasPlayedBefore() || offline.isOnline()
+                ? Optional.of(offline.getUniqueId())
+                : Optional.empty();
     }
 
     @Override

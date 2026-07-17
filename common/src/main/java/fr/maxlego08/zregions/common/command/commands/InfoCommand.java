@@ -33,7 +33,10 @@ public class InfoCommand extends RegionCommand {
 
         Optional<Region> optionalRegion;
         if (optionalName.isPresent()) {
-            optionalRegion = findRegion(plugin, optionalName.get());
+            optionalRegion = resolveRegion(plugin, sender, optionalName.get());
+            if (optionalRegion.isEmpty()) {
+                return;
+            }
         } else {
             Optional<RegionPlayer> optionalPlayer = sender.asPlayer();
             if (optionalPlayer.isEmpty()) {

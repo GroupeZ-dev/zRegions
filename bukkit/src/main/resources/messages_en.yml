@@ -7,10 +7,26 @@ commands:
   player-only: '<prefix><red>This command can only be used by a player.'
   no-permission: '<prefix><red>You don''t have permission to do this.'
   unknown: '<prefix><red>Unknown sub-command. Use <yellow>/rg help</yellow>.'
+  player-not-found: '<prefix><red>Unknown player <yellow><player></yellow>.'
   reloaded: '<prefix><green>Configuration and messages reloaded.'
   help:
     header: '<prefix><gray>Available commands:'
     entry: '<gray> • <yellow>/rg <usage></yellow> <dark_gray>- <gray><description>'
+  descriptions:
+    help: 'Shows this help'
+    pos1: 'Sets the first selection corner'
+    pos2: 'Sets the second selection corner'
+    create: 'Creates a region from your selection'
+    remove: 'Deletes a region'
+    list: 'Lists the regions of a world'
+    info: 'Shows the details of a region'
+    flag: 'Sets, unsets or targets a region flag'
+    addmember: 'Adds an owner or member to a region'
+    removemember: 'Removes a member from a region'
+    setpriority: 'Changes the priority of a region'
+    setparent: 'Sets or clears the parent of a region'
+    redefine: 'Replaces the shape of a region with your selection'
+    reload: 'Reloads the configuration and messages'
 
 selection:
   pos1: '<prefix><gray>Position <yellow>1</yellow> set to <yellow><position></yellow>.'
@@ -22,7 +38,15 @@ region:
   created: '<prefix><green>Region <yellow><region></yellow> created (<gray><shape></gray>, priority <gray><priority></gray>).'
   already-exists: '<prefix><red>A region named <yellow><region></yellow> already exists in this world.'
   not-found: '<prefix><red>No region named <yellow><region></yellow> was found.'
+  ambiguous: '<prefix><red>Several regions are named <yellow><region></yellow> (worlds: <yellow><worlds></yellow>). Use <yellow>world:<region></yellow>.'
   removed: '<prefix><green>Region <yellow><region></yellow> removed.'
+  priority-set: '<prefix><green>Priority of <yellow><region></yellow> set to <yellow><priority></yellow>.'
+  parent-set: '<prefix><green>Region <yellow><region></yellow> now inherits from <yellow><parent></yellow>.'
+  parent-cleared: '<prefix><green>Region <yellow><region></yellow> no longer has a parent.'
+  parent-cycle: '<prefix><red>Impossible: this would create an inheritance cycle.'
+  redefined: '<prefix><green>Region <yellow><region></yellow> redefined from your selection.'
+  redefine-global: '<prefix><red>The global region has no shape to redefine.'
+  redefine-world-mismatch: '<prefix><red>Your selection is in <yellow><world></yellow> but the region lives in <yellow><region_world></yellow>.'
   list:
     header: '<prefix><gray>Regions in <yellow><world></yellow> (<count>):'
     entry: '<gray> • <yellow><region></yellow> <dark_gray>(<gray><shape></gray>, priority <gray><priority></gray><dark_gray>)'
@@ -35,10 +59,20 @@ region:
     members: '<gray> Members: <yellow><members></yellow>'
     flags: '<gray> Flags: <yellow><flags></yellow>'
 
+member:
+  added: '<prefix><green><player> is now <yellow><role></yellow> of <yellow><region></yellow>.'
+  removed: '<prefix><green><player> removed from <yellow><region></yellow>.'
+  not-member: '<prefix><red><player> is not a member of <yellow><region></yellow>.'
+  invalid-role: '<prefix><red>Unknown role <yellow><role></yellow>. Use <yellow>owner</yellow> or <yellow>member</yellow>.'
+
 flag:
   set: '<prefix><green>Flag <yellow><flag></yellow> set to <yellow><value></yellow> for <yellow><target></yellow> in <yellow><region></yellow>.'
+  unset: '<prefix><green>Flag <yellow><flag></yellow> removed for <yellow><target></yellow> in <yellow><region></yellow>.'
   unknown: '<prefix><red>Unknown flag <yellow><flag></yellow>.'
   invalid-value: '<prefix><red>Invalid value <yellow><value></yellow> for flag <yellow><flag></yellow>.'
+  invalid-target: '<prefix><red>Unknown target <yellow><target></yellow>. Use <yellow>owner</yellow>, <yellow>member</yellow>, <yellow>visitor</yellow> or <yellow>all</yellow>.'
 
 protection:
   denied: '<prefix><red>You can''t do that here.'
+  entry-denied: '<prefix><red>You can''t enter <yellow><region></yellow>.'
+  exit-denied: '<prefix><red>You can''t leave <yellow><region></yellow>.'

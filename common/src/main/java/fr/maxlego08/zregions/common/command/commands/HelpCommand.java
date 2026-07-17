@@ -24,7 +24,7 @@ public class HelpCommand extends RegionCommand {
             }
             plugin.getMessages().send(sender, Message.HELP_ENTRY,
                     "usage", command.getUsage(),
-                    "description", command.getUsage());
+                    "description", command.getDescription(plugin));
         }
     }
 }

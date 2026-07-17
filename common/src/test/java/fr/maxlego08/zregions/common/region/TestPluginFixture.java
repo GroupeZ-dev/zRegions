@@ -8,6 +8,7 @@ import fr.maxlego08.zregions.common.config.ZRegionsConfiguration;
 import fr.maxlego08.zregions.common.flag.Flags;
 import fr.maxlego08.zregions.common.flag.ZFlagRegistry;
 import fr.maxlego08.zregions.common.locale.MessageService;
+import fr.maxlego08.zregions.common.movement.RegionMovementTracker;
 import fr.maxlego08.zregions.common.platform.RegionPlayer;
 import fr.maxlego08.zregions.common.plugin.ZRegionsPlugin;
 import fr.maxlego08.zregions.common.plugin.bootstrap.PlatformType;
@@ -38,7 +39,7 @@ import java.util.function.UnaryOperator;
  * (same-thread) scheduler so async persistence and reload run deterministically,
  * a HashMap-backed storage, a default configuration and a real flag registry.
  */
-final class TestPluginFixture implements ZRegionsPlugin {
+public final class TestPluginFixture implements ZRegionsPlugin {
 
     private final TestLogger logger = new TestLogger();
     private final StubBootstrap bootstrap = new StubBootstrap(this.logger);
@@ -46,17 +47,18 @@ final class TestPluginFixture implements ZRegionsPlugin {
     private final ZRegionsConfiguration configuration = new ZRegionsConfiguration(new StubConfigurationAdapter());
     private final MessageService messages = new MessageService();
     private final ZFlagRegistry flagRegistry = new ZFlagRegistry();
+    private final RegionMovementTracker movementTracker = new RegionMovementTracker(this);
     private ZRegionManager regionManager;
 
-    TestPluginFixture() {
+    public TestPluginFixture() {
         Flags.registerAll(this.flagRegistry);
     }
 
-    void setRegionManager(ZRegionManager regionManager) {
+    public void setRegionManager(ZRegionManager regionManager) {
         this.regionManager = regionManager;
     }
 
-    InMemoryRegionStorage storage() {
+    public InMemoryRegionStorage storage() {
         return this.storage;
     }
 
@@ -98,6 +100,16 @@ final class TestPluginFixture implements ZRegionsPlugin {
     @Override
     public SelectionManager getSelectionManager() {
         return null;
+    }
+
+    @Override
+    public RegionMovementTracker getMovementTracker() {
+        return this.movementTracker;
+    }
+
+    @Override
+    public void reload() {
+        this.configuration.reload();
     }
 
     @Override

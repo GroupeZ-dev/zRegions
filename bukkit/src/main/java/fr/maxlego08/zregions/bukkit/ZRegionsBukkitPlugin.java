@@ -1,14 +1,21 @@
 package fr.maxlego08.zregions.bukkit;
 
 import fr.maxlego08.zregions.api.manager.RegionManager;
+import fr.maxlego08.zregions.bukkit.listener.EnvironmentProtectionListener;
+import fr.maxlego08.zregions.bukkit.listener.MovementListener;
+import fr.maxlego08.zregions.bukkit.listener.PlayerStateListener;
 import fr.maxlego08.zregions.bukkit.listener.ProtectionListener;
 import fr.maxlego08.zregions.common.config.ConfigurationAdapter;
+import fr.maxlego08.zregions.common.platform.RegionPlayer;
 import fr.maxlego08.zregions.common.plugin.AbstractZRegionsPlugin;
 import fr.maxlego08.zregions.common.sender.RegionSender;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicePriority;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -79,7 +86,12 @@ public final class ZRegionsBukkitPlugin extends AbstractZRegionsPlugin {
 
     @Override
     protected void registerPlatformListeners() {
-        Bukkit.getPluginManager().registerEvents(new ProtectionListener(this), this.bootstrap.getLoader());
+        PluginManager pluginManager = Bukkit.getPluginManager();
+        JavaPlugin loader = this.bootstrap.getLoader();
+        pluginManager.registerEvents(new ProtectionListener(this), loader);
+        pluginManager.registerEvents(new EnvironmentProtectionListener(this), loader);
+        pluginManager.registerEvents(new PlayerStateListener(this), loader);
+        pluginManager.registerEvents(new MovementListener(this), loader);
     }
 
     @Override
@@ -109,7 +121,12 @@ public final class ZRegionsBukkitPlugin extends AbstractZRegionsPlugin {
 
     @Override
     protected void performFinalSetup() {
-        // Nothing to do on Bukkit yet.
+        // Seed the movement tracker silently for players already online (server
+        // /reload, plugin managers): no greeting replay, no ENTRY re-enforcement.
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            RegionPlayer wrapped = this.playerFactory.wrap(player);
+            getMovementTracker().seed(wrapped, wrapped.getLocation());
+        }
     }
 
     @Override

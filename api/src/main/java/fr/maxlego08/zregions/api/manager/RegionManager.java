@@ -1,6 +1,8 @@
 package fr.maxlego08.zregions.api.manager;
 
 import fr.maxlego08.zregions.api.flag.Flag;
+import fr.maxlego08.zregions.api.flag.GroupTarget;
+import fr.maxlego08.zregions.api.region.MemberRole;
 import fr.maxlego08.zregions.api.region.Region;
 import fr.maxlego08.zregions.api.shape.RegionShape;
 
@@ -43,6 +45,42 @@ public interface RegionManager {
      * {@code playerId} may be null (environment events). HOT PATH.
      */
     <T> T resolveFlag(String worldName, double x, double y, double z, Flag<T> flag, UUID playerId);
+
+    /**
+     * The effective value of {@code flag} for a player in this specific region
+     * (region, then its parent chain, then the flag default — no positional lookup,
+     * no global fallback). Used for region-scoped checks such as entry/exit.
+     */
+    <T> T resolveFlag(Region region, Flag<T> flag, UUID playerId);
+
+    /** Sets a flag value on the region (cache first), then persists it asynchronously. */
+    <T> void setFlag(Region region, Flag<T> flag, GroupTarget target, T value);
+
+    /** Removes a flag value from the region (cache first), then persists asynchronously. */
+    void removeFlag(Region region, Flag<?> flag, GroupTarget target);
+
+    /** Adds or updates a member role (cache first), then persists asynchronously. */
+    void setMember(Region region, UUID playerId, MemberRole role);
+
+    void removeMember(Region region, UUID playerId);
+
+    void setPriority(Region region, int priority);
+
+    /**
+     * Sets (or clears, with {@code null}) the parent used for flag inheritance.
+     * Returns the updated live instance — the passed-in one is stale afterwards.
+     *
+     * @throws IllegalArgumentException if this would create a parent cycle
+     */
+    Region setParent(Region region, Region parent);
+
+    /**
+     * Replaces the region's shape and re-indexes it. Returns the updated live
+     * instance — the passed-in one is stale afterwards.
+     *
+     * @throws IllegalArgumentException for the per-world global region (no shape)
+     */
+    Region redefine(Region region, RegionShape shape);
 
     Collection<Region> getRegions(String worldName);
 

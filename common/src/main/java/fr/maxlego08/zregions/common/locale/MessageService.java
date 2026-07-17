@@ -29,6 +29,15 @@ public final class MessageService {
     }
 
     /**
+     * A raw language-file string by dynamic path (e.g. per-command descriptions,
+     * {@code commands.descriptions.<name>}), falling back to {@code def}.
+     */
+    public String rawPath(String path, String def) {
+        ConfigurationAdapter current = this.adapter;
+        return current == null ? def : current.getString(path, def);
+    }
+
+    /**
      * Formats a message. {@code placeholders} are (key, value) pairs, inserted as
      * unparsed text (safe for player-provided input such as region names).
      */
@@ -39,6 +48,20 @@ public final class MessageService {
             resolvers.resolver(Placeholder.unparsed(placeholders[i], placeholders[i + 1]));
         }
         return this.miniMessage.deserialize(raw(message), resolvers.build());
+    }
+
+    /**
+     * Formats a raw MiniMessage string that does not come from the language file
+     * (e.g. a greeting/farewell flag value). Same placeholder contract as
+     * {@link #format}; the {@code <prefix>} tag resolves too.
+     */
+    public Component formatRaw(String miniMessageText, String... placeholders) {
+        TagResolver.Builder resolvers = TagResolver.builder();
+        resolvers.resolver(Placeholder.parsed("prefix", raw(Message.PREFIX)));
+        for (int i = 0; i + 1 < placeholders.length; i += 2) {
+            resolvers.resolver(Placeholder.unparsed(placeholders[i], placeholders[i + 1]));
+        }
+        return this.miniMessage.deserialize(miniMessageText, resolvers.build());
     }
 
     public void send(RegionSender sender, Message message, String... placeholders) {
