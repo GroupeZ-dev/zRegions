@@ -5,23 +5,50 @@ import java.util.Locale;
 /**
  * Typed view over config.yml. Multi-server-ready from v1: the {@code server} name
  * feeds the regions' {@code origin_server} column (see ARCHITECTURE.md §14).
+ *
+ * <p>Values read on the protection hot path (bypass permission, deny-message
+ * throttle) are cached in volatile fields and refreshed on {@link #reload()} —
+ * a YAML lookup per BlockBreakEvent would be waste.</p>
  */
 public final class ZRegionsConfiguration {
 
     public static final String GLOBAL_SERVER = "global";
+    public static final String DEFAULT_BYPASS_PERMISSION = "zregions.bypass";
+    public static final long DEFAULT_DENY_THROTTLE_MILLIS = 2000L;
 
     private final ConfigurationAdapter adapter;
 
+    private volatile String bypassPermission = DEFAULT_BYPASS_PERMISSION;
+    private volatile long denyMessageThrottleMillis = DEFAULT_DENY_THROTTLE_MILLIS;
+
     public ZRegionsConfiguration(ConfigurationAdapter adapter) {
         this.adapter = adapter;
+        refreshCachedValues();
     }
 
     public void reload() {
         this.adapter.reload();
+        refreshCachedValues();
+    }
+
+    private void refreshCachedValues() {
+        this.bypassPermission = this.adapter.getString("permissions.bypass", DEFAULT_BYPASS_PERMISSION);
+        this.denyMessageThrottleMillis = Math.max(0,
+                this.adapter.getInt("messages.deny-throttle-milliseconds", (int) DEFAULT_DENY_THROTTLE_MILLIS));
     }
 
     public String getLanguage() {
         return this.adapter.getString("language", "en").toLowerCase(Locale.ROOT);
+    }
+
+    /** The permission node bypassing every protection. HOT PATH — cached. */
+    public String getBypassPermission() {
+        return this.bypassPermission;
+    }
+
+    /** Minimum delay between two "denied" messages to the same player. HOT PATH — cached. */
+    public long getDenyMessageThrottleMillis() {
+        return this.denyMessageThrottleMillis;
     }
 
     /** The logical name of THIS server in a network; "global" in single-server mode. */

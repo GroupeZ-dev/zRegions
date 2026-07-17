@@ -41,9 +41,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class EnvironmentProtectionListener implements Listener {
 
-    private static final String BYPASS_PERMISSION = "zregions.bypass";
-    private static final long MESSAGE_THROTTLE_MILLIS = 2000L;
-
     /**
      * The natural-spawn reasons the {@code mob-spawning} flag blocks. A denylist,
      * not an allowlist: cancelling conversion spawns (DROWNED, FROZEN, INFECTION…)
@@ -207,7 +204,7 @@ public final class EnvironmentProtectionListener implements Listener {
     }
 
     private boolean isDenied(Player player, Flag<Boolean> flag, Block block) {
-        if (player.hasPermission(BYPASS_PERMISSION)) return false;
+        if (player.hasPermission(this.plugin.getConfiguration().getBypassPermission())) return false;
         boolean allowed = this.plugin.getRegionManager().resolveFlag(block.getWorld().getName(),
                 block.getX(), block.getY(), block.getZ(), flag, player.getUniqueId());
         return !allowed;
@@ -216,7 +213,7 @@ public final class EnvironmentProtectionListener implements Listener {
     private void sendDeniedMessage(Player player) {
         long now = System.currentTimeMillis();
         Long last = this.lastDeniedMessage.get(player.getUniqueId());
-        if (last != null && now - last < MESSAGE_THROTTLE_MILLIS) return;
+        if (last != null && now - last < this.plugin.getConfiguration().getDenyMessageThrottleMillis()) return;
         this.lastDeniedMessage.put(player.getUniqueId(), now);
         this.plugin.getMessages().send(this.plugin.getPlayerFactory().wrap(player), Message.ACTION_DENIED);
     }

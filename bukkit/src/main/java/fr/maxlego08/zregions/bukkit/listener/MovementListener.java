@@ -41,9 +41,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class MovementListener implements Listener {
 
-    private static final String BYPASS_PERMISSION = "zregions.bypass";
-    private static final long MESSAGE_THROTTLE_MILLIS = 2000L;
-
     private final ZRegionsBukkitPlugin plugin;
     private final Map<UUID, Long> lastDeniedMessage = new ConcurrentHashMap<>();
 
@@ -63,7 +60,7 @@ public final class MovementListener implements Listener {
 
         Player nativePlayer = event.getPlayer();
         RegionPlayer player = this.plugin.getPlayerFactory().wrap(nativePlayer);
-        boolean bypass = nativePlayer.hasPermission(BYPASS_PERMISSION);
+        boolean bypass = nativePlayer.hasPermission(this.plugin.getConfiguration().getBypassPermission());
         if (!this.plugin.getMovementTracker().checkMove(player, toRegionLocation(to), bypass)) {
             // Push back instead of cancelling — setCancelled glitches on some clients.
             event.setTo(from);
@@ -155,7 +152,7 @@ public final class MovementListener implements Listener {
 
     private boolean checkArrivalAt(Player nativePlayer, Location to) {
         RegionPlayer player = this.plugin.getPlayerFactory().wrap(nativePlayer);
-        boolean bypass = nativePlayer.hasPermission(BYPASS_PERMISSION);
+        boolean bypass = nativePlayer.hasPermission(this.plugin.getConfiguration().getBypassPermission());
         return this.plugin.getMovementTracker().checkMove(player, toRegionLocation(to), bypass);
     }
 
@@ -179,7 +176,7 @@ public final class MovementListener implements Listener {
     }
 
     private boolean isDenied(Player player, Flag<Boolean> flag, Location location) {
-        if (player.hasPermission(BYPASS_PERMISSION)) return false;
+        if (player.hasPermission(this.plugin.getConfiguration().getBypassPermission())) return false;
         boolean allowed = this.plugin.getRegionManager().resolveFlag(location.getWorld().getName(),
                 location.getX(), location.getY(), location.getZ(), flag, player.getUniqueId());
         return !allowed;
@@ -188,7 +185,7 @@ public final class MovementListener implements Listener {
     private void sendDeniedMessage(Player player) {
         long now = System.currentTimeMillis();
         Long last = this.lastDeniedMessage.get(player.getUniqueId());
-        if (last != null && now - last < MESSAGE_THROTTLE_MILLIS) return;
+        if (last != null && now - last < this.plugin.getConfiguration().getDenyMessageThrottleMillis()) return;
         this.lastDeniedMessage.put(player.getUniqueId(), now);
         this.plugin.getMessages().send(this.plugin.getPlayerFactory().wrap(player), Message.ACTION_DENIED);
     }

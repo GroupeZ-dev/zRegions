@@ -17,10 +17,6 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -30,9 +26,6 @@ import java.nio.file.Path;
  */
 public final class ZRegionsBukkitPlugin extends AbstractZRegionsPlugin {
 
-    private static final String[] DEFAULT_FILES = {
-            "config.yml", "messages_en.yml", "messages_fr.yml", "messages_es.yml", "messages_it.yml"
-    };
     private static final String[] COMMANDS = {"region", "zregions"};
 
     private final ZRegionsBukkitBootstrap bootstrap;
@@ -43,29 +36,6 @@ public final class ZRegionsBukkitPlugin extends AbstractZRegionsPlugin {
 
     public ZRegionsBukkitPlugin(ZRegionsBukkitBootstrap bootstrap) {
         this.bootstrap = bootstrap;
-    }
-
-    @Override
-    protected void saveDefaultConfigs() {
-        Path dataDirectory = this.bootstrap.getDataDirectory();
-        try {
-            Files.createDirectories(dataDirectory);
-            for (String name : DEFAULT_FILES) {
-                Path target = dataDirectory.resolve(name);
-                if (Files.exists(target)) {
-                    continue;
-                }
-                try (InputStream input = this.bootstrap.getResourceStream(name)) {
-                    if (input == null) {
-                        getLogger().warn("Default resource " + name + " is missing from the jar.");
-                        continue;
-                    }
-                    Files.copy(input, target);
-                }
-            }
-        } catch (IOException exception) {
-            throw new UncheckedIOException("Unable to save the default configuration files", exception);
-        }
     }
 
     @Override

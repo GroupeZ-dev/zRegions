@@ -46,9 +46,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class ProtectionListener implements Listener {
 
-    private static final String BYPASS_PERMISSION = "zregions.bypass";
-    private static final long MESSAGE_THROTTLE_MILLIS = 2000L;
-
     private final ZRegionsBukkitPlugin plugin;
     private final Map<UUID, Long> lastDeniedMessage = new ConcurrentHashMap<>();
 
@@ -258,7 +255,7 @@ public final class ProtectionListener implements Listener {
     }
 
     private boolean isDenied(Player player, Flag<Boolean> flag, String worldName, double x, double y, double z) {
-        if (player.hasPermission(BYPASS_PERMISSION)) return false;
+        if (player.hasPermission(this.plugin.getConfiguration().getBypassPermission())) return false;
         boolean allowed = this.plugin.getRegionManager().resolveFlag(worldName, x, y, z, flag, player.getUniqueId());
         return !allowed;
     }
@@ -273,7 +270,7 @@ public final class ProtectionListener implements Listener {
     private void sendDeniedMessage(Player player) {
         long now = System.currentTimeMillis();
         Long last = this.lastDeniedMessage.get(player.getUniqueId());
-        if (last != null && now - last < MESSAGE_THROTTLE_MILLIS) return;
+        if (last != null && now - last < this.plugin.getConfiguration().getDenyMessageThrottleMillis()) return;
         this.lastDeniedMessage.put(player.getUniqueId(), now);
         this.plugin.getMessages().send(this.plugin.getPlayerFactory().wrap(player), Message.ACTION_DENIED);
     }

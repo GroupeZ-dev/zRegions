@@ -2,8 +2,8 @@ package fr.maxlego08.zregions.common.locale;
 
 /**
  * Every user-facing text key, with its English MiniMessage default. The per-language
- * messages_<lang>.yml files override these; a missing key falls back to the default
- * so an outdated language file never breaks the plugin.
+ * languages/<lang>/messages.yml files override these; a missing key falls back to
+ * the default so an outdated language file never breaks the plugin.
  */
 public enum Message {
 

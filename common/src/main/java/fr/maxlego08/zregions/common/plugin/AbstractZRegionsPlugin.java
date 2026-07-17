@@ -14,7 +14,11 @@ import fr.maxlego08.zregions.common.selection.SelectionManager;
 import fr.maxlego08.zregions.common.storage.RegionStorage;
 import fr.maxlego08.zregions.common.storage.SarahRegionStorage;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
 
 /**
  * The plugin lifecycle, defined ONCE for every platform (LuckPerms'
@@ -34,9 +38,40 @@ public abstract class AbstractZRegionsPlugin implements ZRegionsPlugin {
     private boolean running = false;
 
     public final void load() {
-        saveDefaultConfigs();
+        ensureDefaultConfig();
         this.configuration = new ZRegionsConfiguration(
                 provideConfigurationAdapter(getBootstrap().getDataDirectory().resolve("config.yml")));
+    }
+
+    /**
+     * Extracts the default config.yml on first boot, picking the translation
+     * matching the server's JVM locale ({@code languages/<locale>/config.yml},
+     * falling back to English). The translated file also presets {@code language:}
+     * to its own language, so a French-locale server is French out of the box.
+     * An existing config.yml is never touched.
+     */
+    private void ensureDefaultConfig() {
+        Path file = getBootstrap().getDataDirectory().resolve("config.yml");
+        if (Files.exists(file)) {
+            return;
+        }
+        String locale = Locale.getDefault().getLanguage().toLowerCase(Locale.ROOT);
+        try {
+            Files.createDirectories(file.getParent());
+            InputStream input = getBootstrap().getResourceStream("languages/" + locale + "/config.yml");
+            if (input == null) {
+                input = getBootstrap().getResourceStream("languages/en/config.yml");
+            }
+            if (input == null) {
+                getLogger().warn("No bundled config.yml found in the jar, starting with built-in defaults.");
+                return;
+            }
+            try (InputStream in = input) {
+                Files.copy(in, file);
+            }
+        } catch (IOException exception) {
+            getLogger().warn("Unable to extract the default config.yml", exception);
+        }
     }
 
     public final void enable() {
@@ -94,14 +129,47 @@ public abstract class AbstractZRegionsPlugin implements ZRegionsPlugin {
         getBootstrap().getScheduler().shutdownExecutor();
     }
 
+    /**
+     * The messages file of the configured language: {@code languages/<lang>/messages.yml}.
+     * Only that one folder is ever extracted from the jar — the other bundled
+     * languages stay inside it. Unknown language (no folder on disk, nothing
+     * bundled) falls back to English.
+     */
     private Path resolveMessagesFile() {
         String language = this.configuration.getLanguage();
-        Path file = getBootstrap().getDataDirectory().resolve("messages_" + language + ".yml");
-        if (!java.nio.file.Files.exists(file)) {
-            getLogger().warn("Language file messages_" + language + ".yml not found, falling back to English.");
-            file = getBootstrap().getDataDirectory().resolve("messages_en.yml");
+        Path file = ensureLanguageFile(language);
+        if (file == null) {
+            getLogger().warn("No messages for language '" + language
+                    + "' (neither in languages/" + language + "/ nor bundled), falling back to English.");
+            file = ensureLanguageFile("en");
         }
-        return file;
+        return file != null ? file
+                : getBootstrap().getDataDirectory().resolve("languages").resolve("en").resolve("messages.yml");
+    }
+
+    /**
+     * The on-disk messages file for {@code language}, extracting the bundled
+     * default on first use. Returns {@code null} when the language exists neither
+     * on disk nor in the jar (server owners may create languages/xx/messages.yml
+     * by hand for unbundled languages).
+     */
+    private Path ensureLanguageFile(String language) {
+        Path file = getBootstrap().getDataDirectory()
+                .resolve("languages").resolve(language).resolve("messages.yml");
+        if (Files.exists(file)) {
+            return file;
+        }
+        try (InputStream input = getBootstrap().getResourceStream("languages/" + language + "/messages.yml")) {
+            if (input == null) {
+                return null;
+            }
+            Files.createDirectories(file.getParent());
+            Files.copy(input, file);
+            return file;
+        } catch (IOException exception) {
+            getLogger().warn("Unable to extract languages/" + language + "/messages.yml", exception);
+            return null;
+        }
     }
 
     public boolean isRunning() {
@@ -109,9 +177,6 @@ public abstract class AbstractZRegionsPlugin implements ZRegionsPlugin {
     }
 
     // --- the platform contract: hooks, in enable() order ---
-
-    /** Copies default config.yml + messages_*.yml to the data directory when absent. */
-    protected abstract void saveDefaultConfigs();
 
     /** Creates a platform view over a YAML file (Bukkit: YamlConfiguration). */
     protected abstract ConfigurationAdapter provideConfigurationAdapter(Path file);

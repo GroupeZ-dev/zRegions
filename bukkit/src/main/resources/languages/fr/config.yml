@@ -1,0 +1,43 @@
+# zRegions - configuration principale
+# Documentation : https://docs.groupez.dev/zregions
+
+# Langue des messages. Seul le dossier languages/<langue>/ correspondant est
+# extrait et chargé (fournis : en, fr, es, it — ajoutez votre propre dossier
+# pour toute autre langue). Les clés manquantes retombent sur l'anglais.
+language: fr
+
+# Active les logs détaillés (utile pour signaler un problème).
+debug: false
+
+# Nœuds de permission. Changement pris en compte au /rg reload.
+permissions:
+  # Les joueurs possédant cette permission contournent toute protection de région.
+  bypass: zregions.bypass
+
+messages:
+  # Délai minimum (en millisecondes) entre deux messages « refusé » envoyés au
+  # même joueur, pour que pousser contre une bordure ne spamme pas le chat.
+  deny-throttle-milliseconds: 2000
+
+# Support multi-serveur (réseau). La couche de messaging arrive en v2, mais le
+# modèle de données est prêt réseau dès la v1 : chaque région est estampillée
+# du nom de ce serveur.
+multi-server:
+  # Passez à true quand plusieurs serveurs partagent la même base MySQL/MariaDB.
+  enabled: false
+  # Le nom logique de CE serveur sur le réseau ("global" = mono-serveur).
+  server: global
+
+# Stockage des régions.
+storage:
+  # SQLITE (fichier local, défaut) ou MYSQL / MARIADB (requis en multi-serveur).
+  type: SQLITE
+  # Préfixe appliqué à toutes les tables zRegions.
+  table-prefix: zregions_
+  # Identifiants, utilisés uniquement pour MYSQL / MARIADB.
+  database:
+    host: 127.0.0.1
+    port: 3306
+    database: zregions
+    user: root
+    password: ""

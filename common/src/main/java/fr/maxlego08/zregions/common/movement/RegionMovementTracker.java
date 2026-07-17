@@ -39,8 +39,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class RegionMovementTracker {
 
-    private static final long DENY_MESSAGE_THROTTLE_MILLIS = 2000L;
-
     private final ZRegionsPlugin plugin;
     private final Map<UUID, Set<UUID>> currentRegions = new ConcurrentHashMap<>();
     private final Map<UUID, Long> lastDeniedMessage = new ConcurrentHashMap<>();
@@ -192,7 +190,7 @@ public final class RegionMovementTracker {
     private void sendDenied(RegionPlayer player, Message message, Region region) {
         long now = System.currentTimeMillis();
         Long last = this.lastDeniedMessage.get(player.getUniqueId());
-        if (last != null && now - last < DENY_MESSAGE_THROTTLE_MILLIS) {
+        if (last != null && now - last < this.plugin.getConfiguration().getDenyMessageThrottleMillis()) {
             return;
         }
         this.lastDeniedMessage.put(player.getUniqueId(), now);
