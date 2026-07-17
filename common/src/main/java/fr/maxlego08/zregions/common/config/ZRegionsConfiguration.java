@@ -51,6 +51,30 @@ public final class ZRegionsConfiguration {
         return this.denyMessageThrottleMillis;
     }
 
+    // --- border display (/rg show) — read once per command, no caching needed ---
+
+    /** Bukkit Particle name used to outline regions; parsed by the platform. */
+    public String getBorderParticle() {
+        return this.adapter.getString("borders.particle", "FLAME");
+    }
+
+    public int getBorderDisplaySeconds() {
+        return Math.max(1, this.adapter.getInt("borders.display-seconds", 10));
+    }
+
+    public long getBorderRefreshMillis() {
+        return Math.max(100, this.adapter.getInt("borders.refresh-milliseconds", 500));
+    }
+
+    public double getBorderPointSpacing() {
+        return Math.max(0.1, this.adapter.getDouble("borders.point-spacing", 0.5));
+    }
+
+    /** Hard cap on particles per refresh — huge regions get a sparser outline, never a lag spike. */
+    public int getBorderMaxPoints() {
+        return Math.max(50, this.adapter.getInt("borders.max-points", 1500));
+    }
+
     /** The logical name of THIS server in a network; "global" in single-server mode. */
     public String getServerName() {
         return this.adapter.getString("multi-server.server", GLOBAL_SERVER).toLowerCase(Locale.ROOT);

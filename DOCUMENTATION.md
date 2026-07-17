@@ -58,6 +58,7 @@ subcommands currently live under `/rg`)*.
 | `/rg remove <name>` | Deletes a region | `zregions.admin` |
 | `/rg list [world]` | Lists regions (your world by default; every world from console) | `zregions.use` |
 | `/rg info [name]` | Region details — without argument: the highest-priority region at your position | `zregions.use` |
+| `/rg show [name] [seconds]` | Outlines a region's borders with particles **only you can see** (shape-aware: box edges, circles, sphere rings, polygon edges); without argument: the region at your position. The optional duration overrides `borders.display-seconds` (capped at 3600 s); `/rg show 30` reads a plain number matching no region name as the duration. Re-running replaces the outline | `zregions.use` |
 | `/rg flag <region> <flag> <value…\|unset> [-t <target>]` | Sets, unsets or targets a flag value | `zregions.admin` |
 | `/rg addmember <region> <player> [owner\|member]` | Adds a player (default role: member) | `zregions.admin` |
 | `/rg removemember <region> <player>` | Removes a member | `zregions.admin` |
@@ -182,6 +183,11 @@ matching the server's system locale. Keys are never translated.
 | `debug` | `false` | Verbose logging |
 | `permissions.bypass` | `zregions.bypass` | Permission node bypassing every protection |
 | `messages.deny-throttle-milliseconds` | `2000` | Minimum delay between two "denied" messages to the same player |
+| `borders.particle` | `FLAME` | Bukkit particle used by `/rg show` (invalid names fall back to FLAME) |
+| `borders.display-seconds` | `10` | How long the outline stays visible when the command gives no duration |
+| `borders.refresh-milliseconds` | `500` | Particle refresh period |
+| `borders.point-spacing` | `0.5` | Distance in blocks between two outline particles |
+| `borders.max-points` | `1500` | Particle cap per refresh — huge regions get a sparser outline, never a lag spike |
 | `multi-server.enabled` | `false` | Reserved for the v2 cross-server layer; requires MySQL/MariaDB |
 | `multi-server.server` | `global` | Logical name of this server on a network (stamped on every region) |
 | `storage.type` | `SQLITE` | `SQLITE`, `MYSQL` or `MARIADB` |
@@ -229,7 +235,8 @@ language inside the jar.
   ```
 - Key API surface: `RegionManager` (CRUD, `getRegionsAt`, positional & region-scoped
   `resolveFlag`, members/priority/parent/redefine, `reload(UUID)`), `Region`, `Flag<T>`,
-  `FlagRegistry` (register custom flags **before** regions load), `RegionShape`/`BoundingBox`.
+  `FlagRegistry` (register custom flags **before** regions load), `RegionShape`/`BoundingBox`/
+  `Vector3` (`RegionShape.sampleBorder(spacing)` yields the outline points used by `/rg show`).
 - Architecture (LuckPerms model — `api` / `common` / `bukkit`): see `ARCHITECTURE.md`.
 
 ## 11. Version history
@@ -246,3 +253,6 @@ language inside the jar.
   descriptions; configurable bypass permission and deny-message throttle.
 - Translated config.yml templates (en/fr/es/it) — the first boot extracts the one matching the
   server's system locale, presetting `language:` accordingly.
+- `/rg show`: per-player particle outline of a region's borders, following the actual shape
+  (`RegionShape.sampleBorder`); optional per-command duration (default from config, capped at
+  3600 s); configurable particle, duration, refresh, spacing and point cap.

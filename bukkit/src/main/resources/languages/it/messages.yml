@@ -20,6 +20,7 @@ commands:
     remove: 'Elimina una regione'
     list: 'Elenca le regioni di un mondo'
     info: 'Mostra i dettagli di una regione'
+    show: 'Mostra i confini di una regione con particelle (solo tu le vedi)'
     flag: 'Imposta, rimuove o indirizza un flag di regione'
     addmember: 'Aggiunge un proprietario o membro a una regione'
     removemember: 'Rimuove un membro da una regione'
@@ -71,6 +72,11 @@ flag:
   unknown: '<prefix><red>Flag <yellow><flag></yellow> sconosciuto.'
   invalid-value: '<prefix><red>Valore <yellow><value></yellow> non valido per il flag <yellow><flag></yellow>.'
   invalid-target: '<prefix><red>Bersaglio <yellow><target></yellow> sconosciuto. Usa <yellow>owner</yellow>, <yellow>member</yellow>, <yellow>visitor</yellow> o <yellow>all</yellow>.'
+
+border:
+  shown: '<prefix><green>Confini di <yellow><region></yellow> mostrati per <yellow><seconds></yellow>s (solo tu puoi vederli).'
+  global: '<prefix><red>La regione globale copre il mondo intero — non c''è nulla da delimitare.'
+  other-world: '<prefix><red>La regione <yellow><region></yellow> è in <yellow><region_world></yellow>, tu sei in <yellow><world></yellow>.'
 
 protection:
   denied: '<prefix><red>Non puoi farlo qui.'

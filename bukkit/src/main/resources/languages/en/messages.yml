@@ -20,6 +20,7 @@ commands:
     remove: 'Deletes a region'
     list: 'Lists the regions of a world'
     info: 'Shows the details of a region'
+    show: 'Outlines the borders of a region with particles (only you see them)'
     flag: 'Sets, unsets or targets a region flag'
     addmember: 'Adds an owner or member to a region'
     removemember: 'Removes a member from a region'
@@ -71,6 +72,11 @@ flag:
   unknown: '<prefix><red>Unknown flag <yellow><flag></yellow>.'
   invalid-value: '<prefix><red>Invalid value <yellow><value></yellow> for flag <yellow><flag></yellow>.'
   invalid-target: '<prefix><red>Unknown target <yellow><target></yellow>. Use <yellow>owner</yellow>, <yellow>member</yellow>, <yellow>visitor</yellow> or <yellow>all</yellow>.'
+
+border:
+  shown: '<prefix><green>Showing the borders of <yellow><region></yellow> for <yellow><seconds></yellow>s (only you can see them).'
+  global: '<prefix><red>The global region covers the whole world — there is nothing to outline.'
+  other-world: '<prefix><red>Region <yellow><region></yellow> is in <yellow><region_world></yellow>, you are in <yellow><world></yellow>.'
 
 protection:
   denied: '<prefix><red>You can''t do that here.'

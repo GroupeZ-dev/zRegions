@@ -194,6 +194,11 @@ class SarahRegionStorageTest {
             }
 
             @Override
+            public double getDouble(String path, double def) {
+                return def;
+            }
+
+            @Override
             public boolean getBoolean(String path, boolean def) {
                 return def;
             }

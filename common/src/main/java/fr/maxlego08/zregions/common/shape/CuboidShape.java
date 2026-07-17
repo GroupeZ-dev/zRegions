@@ -3,8 +3,11 @@ package fr.maxlego08.zregions.common.shape;
 import fr.maxlego08.zregions.api.shape.BoundingBox;
 import fr.maxlego08.zregions.api.shape.RegionShape;
 import fr.maxlego08.zregions.api.shape.ShapeType;
+import fr.maxlego08.zregions.api.shape.Vector3;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,6 +46,27 @@ public final class CuboidShape implements RegionShape {
     @Override
     public BoundingBox getBoundingBox() {
         return this.boundingBox;
+    }
+
+    /** The 12 edges of the outer block box ({@code [min, max + 1]} on each axis). */
+    @Override
+    public List<Vector3> sampleBorder(double spacing) {
+        double x1 = this.minX, y1 = this.minY, z1 = this.minZ;
+        double x2 = this.maxX + 1, y2 = this.maxY + 1, z2 = this.maxZ + 1;
+        List<Vector3> points = new ArrayList<>();
+        // bottom and top rectangles
+        for (double y : new double[]{y1, y2}) {
+            BorderSampling.line(points, x1, y, z1, x2, y, z1, spacing);
+            BorderSampling.line(points, x2, y, z1, x2, y, z2, spacing);
+            BorderSampling.line(points, x2, y, z2, x1, y, z2, spacing);
+            BorderSampling.line(points, x1, y, z2, x1, y, z1, spacing);
+        }
+        // vertical pillars
+        BorderSampling.line(points, x1, y1, z1, x1, y2, z1, spacing);
+        BorderSampling.line(points, x2, y1, z1, x2, y2, z1, spacing);
+        BorderSampling.line(points, x2, y1, z2, x2, y2, z2, spacing);
+        BorderSampling.line(points, x1, y1, z2, x1, y2, z2, spacing);
+        return points;
     }
 
     @Override

@@ -25,5 +25,11 @@ public interface RegionPlayer {
 
     void teleport(RegionLocation location);
 
+    /**
+     * Spawns a border-outline particle at the given coordinates in the player's
+     * current world, visible to THIS player only.
+     */
+    void spawnBorderParticle(double x, double y, double z);
+
     boolean isOnline();
 }

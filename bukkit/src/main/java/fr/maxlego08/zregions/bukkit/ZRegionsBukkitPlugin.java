@@ -51,7 +51,7 @@ public final class ZRegionsBukkitPlugin extends AbstractZRegionsPlugin {
 
     @Override
     protected void setupPlayerFactory() {
-        this.playerFactory = new BukkitPlayerFactory(this.audiences);
+        this.playerFactory = new BukkitPlayerFactory(this, this.audiences);
     }
 
     @Override

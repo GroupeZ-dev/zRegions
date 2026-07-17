@@ -57,6 +57,10 @@ public enum Message {
     FLAG_VALUE_INVALID("flag.invalid-value", "<prefix><red>Invalid value <yellow><value></yellow> for flag <yellow><flag></yellow>."),
     FLAG_TARGET_INVALID("flag.invalid-target", "<prefix><red>Unknown target <yellow><target></yellow>. Use <yellow>owner</yellow>, <yellow>member</yellow>, <yellow>visitor</yellow> or <yellow>all</yellow>."),
 
+    BORDER_SHOWN("border.shown", "<prefix><green>Showing the borders of <yellow><region></yellow> for <yellow><seconds></yellow>s (only you can see them)."),
+    BORDER_GLOBAL("border.global", "<prefix><red>The global region covers the whole world — there is nothing to outline."),
+    BORDER_OTHER_WORLD("border.other-world", "<prefix><red>Region <yellow><region></yellow> is in <yellow><region_world></yellow>, you are in <yellow><world></yellow>."),
+
     ACTION_DENIED("protection.denied", "<prefix><red>You can't do that here."),
     ENTRY_DENIED("protection.entry-denied", "<prefix><red>You can't enter <yellow><region></yellow>."),
     EXIT_DENIED("protection.exit-denied", "<prefix><red>You can't leave <yellow><region></yellow>."),

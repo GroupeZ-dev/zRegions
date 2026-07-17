@@ -20,6 +20,7 @@ import fr.maxlego08.zregions.common.selection.SelectionManager;
 import fr.maxlego08.zregions.common.sender.RegionSender;
 import fr.maxlego08.zregions.common.storage.RegionStorage;
 import fr.maxlego08.zregions.common.storage.StoredRegion;
+import fr.maxlego08.zregions.common.visual.BorderDisplayManager;
 
 import java.nio.file.Path;
 import java.time.Instant;
@@ -48,6 +49,7 @@ public final class TestPluginFixture implements ZRegionsPlugin {
     private final MessageService messages = new MessageService();
     private final ZFlagRegistry flagRegistry = new ZFlagRegistry();
     private final RegionMovementTracker movementTracker = new RegionMovementTracker(this);
+    private final BorderDisplayManager borderDisplay = new BorderDisplayManager(this);
     private ZRegionManager regionManager;
 
     public TestPluginFixture() {
@@ -105,6 +107,11 @@ public final class TestPluginFixture implements ZRegionsPlugin {
     @Override
     public RegionMovementTracker getMovementTracker() {
         return this.movementTracker;
+    }
+
+    @Override
+    public BorderDisplayManager getBorderDisplay() {
+        return this.borderDisplay;
     }
 
     @Override
@@ -168,6 +175,11 @@ public final class TestPluginFixture implements ZRegionsPlugin {
 
         @Override
         public int getInt(String path, int def) {
+            return def;
+        }
+
+        @Override
+        public double getDouble(String path, double def) {
             return def;
         }
 

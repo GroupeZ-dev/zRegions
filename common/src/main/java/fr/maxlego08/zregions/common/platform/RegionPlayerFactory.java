@@ -25,6 +25,9 @@ public abstract class RegionPlayerFactory<T> {
 
     protected abstract void teleport(T handle, RegionLocation location);
 
+    /** Spawns a border particle at the coordinates, visible to this player only. */
+    protected abstract void spawnBorderParticle(T handle, double x, double y, double z);
+
     protected abstract boolean isOnline(T handle);
 
     public final RegionPlayer wrap(T handle) {

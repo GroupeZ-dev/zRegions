@@ -227,6 +227,10 @@ class RegionMovementTrackerTest {
         }
 
         @Override
+        public void spawnBorderParticle(double x, double y, double z) {
+        }
+
+        @Override
         public boolean isOnline() {
             return true;
         }

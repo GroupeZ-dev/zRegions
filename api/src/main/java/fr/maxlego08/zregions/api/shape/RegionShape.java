@@ -1,5 +1,6 @@
 package fr.maxlego08.zregions.api.shape;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,4 +24,12 @@ public interface RegionShape {
      * shape codec in the common module.
      */
     Map<String, Object> serialize();
+
+    /**
+     * Points outlining this shape's border (world coordinates), roughly
+     * {@code spacing} blocks apart — used for particle visualization. The outline
+     * follows the actual geometry (circle for a cylinder, edges for a polygon…),
+     * tracing the OUTER block bounds ({@code max + 1}, matching containment).
+     */
+    List<Vector3> sampleBorder(double spacing);
 }

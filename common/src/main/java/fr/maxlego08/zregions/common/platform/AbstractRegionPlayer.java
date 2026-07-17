@@ -58,6 +58,11 @@ final class AbstractRegionPlayer<T> implements RegionPlayer {
     }
 
     @Override
+    public void spawnBorderParticle(double x, double y, double z) {
+        this.factory.spawnBorderParticle(this.handle, x, y, z);
+    }
+
+    @Override
     public boolean isOnline() {
         return this.factory.isOnline(this.handle);
     }

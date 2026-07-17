@@ -2,13 +2,16 @@ package fr.maxlego08.zregions.bukkit;
 
 import fr.maxlego08.zregions.common.platform.RegionLocation;
 import fr.maxlego08.zregions.common.platform.RegionPlayerFactory;
+import fr.maxlego08.zregions.common.plugin.ZRegionsPlugin;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -17,9 +20,15 @@ import java.util.UUID;
  */
 public final class BukkitPlayerFactory extends RegionPlayerFactory<Player> {
 
+    private final ZRegionsPlugin plugin;
     private final BukkitAudiences audiences;
 
-    public BukkitPlayerFactory(BukkitAudiences audiences) {
+    /** The parsed border particle, cached per config value (parsed once, not per point). */
+    private volatile String cachedParticleName;
+    private volatile Particle cachedParticle = Particle.FLAME;
+
+    public BukkitPlayerFactory(ZRegionsPlugin plugin, BukkitAudiences audiences) {
+        this.plugin = plugin;
         this.audiences = audiences;
     }
 
@@ -60,6 +69,28 @@ public final class BukkitPlayerFactory extends RegionPlayerFactory<Player> {
         }
         player.teleport(new Location(world, location.getX(), location.getY(), location.getZ(),
                 location.getYaw(), location.getPitch()));
+    }
+
+    /** {@link Player#spawnParticle} sends per-player packets — nobody else sees the outline. */
+    @Override
+    protected void spawnBorderParticle(Player player, double x, double y, double z) {
+        player.spawnParticle(resolveParticle(), x, y, z, 1, 0, 0, 0, 0);
+    }
+
+    private Particle resolveParticle() {
+        String name = this.plugin.getConfiguration().getBorderParticle();
+        if (!name.equals(this.cachedParticleName)) {
+            Particle parsed;
+            try {
+                parsed = Particle.valueOf(name.toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException exception) {
+                this.plugin.getLogger().warn("Unknown border particle '" + name + "', using FLAME.");
+                parsed = Particle.FLAME;
+            }
+            this.cachedParticle = parsed;
+            this.cachedParticleName = name;
+        }
+        return this.cachedParticle;
     }
 
     @Override

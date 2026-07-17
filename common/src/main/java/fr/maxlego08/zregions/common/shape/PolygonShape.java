@@ -3,6 +3,7 @@ package fr.maxlego08.zregions.common.shape;
 import fr.maxlego08.zregions.api.shape.BoundingBox;
 import fr.maxlego08.zregions.api.shape.RegionShape;
 import fr.maxlego08.zregions.api.shape.ShapeType;
+import fr.maxlego08.zregions.api.shape.Vector3;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -82,6 +83,19 @@ public final class PolygonShape implements RegionShape {
     @Override
     public BoundingBox getBoundingBox() {
         return this.boundingBox;
+    }
+
+    /** Bottom and top outlines of the polygon plus a vertical line at every vertex. */
+    @Override
+    public List<Vector3> sampleBorder(double spacing) {
+        double bottom = this.minY, top = this.maxY + 1;
+        List<Vector3> points = new ArrayList<>();
+        for (int i = 0, j = this.xs.length - 1; i < this.xs.length; j = i++) {
+            BorderSampling.line(points, this.xs[j], bottom, this.zs[j], this.xs[i], bottom, this.zs[i], spacing);
+            BorderSampling.line(points, this.xs[j], top, this.zs[j], this.xs[i], top, this.zs[i], spacing);
+            BorderSampling.line(points, this.xs[i], bottom, this.zs[i], this.xs[i], top, this.zs[i], spacing);
+        }
+        return points;
     }
 
     @Override

@@ -11,6 +11,7 @@ import fr.maxlego08.zregions.common.plugin.logging.PluginLogger;
 import fr.maxlego08.zregions.common.selection.SelectionManager;
 import fr.maxlego08.zregions.common.sender.RegionSender;
 import fr.maxlego08.zregions.common.storage.RegionStorage;
+import fr.maxlego08.zregions.common.visual.BorderDisplayManager;
 
 /**
  * The internal plugin contract (LuckPerms' LuckPermsPlugin model). Every platform
@@ -40,6 +41,8 @@ public interface ZRegionsPlugin {
     SelectionManager getSelectionManager();
 
     RegionMovementTracker getMovementTracker();
+
+    BorderDisplayManager getBorderDisplay();
 
     /** Re-reads config.yml and the messages file of the (possibly changed) language. */
     void reload();

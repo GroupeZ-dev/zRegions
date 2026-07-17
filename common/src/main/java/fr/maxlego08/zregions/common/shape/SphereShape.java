@@ -3,8 +3,11 @@ package fr.maxlego08.zregions.common.shape;
 import fr.maxlego08.zregions.api.shape.BoundingBox;
 import fr.maxlego08.zregions.api.shape.RegionShape;
 import fr.maxlego08.zregions.api.shape.ShapeType;
+import fr.maxlego08.zregions.api.shape.Vector3;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,6 +50,16 @@ public final class SphereShape implements RegionShape {
     @Override
     public BoundingBox getBoundingBox() {
         return this.boundingBox;
+    }
+
+    /** Three great circles: the equator and two perpendicular meridians. */
+    @Override
+    public List<Vector3> sampleBorder(double spacing) {
+        List<Vector3> points = new ArrayList<>();
+        BorderSampling.circleXZ(points, this.centerX, this.centerY, this.centerZ, this.radius, spacing);
+        BorderSampling.circleXY(points, this.centerX, this.centerY, this.centerZ, this.radius, spacing);
+        BorderSampling.circleYZ(points, this.centerX, this.centerY, this.centerZ, this.radius, spacing);
+        return points;
     }
 
     @Override

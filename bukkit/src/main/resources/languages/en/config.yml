@@ -19,6 +19,19 @@ messages:
   # same player, so pushing against a border does not spam the chat.
   deny-throttle-milliseconds: 2000
 
+# Border outline shown by /rg show (particles visible to that player only).
+borders:
+  # Bukkit particle used for the outline (FLAME, END_ROD, HAPPY_VILLAGER, ...).
+  particle: FLAME
+  # How long the outline stays visible, in seconds.
+  display-seconds: 10
+  # Refresh period of the particles, in milliseconds.
+  refresh-milliseconds: 500
+  # Distance between two particles along the edges, in blocks.
+  point-spacing: 0.5
+  # Hard cap on particles per refresh — huge regions get a sparser outline.
+  max-points: 1500
+
 # Multi-server (network) support. The messaging layer ships in v2, but the data
 # model is network-ready from v1: every region is stamped with this server name.
 multi-server:

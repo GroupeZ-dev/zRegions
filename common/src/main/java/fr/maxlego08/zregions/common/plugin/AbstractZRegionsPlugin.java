@@ -13,6 +13,7 @@ import fr.maxlego08.zregions.common.region.ZRegionManager;
 import fr.maxlego08.zregions.common.selection.SelectionManager;
 import fr.maxlego08.zregions.common.storage.RegionStorage;
 import fr.maxlego08.zregions.common.storage.SarahRegionStorage;
+import fr.maxlego08.zregions.common.visual.BorderDisplayManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +35,7 @@ public abstract class AbstractZRegionsPlugin implements ZRegionsPlugin {
     private SelectionManager selectionManager;
     private ZRegionManager regionManager;
     private RegionMovementTracker movementTracker;
+    private BorderDisplayManager borderDisplay;
     private RegionCommandManager commandManager;
     private boolean running = false;
 
@@ -99,6 +101,7 @@ public abstract class AbstractZRegionsPlugin implements ZRegionsPlugin {
         this.regionManager = new ZRegionManager(this);
         this.regionManager.loadAllBlocking();
         this.movementTracker = new RegionMovementTracker(this);
+        this.borderDisplay = new BorderDisplayManager(this);
 
         // 5. commands & platform wiring
         this.commandManager = new RegionCommandManager(this);
@@ -235,5 +238,10 @@ public abstract class AbstractZRegionsPlugin implements ZRegionsPlugin {
     @Override
     public RegionMovementTracker getMovementTracker() {
         return this.movementTracker;
+    }
+
+    @Override
+    public BorderDisplayManager getBorderDisplay() {
+        return this.borderDisplay;
     }
 }

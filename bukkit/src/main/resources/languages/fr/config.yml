@@ -19,6 +19,20 @@ messages:
   # même joueur, pour que pousser contre une bordure ne spamme pas le chat.
   deny-throttle-milliseconds: 2000
 
+# Contour affiché par /rg show (particules visibles uniquement par ce joueur).
+borders:
+  # Particule Bukkit utilisée pour le contour (FLAME, END_ROD, HAPPY_VILLAGER, ...).
+  particle: FLAME
+  # Durée d'affichage du contour, en secondes.
+  display-seconds: 10
+  # Période de rafraîchissement des particules, en millisecondes.
+  refresh-milliseconds: 500
+  # Distance entre deux particules le long des arêtes, en blocs.
+  point-spacing: 0.5
+  # Plafond de particules par rafraîchissement — les régions immenses ont un
+  # contour plus clairsemé.
+  max-points: 1500
+
 # Support multi-serveur (réseau). La couche de messaging arrive en v2, mais le
 # modèle de données est prêt réseau dès la v1 : chaque région est estampillée
 # du nom de ce serveur.

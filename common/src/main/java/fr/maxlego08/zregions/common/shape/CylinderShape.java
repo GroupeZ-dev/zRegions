@@ -3,8 +3,11 @@ package fr.maxlego08.zregions.common.shape;
 import fr.maxlego08.zregions.api.shape.BoundingBox;
 import fr.maxlego08.zregions.api.shape.RegionShape;
 import fr.maxlego08.zregions.api.shape.ShapeType;
+import fr.maxlego08.zregions.api.shape.Vector3;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -52,6 +55,22 @@ public final class CylinderShape implements RegionShape {
     @Override
     public BoundingBox getBoundingBox() {
         return this.boundingBox;
+    }
+
+    /** Bottom and top circles plus four vertical lines at the cardinal points. */
+    @Override
+    public List<Vector3> sampleBorder(double spacing) {
+        double bottom = this.minY, top = this.maxY + 1;
+        List<Vector3> points = new ArrayList<>();
+        BorderSampling.circleXZ(points, this.centerX, bottom, this.centerZ, this.radius, spacing);
+        BorderSampling.circleXZ(points, this.centerX, top, this.centerZ, this.radius, spacing);
+        for (int cardinal = 0; cardinal < 4; cardinal++) {
+            double angle = Math.PI / 2 * cardinal;
+            double x = this.centerX + this.radius * Math.cos(angle);
+            double z = this.centerZ + this.radius * Math.sin(angle);
+            BorderSampling.line(points, x, bottom, z, x, top, z, spacing);
+        }
+        return points;
     }
 
     @Override

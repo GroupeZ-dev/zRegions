@@ -19,6 +19,20 @@ messages:
   # al mismo jugador, para que empujar contra un borde no inunde el chat.
   deny-throttle-milliseconds: 2000
 
+# Contorno mostrado por /rg show (partículas visibles solo para ese jugador).
+borders:
+  # Partícula de Bukkit usada para el contorno (FLAME, END_ROD, HAPPY_VILLAGER, ...).
+  particle: FLAME
+  # Cuánto tiempo permanece visible el contorno, en segundos.
+  display-seconds: 10
+  # Período de refresco de las partículas, en milisegundos.
+  refresh-milliseconds: 500
+  # Distancia entre dos partículas a lo largo de las aristas, en bloques.
+  point-spacing: 0.5
+  # Límite de partículas por refresco — las regiones enormes tienen un contorno
+  # más disperso.
+  max-points: 1500
+
 # Soporte multi-servidor (red). La capa de mensajería llega en la v2, pero el
 # modelo de datos está listo para red desde la v1: cada región queda marcada
 # con el nombre de este servidor.

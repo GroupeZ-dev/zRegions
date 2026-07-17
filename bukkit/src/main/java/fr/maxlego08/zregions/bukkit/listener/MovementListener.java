@@ -132,6 +132,7 @@ public final class MovementListener implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         UUID playerId = event.getPlayer().getUniqueId();
         this.plugin.getMovementTracker().handleQuit(playerId);
+        this.plugin.getBorderDisplay().hide(playerId);
         this.lastDeniedMessage.remove(playerId);
     }
 
