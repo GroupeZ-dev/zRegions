@@ -32,6 +32,7 @@ commands:
     setpriority: 'Cambia la prioridad de una región'
     setparent: 'Establece o quita la región padre'
     redefine: 'Reemplaza la forma de una región con tu selección'
+    import: 'Importa regiones de otro plugin de protección (WorldGuard)'
     reload: 'Recarga la configuración y los mensajes'
 
 selection:
@@ -93,6 +94,13 @@ border:
   shown: '<prefix><green>Mostrando los bordes de <yellow><region></yellow> durante <yellow><seconds></yellow>s (solo tú puedes verlos).'
   global: '<prefix><red>La región global cubre todo el mundo — no hay nada que delimitar.'
   other-world: '<prefix><red>La región <yellow><region></yellow> está en <yellow><region_world></yellow>, tú estás en <yellow><world></yellow>.'
+
+import:
+  unknown-source: '<prefix><red>Fuente de importación <yellow><source></yellow> desconocida. Disponible: <yellow><sources></yellow>.'
+  source-not-found: '<prefix><red>No se encontraron datos de <source> (<yellow><path></yellow>).'
+  started: '<prefix><gray>Importando regiones de <yellow><source></yellow>…'
+  done: '<prefix><green>Importación terminada: <yellow><imported></yellow> región(es) importada(s), <yellow><skipped></yellow> omitida(s), <yellow><flags></yellow> valor(es) de flag, <yellow><members></yellow> miembro(s). Detalles en la consola del servidor.'
+  dry-run: '<prefix><gray>Solo simulación — no se escribió nada. Vuelve a ejecutar sin <yellow>--dry-run</yellow> para aplicar.'
 
 protection:
   denied: '<prefix><red>No puedes hacer eso aquí.'

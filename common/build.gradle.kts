@@ -14,6 +14,10 @@ dependencies {
     // Sérialisation des messages multi-serveur & shape_data
     implementation("com.google.code.gson:gson:2.11.0")
 
+    // Lecture des fichiers d'autres plugins (importateur WorldGuard) — shadé + relocaté,
+    // car common doit rester portable (Fabric/Nukkit n'embarquent pas snakeyaml)
+    implementation("org.yaml:snakeyaml:2.2")
+
     testImplementation(platform("org.junit:junit-bom:5.11.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

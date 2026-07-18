@@ -75,6 +75,12 @@ public enum Message {
     ENTRY_DENIED("protection.entry-denied", "<prefix><red>You can't enter <yellow><region></yellow>."),
     EXIT_DENIED("protection.exit-denied", "<prefix><red>You can't leave <yellow><region></yellow>."),
 
+    IMPORT_UNKNOWN_SOURCE("import.unknown-source", "<prefix><red>Unknown import source <yellow><source></yellow>. Available: <yellow><sources></yellow>."),
+    IMPORT_SOURCE_NOT_FOUND("import.source-not-found", "<prefix><red>No <source> data found (<yellow><path></yellow>)."),
+    IMPORT_STARTED("import.started", "<prefix><gray>Importing <yellow><source></yellow> regions…"),
+    IMPORT_DONE("import.done", "<prefix><green>Import finished: <yellow><imported></yellow> region(s) imported, <yellow><skipped></yellow> skipped, <yellow><flags></yellow> flag value(s), <yellow><members></yellow> member(s). Details in the server console."),
+    IMPORT_DRY_RUN("import.dry-run", "<prefix><gray>Dry-run only — nothing was written. Run without <yellow>--dry-run</yellow> to apply."),
+
     RELOADED("commands.reloaded", "<prefix><green>Configuration and messages reloaded.");
 
     private final String path;

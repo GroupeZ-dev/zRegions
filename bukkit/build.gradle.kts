@@ -46,6 +46,8 @@ tasks {
         relocate("fr.maxlego08.sarah", "fr.maxlego08.zregions.libs.sarah")
         relocate("net.kyori", "fr.maxlego08.zregions.libs.kyori")
         relocate("com.google.gson", "fr.maxlego08.zregions.libs.gson")
+        // Spigot embarque son propre snakeyaml — la relocation évite tout conflit de version
+        relocate("org.yaml.snakeyaml", "fr.maxlego08.zregions.libs.snakeyaml")
     }
 
     build { dependsOn(shadowJar) }

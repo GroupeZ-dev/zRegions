@@ -16,7 +16,7 @@ never the whole region set.
 | **Java** | 21+ |
 | **Bedrock** | Playable through Geyser/Floodgate (server-side plugin, no client mod) |
 | **Storage** | SQLite (default) · MySQL · MariaDB |
-| **Soft dependencies** | zMenu, PlaceholderAPI, WorldEdit, LuckPerms, WorldGuard *(integrations planned — none required)* |
+| **Soft dependencies** | zMenu, PlaceholderAPI, WorldEdit, LuckPerms *(integrations planned — none required)*. WorldGuard regions are importable via `/rg import` (file-based, works without WorldGuard) |
 
 ---
 
@@ -70,6 +70,7 @@ subcommands currently live under `/rg`)*.
 | `/rg removemember <region> <player>` | Removes a member | `zregions.admin` |
 | `/rg setpriority <region> <priority>` | Changes the priority (higher wins on overlap) | `zregions.admin` |
 | `/rg setparent <region> [parent]` | Sets — or clears, without argument — the flag-inheritance parent | `zregions.admin` |
+| `/rg import <worldguard> [--dry-run]` | Imports regions from another protection plugin's data files — see §10. `--dry-run` reports without writing | `zregions.admin` |
 | `/rg reload` | Reloads `config.yml` and the messages of the (possibly changed) language | `zregions.admin` |
 
 **Region name resolution** — everywhere a `<region>` is expected:
@@ -253,7 +254,53 @@ language inside the jar.
   regions plus the `global` ones. The Redis/plugin-message **messaging layer ships in v2** — no
   schema migration will be needed.
 
-## 10. For developers
+## 10. Importing from WorldGuard
+
+`/rg import worldguard [--dry-run]` reads WorldGuard's data files directly
+(`plugins/WorldGuard/worlds/<world>/regions.yml`) — **WorldGuard does not need to be installed
+or loaded**, its leftover files are enough. Always start with `--dry-run`: it parses and reports
+without writing anything.
+
+What is imported:
+
+- **Shapes**: `cuboid` and `poly2d` (→ `polygon`). Both keep WorldGuard's **block-inclusive
+  boundary**: the block columns lying on a poly2d outline stay protected (the polygon is widened
+  one block on its max-facing sides — never a grief strip along an imported border). The
+  `__global__` region becomes the world's global region (skipped if one already exists), members
+  included.
+- **Priority**, **parent links** (linked after all regions are created, whatever the file order)
+  and **UUID-based owners/members**. Name-based (pre-UUID) and permission-group entries are
+  skipped and reported.
+- **WorldGuard's implicit membership protection is reproduced**: in WG every region denies
+  building to non-members even with an empty flag list. Each imported region therefore receives
+  visitor-targeted denies on `block-break`/`block-place`/`interact`/`container-access` — except
+  when the file sets the matching WG flag explicitly (`build`, `block-break`, `block-place`,
+  `use`/`interact`, `chest-access`), or `passthrough: allow` marks the region as a
+  non-protecting overlay, or the region is the global one. Owners/members keep building, exactly
+  like in WG. These synthesized values are regular flags afterwards (`/rg flag … unset -t
+  visitor` removes them); they are not counted in the "flag values" import summary.
+- **Flags** with a zRegions equivalent, notably: `build` (expands to
+  `block-break`+`block-place`+`interact`+`container-access`), `chest-access`→`container-access`,
+  `use`/`interact`→`interact`, the explosion family (`creeper-explosion`/`tnt`/`ghast-fireball`
+  →`entity-explosion`; `other-explosion` feeds **both** `entity-explosion` and
+  `block-explosion` since it covers bed/anchor blasts; deny wins when they conflict),
+  `pistons`→`piston`, `water-flow`/`lava-flow`→`fluid-flow`, `lighter`→`fire-ignite`,
+  `enderman-grief`→`mob-griefing`, `entity-painting-destroy`/`entity-item-frame-destroy`→
+  `hanging-break`, `block-trampling`→`crop-trample`, `chorus-fruit-teleport`→`chorus-fruit`,
+  `exp-drops`→`exp-drop`, `send-chat`→`chat`, `blocked-cmds`→`command-blacklist`,
+  `greeting`/`farewell`/`greeting-title`→`greeting`/`farewell`/`title`, plus the identically
+  named state flags (`pvp`, `invincible`, …). **`entry` and `exit` are imported at the
+  `visitor` target**: WG applies them to non-members only, so imported members are never locked
+  out of (or trapped inside) their own regions.
+
+Limits (each occurrence is reported, nothing is skipped silently): WG flags without an
+equivalent, per-group flag values (`*-group`), region collisions with existing names, and text
+flags written with legacy `&` color codes (imported verbatim — rewrite them in MiniMessage).
+The chat shows a summary; **every skipped item is detailed in the server log**. A misspelled
+option (anything other than `--dry-run`) aborts with the usage line instead of silently running
+the real import.
+
+## 11. For developers
 
 - The **`api` module** has zero platform dependencies. On Bukkit the entry point is registered in
   the ServicesManager:
@@ -268,7 +315,7 @@ language inside the jar.
   (`RegionShape.sampleBorder(spacing)` yields the outline points used by `/rg show`).
 - Architecture (LuckPerms model — `api` / `common` / `bukkit`): see `ARCHITECTURE.md`.
 
-## 11. Version history
+## 12. Version history
 
 ### 1.0.0 — Unreleased
 - Region engine: cuboid/cylinder/sphere/polygon shapes, per-world chunk index, priorities,
@@ -281,6 +328,12 @@ language inside the jar.
 - 11 new flags: `mob-damage`, `keep-inventory`, `exp-drop`, `chat`, `elytra`, `fly`, `totem`,
   `command-blacklist` (first list-valued flag, comma-separated), and the enter displays
   `title`/`subtitle`/`action-bar` delivered through the platform-agnostic player abstraction.
+- `/rg import worldguard [--dry-run]`: file-based WorldGuard importer (shapes incl. polygons
+  with WG's block-inclusive boundaries, `__global__` with its members, priorities, parents,
+  UUID members, ~35 mapped flags incl. `blocked-cmds`→`command-blacklist`) — works without
+  WorldGuard installed; reproduces WG's implicit non-member build protection and its
+  non-members-only `entry`/`exit` semantics (visitor target); every skipped item is reported in
+  the server log, never dropped silently.
 - Commands: help, pos1/pos2, create, redefine, remove, list, info, flag (multi-word values,
   targets, unset), addmember/removemember, setpriority, setparent, reload.
 - Per-language folders with on-demand extraction (en/fr/es/it bundled); localized command
