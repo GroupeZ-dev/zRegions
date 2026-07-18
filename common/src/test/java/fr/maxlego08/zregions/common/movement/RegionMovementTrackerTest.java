@@ -231,6 +231,10 @@ class RegionMovementTrackerTest {
         }
 
         @Override
+        public void giveWand() {
+        }
+
+        @Override
         public boolean isOnline() {
             return true;
         }

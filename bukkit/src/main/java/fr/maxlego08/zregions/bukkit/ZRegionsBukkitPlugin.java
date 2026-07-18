@@ -5,6 +5,7 @@ import fr.maxlego08.zregions.bukkit.listener.EnvironmentProtectionListener;
 import fr.maxlego08.zregions.bukkit.listener.MovementListener;
 import fr.maxlego08.zregions.bukkit.listener.PlayerStateListener;
 import fr.maxlego08.zregions.bukkit.listener.ProtectionListener;
+import fr.maxlego08.zregions.bukkit.listener.WandListener;
 import fr.maxlego08.zregions.common.config.ConfigurationAdapter;
 import fr.maxlego08.zregions.common.platform.RegionPlayer;
 import fr.maxlego08.zregions.common.plugin.AbstractZRegionsPlugin;
@@ -62,6 +63,7 @@ public final class ZRegionsBukkitPlugin extends AbstractZRegionsPlugin {
         pluginManager.registerEvents(new EnvironmentProtectionListener(this), loader);
         pluginManager.registerEvents(new PlayerStateListener(this), loader);
         pluginManager.registerEvents(new MovementListener(this), loader);
+        pluginManager.registerEvents(new WandListener(this), loader);
     }
 
     @Override

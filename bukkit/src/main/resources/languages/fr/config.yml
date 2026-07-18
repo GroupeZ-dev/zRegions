@@ -19,6 +19,11 @@ messages:
   # même joueur, pour que pousser contre une bordure ne spamme pas le chat.
   deny-throttle-milliseconds: 2000
 
+# Outil de sélection.
+selection:
+  # Material Bukkit de la baguette donnée par /rg wand (clic gauche = pos1, clic droit = pos2).
+  wand-item: BLAZE_ROD
+
 # Contour affiché par /rg show (particules visibles uniquement par ce joueur).
 borders:
   # Particule Bukkit utilisée pour le contour (FLAME, END_ROD, HAPPY_VILLAGER, ...).

@@ -1,24 +1,33 @@
 package fr.maxlego08.zregions.common.command.commands;
 
 import fr.maxlego08.zregions.api.region.Region;
+import fr.maxlego08.zregions.api.shape.ShapeType;
 import fr.maxlego08.zregions.common.command.abstraction.RegionCommand;
+import fr.maxlego08.zregions.common.command.tabcomplete.CompletionSupplier;
+import fr.maxlego08.zregions.common.command.tabcomplete.TabCompleter;
 import fr.maxlego08.zregions.common.command.util.ArgumentList;
 import fr.maxlego08.zregions.common.locale.Message;
 import fr.maxlego08.zregions.common.platform.RegionPlayer;
 import fr.maxlego08.zregions.common.plugin.ZRegionsPlugin;
 import fr.maxlego08.zregions.common.selection.Selection;
+import fr.maxlego08.zregions.common.selection.SelectionShapeBuilder;
 import fr.maxlego08.zregions.common.sender.RegionSender;
-import fr.maxlego08.zregions.common.shape.CuboidShape;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
- * Creates a region from the player's current selection.
+ * Creates a region from the player's current selection, in any of the four
+ * shapes (default: cuboid). The optional shape argument sits before the
+ * optional priority: {@code /rg create <name> [shape] [priority]} —
+ * unambiguous because shape names are never integers.
  */
 public class CreateCommand extends RegionCommand {
 
     public CreateCommand() {
-        super("create", "zregions.admin", "create <name> [priority]", "create");
+        super("create", "zregions.admin", "create <name> [shape] [priority]", "create");
     }
 
     @Override
@@ -34,29 +43,33 @@ public class CreateCommand extends RegionCommand {
             return;
         }
 
+        // optional shape at index 2 shifts the priority to index 3
+        ShapeType type = ShapeType.CUBOID;
+        int priorityIndex = 2;
+        Optional<ShapeType> optionalType = args.getOpt(2).flatMap(CreateCommand::parseShape);
+        if (optionalType.isPresent()) {
+            type = optionalType.get();
+            priorityIndex = 3;
+        }
+        int priority = args.getIntOrDefault(priorityIndex, 0);
+
         RegionPlayer player = optionalPlayer.get();
         Optional<Selection> optionalSelection = plugin.getSelectionManager().getSelection(player.getUniqueId());
-        if (optionalSelection.isEmpty() || !optionalSelection.get().isComplete()) {
+        if (optionalSelection.isEmpty()) {
             plugin.getMessages().send(sender, Message.SELECTION_INCOMPLETE);
             return;
         }
 
-        Selection selection = optionalSelection.get();
-        if (!selection.isSameWorld()) {
-            plugin.getMessages().send(sender, Message.SELECTION_WORLD_MISMATCH);
-            return;
-        }
-        Optional<CuboidShape> optionalShape = selection.toCuboid();
-        if (optionalShape.isEmpty()) {
-            plugin.getMessages().send(sender, Message.SELECTION_INCOMPLETE);
+        SelectionShapeBuilder.Result result = SelectionShapeBuilder.build(optionalSelection.get(), type);
+        if (!result.isSuccess()) {
+            sendSelectionError(plugin, sender, result.error());
             return;
         }
 
         String name = optionalName.get();
-        int priority = args.getIntOrDefault(2, 0);
         try {
             Region region = plugin.getRegionManager().createRegion(
-                    selection.getWorldName(), name, optionalShape.get(), priority, player.getUniqueId());
+                    result.worldName(), name, result.shape(), priority, player.getUniqueId());
             plugin.getMessages().send(sender, Message.REGION_CREATED,
                     "region", region.getName(),
                     "shape", region.getShape().getType().name(),
@@ -64,5 +77,21 @@ public class CreateCommand extends RegionCommand {
         } catch (IllegalArgumentException exception) {
             plugin.getMessages().send(sender, Message.REGION_ALREADY_EXISTS, "region", name);
         }
+    }
+
+    private static Optional<ShapeType> parseShape(String input) {
+        try {
+            return Optional.of(ShapeType.valueOf(input.toUpperCase(Locale.ROOT)));
+        } catch (IllegalArgumentException exception) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public List<String> tabComplete(ZRegionsPlugin plugin, RegionSender sender, ArgumentList args) {
+        return TabCompleter.create()
+                .at(2, CompletionSupplier.startsWith(() -> Arrays.stream(ShapeType.values())
+                        .map(type -> type.name().toLowerCase(Locale.ROOT))))
+                .complete(args);
     }
 }

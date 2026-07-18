@@ -31,5 +31,8 @@ public interface RegionPlayer {
      */
     void spawnBorderParticle(double x, double y, double z);
 
+    /** Hands this player the selection wand item (platform-marked, rename-proof). */
+    void giveWand();
+
     boolean isOnline();
 }

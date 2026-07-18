@@ -51,6 +51,11 @@ public final class ZRegionsConfiguration {
         return this.denyMessageThrottleMillis;
     }
 
+    /** Bukkit Material name of the selection wand; parsed by the platform. */
+    public String getWandItem() {
+        return this.adapter.getString("selection.wand-item", "BLAZE_ROD");
+    }
+
     // --- border display (/rg show) — read once per command, no caching needed ---
 
     /** Bukkit Particle name used to outline regions; parsed by the platform. */

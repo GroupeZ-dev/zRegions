@@ -52,9 +52,13 @@ subcommands currently live under `/rg`)*.
 | Command | Description | Permission |
 |---|---|---|
 | `/rg help` | Lists the commands you may use | `zregions.use` |
+| `/rg wand` | Gives the selection wand (left click = pos1, right click = pos2; item configurable, marker survives renaming) | `zregions.admin` |
 | `/rg pos1` · `/rg pos2` | Sets a selection corner at your position | `zregions.admin` |
-| `/rg create <name> [priority]` | Creates a cuboid region from your selection | `zregions.admin` |
-| `/rg redefine <name>` | Replaces a region's shape with your current selection (same world only) | `zregions.admin` |
+| `/rg addpoint` | Adds a polygon vertex at your position | `zregions.admin` |
+| `/rg clearpoints` | Clears the polygon vertices (keeps pos1/pos2) | `zregions.admin` |
+| `/rg star <branches> <outerRadius> [innerRadius]` | Fills the vertex list with a star centered on you (default inner radius: half the outer) | `zregions.admin` |
+| `/rg create <name> [shape] [priority]` | Creates a region from your selection — shape `cuboid` (default), `cylinder`, `sphere` or `polygon` | `zregions.admin` |
+| `/rg redefine <name> [shape]` | Replaces a region's shape with your current selection, in its current shape type or an explicit one (same world only) | `zregions.admin` |
 | `/rg remove <name>` | Deletes a region | `zregions.admin` |
 | `/rg list [world]` | Lists regions (your world by default; every world from console) | `zregions.use` |
 | `/rg info [name]` | Region details — without argument: the highest-priority region at your position | `zregions.use` |
@@ -91,9 +95,16 @@ the player rather than restrict them.
 
 ## 5. Regions
 
-- **Shape**: regions created in-game are **cuboids** (two corners via `/rg pos1`/`/rg pos2`).
-  The engine itself supports cuboid, **cylinder, sphere and polygon** shapes (storage, index and
-  flag resolution are shape-agnostic); selection tools for the other shapes are on the roadmap.
+- **Shapes** — all four are creatable in-game from the same two-position selection
+  (`/rg pos1`/`pos2` or the wand):
+  | Shape | Selection recipe |
+  |---|---|
+  | `cuboid` | pos1 and pos2 are opposite corners |
+  | `cylinder` | pos1 = center; radius = horizontal distance to pos2; height = the two Y levels |
+  | `sphere` | pos1 = center; radius = 3D distance to pos2 |
+  | `polygon` | vertices via `/rg addpoint` (or `/rg star`); height = the two Y levels of pos1/pos2 |
+  Positions snap to block centers; a radius below 1 block is refused. Storage, spatial index,
+  flag resolution and `/rg show` are all shape-agnostic.
 - **Priority**: when regions overlap, the highest priority wins for positional flag resolution.
 - **Parent**: `/rg setparent` links a region to a parent whose flags apply when the child does not
   define them. Cycles are detected and refused. Parent chains are followed at most 10 levels deep
@@ -183,6 +194,7 @@ matching the server's system locale. Keys are never translated.
 | `debug` | `false` | Verbose logging |
 | `permissions.bypass` | `zregions.bypass` | Permission node bypassing every protection |
 | `messages.deny-throttle-milliseconds` | `2000` | Minimum delay between two "denied" messages to the same player |
+| `selection.wand-item` | `BLAZE_ROD` | Bukkit Material of the `/rg wand` item (invalid names fall back to BLAZE_ROD) |
 | `borders.particle` | `FLAME` | Bukkit particle used by `/rg show` (invalid names fall back to FLAME) |
 | `borders.display-seconds` | `10` | How long the outline stays visible when the command gives no duration |
 | `borders.refresh-milliseconds` | `500` | Particle refresh period |
@@ -253,6 +265,9 @@ language inside the jar.
   descriptions; configurable bypass permission and deny-message throttle.
 - Translated config.yml templates (en/fr/es/it) — the first boot extracts the one matching the
   server's system locale, presetting `language:` accordingly.
+- In-game creation of **all four shapes** (`/rg create <name> [shape]`, `/rg redefine <name>
+  [shape]`), polygon vertices (`/rg addpoint`/`clearpoints`), star generator (`/rg star`) and a
+  configurable selection wand (`/rg wand`, PDC-marked item).
 - `/rg show`: per-player particle outline of a region's borders, following the actual shape
   (`RegionShape.sampleBorder`); optional per-command duration (default from config, capped at
   3600 s); configurable particle, duration, refresh, spacing and point cap.

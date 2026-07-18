@@ -1,27 +1,33 @@
 package fr.maxlego08.zregions.common.command.commands;
 
 import fr.maxlego08.zregions.api.region.Region;
+import fr.maxlego08.zregions.api.shape.ShapeType;
 import fr.maxlego08.zregions.common.command.abstraction.RegionCommand;
+import fr.maxlego08.zregions.common.command.tabcomplete.CompletionSupplier;
 import fr.maxlego08.zregions.common.command.tabcomplete.TabCompleter;
 import fr.maxlego08.zregions.common.command.util.ArgumentList;
 import fr.maxlego08.zregions.common.locale.Message;
 import fr.maxlego08.zregions.common.platform.RegionPlayer;
 import fr.maxlego08.zregions.common.plugin.ZRegionsPlugin;
 import fr.maxlego08.zregions.common.selection.Selection;
+import fr.maxlego08.zregions.common.selection.SelectionShapeBuilder;
 import fr.maxlego08.zregions.common.sender.RegionSender;
-import fr.maxlego08.zregions.common.shape.CuboidShape;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
- * Replaces a region's shape with the player's current selection. The selection
- * must lie in the region's own world — a region cannot move worlds.
+ * Replaces a region's shape with the player's current selection — by default in
+ * the region's CURRENT shape type, or in an explicitly given one (this is how a
+ * cuboid becomes a cylinder). The selection must lie in the region's own world —
+ * a region cannot move worlds.
  */
 public class RedefineCommand extends RegionCommand {
 
     public RedefineCommand() {
-        super("redefine", "zregions.admin", "redefine <name>", "redefine");
+        super("redefine", "zregions.admin", "redefine <name> [shape]", "redefine");
     }
 
     @Override
@@ -41,38 +47,43 @@ public class RedefineCommand extends RegionCommand {
         if (optionalRegion.isEmpty()) {
             return;
         }
-
-        RegionPlayer player = optionalPlayer.get();
-        Optional<Selection> optionalSelection = plugin.getSelectionManager().getSelection(player.getUniqueId());
-        if (optionalSelection.isEmpty() || !optionalSelection.get().isComplete()) {
-            plugin.getMessages().send(sender, Message.SELECTION_INCOMPLETE);
-            return;
-        }
-
-        Selection selection = optionalSelection.get();
-        if (!selection.isSameWorld()) {
-            plugin.getMessages().send(sender, Message.SELECTION_WORLD_MISMATCH);
-            return;
-        }
-        Optional<CuboidShape> optionalShape = selection.toCuboid();
-        if (optionalShape.isEmpty()) {
-            plugin.getMessages().send(sender, Message.SELECTION_INCOMPLETE);
-            return;
-        }
-
         Region region = optionalRegion.get();
         if (region.isGlobal()) {
             plugin.getMessages().send(sender, Message.REGION_REDEFINE_GLOBAL);
             return;
         }
-        if (!selection.getWorldName().equals(region.getWorldName())) {
+
+        ShapeType type = region.getShape().getType();
+        Optional<String> optionalShape = args.getOpt(2);
+        if (optionalShape.isPresent()) {
+            try {
+                type = ShapeType.valueOf(optionalShape.get().toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException exception) {
+                sendUsage(plugin, sender);
+                return;
+            }
+        }
+
+        RegionPlayer player = optionalPlayer.get();
+        Optional<Selection> optionalSelection = plugin.getSelectionManager().getSelection(player.getUniqueId());
+        if (optionalSelection.isEmpty()) {
+            plugin.getMessages().send(sender, Message.SELECTION_INCOMPLETE);
+            return;
+        }
+
+        SelectionShapeBuilder.Result result = SelectionShapeBuilder.build(optionalSelection.get(), type);
+        if (!result.isSuccess()) {
+            sendSelectionError(plugin, sender, result.error());
+            return;
+        }
+        if (!result.worldName().equals(region.getWorldName())) {
             plugin.getMessages().send(sender, Message.REGION_REDEFINE_WORLD_MISMATCH,
-                    "world", selection.getWorldName(),
+                    "world", result.worldName(),
                     "region_world", region.getWorldName());
             return;
         }
 
-        region = plugin.getRegionManager().redefine(region, optionalShape.get());
+        region = plugin.getRegionManager().redefine(region, result.shape());
         plugin.getMessages().send(sender, Message.REGION_REDEFINED, "region", region.getName());
     }
 
@@ -80,6 +91,8 @@ public class RedefineCommand extends RegionCommand {
     public List<String> tabComplete(ZRegionsPlugin plugin, RegionSender sender, ArgumentList args) {
         return TabCompleter.create()
                 .at(1, regionNames(plugin))
+                .at(2, CompletionSupplier.startsWith(() -> Arrays.stream(ShapeType.values())
+                        .map(type -> type.name().toLowerCase(Locale.ROOT))))
                 .complete(args);
     }
 }

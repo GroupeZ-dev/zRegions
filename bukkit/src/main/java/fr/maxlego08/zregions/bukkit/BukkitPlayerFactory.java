@@ -1,15 +1,22 @@
 package fr.maxlego08.zregions.bukkit;
 
+import fr.maxlego08.zregions.common.locale.Message;
 import fr.maxlego08.zregions.common.platform.RegionLocation;
 import fr.maxlego08.zregions.common.platform.RegionPlayerFactory;
 import fr.maxlego08.zregions.common.plugin.ZRegionsPlugin;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Locale;
 import java.util.UUID;
@@ -19,6 +26,9 @@ import java.util.UUID;
  * the position/world data the region engine needs.
  */
 public final class BukkitPlayerFactory extends RegionPlayerFactory<Player> {
+
+    /** PDC marker identifying the selection wand — rename-proof, survives restarts. */
+    public static final NamespacedKey WAND_KEY = new NamespacedKey("zregions", "wand");
 
     private final ZRegionsPlugin plugin;
     private final BukkitAudiences audiences;
@@ -91,6 +101,28 @@ public final class BukkitPlayerFactory extends RegionPlayerFactory<Player> {
             this.cachedParticleName = name;
         }
         return this.cachedParticle;
+    }
+
+    @Override
+    protected void giveWand(Player player) {
+        Material material;
+        String configured = this.plugin.getConfiguration().getWandItem();
+        try {
+            material = Material.valueOf(configured.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException exception) {
+            this.plugin.getLogger().warn("Unknown wand item '" + configured + "', using BLAZE_ROD.");
+            material = Material.BLAZE_ROD;
+        }
+
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(LegacyComponentSerializer.legacySection()
+                    .serialize(this.plugin.getMessages().format(Message.WAND_NAME)));
+            meta.getPersistentDataContainer().set(WAND_KEY, PersistentDataType.BYTE, (byte) 1);
+            item.setItemMeta(meta);
+        }
+        player.getInventory().addItem(item);
     }
 
     @Override

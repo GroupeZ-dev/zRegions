@@ -14,9 +14,13 @@ commands:
     entry: '<gray> • <yellow>/rg <usage></yellow> <dark_gray>- <gray><description>'
   descriptions:
     help: 'Affiche cette aide'
+    wand: 'Donne la baguette de sélection (clic gauche = pos1, clic droit = pos2)'
     pos1: 'Définit le premier coin de la sélection'
     pos2: 'Définit le second coin de la sélection'
-    create: 'Crée une région à partir de votre sélection'
+    addpoint: 'Ajoute un sommet du polygone à votre position'
+    clearpoints: 'Efface les sommets du polygone'
+    star: 'Génère le contour d''une étoile autour de vous (terminez avec la forme polygon)'
+    create: 'Crée une région à partir de votre sélection (cuboïde, cylindre, sphère ou polygone)'
     remove: 'Supprime une région'
     list: 'Liste les régions d''un monde'
     info: 'Affiche les détails d''une région'
@@ -33,7 +37,15 @@ selection:
   pos1: '<prefix><gray>Position <yellow>1</yellow> définie sur <yellow><position></yellow>.'
   pos2: '<prefix><gray>Position <yellow>2</yellow> définie sur <yellow><position></yellow>.'
   incomplete: '<prefix><red>Sélectionnez d''abord deux positions (<yellow>/rg pos1</yellow> et <yellow>/rg pos2</yellow>).'
-  world-mismatch: '<prefix><red>Les deux positions doivent être dans le même monde.'
+  world-mismatch: '<prefix><red>Toute la sélection doit être dans le même monde.'
+  radius-too-small: '<prefix><red>Les positions 1 et 2 sont trop proches — le rayon doit être d''au moins <yellow>1</yellow> bloc.'
+  points-needed: '<prefix><red>Un polygone nécessite au moins <yellow>3</yellow> points (<yellow>/rg addpoint</yellow> ou <yellow>/rg star</yellow>).'
+  point-added: '<prefix><gray>Point <yellow>#<count></yellow> ajouté en <yellow><position></yellow>.'
+  points-cleared: '<prefix><gray>Points du polygone effacés.'
+  star-generated: '<prefix><green>Étoile à <yellow><branches></yellow> branches générée (<yellow><points></yellow> points) autour de vous. Définissez la hauteur avec <yellow>/rg pos1</yellow>/<yellow>pos2</yellow>, puis créez avec la forme <yellow>polygon</yellow>.'
+  wand:
+    name: '<gold>Baguette zRegions'
+    given: '<prefix><green>Baguette reçue : <yellow>clic gauche</yellow> = position 1, <yellow>clic droit</yellow> = position 2.'
 
 region:
   created: '<prefix><green>Région <yellow><region></yellow> créée (<gray><shape></gray>, priorité <gray><priority></gray>).'

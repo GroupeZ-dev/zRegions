@@ -6,6 +6,7 @@ import fr.maxlego08.zregions.common.command.util.ArgumentList;
 import fr.maxlego08.zregions.common.locale.Message;
 import fr.maxlego08.zregions.common.platform.RegionPlayer;
 import fr.maxlego08.zregions.common.plugin.ZRegionsPlugin;
+import fr.maxlego08.zregions.common.selection.SelectionShapeBuilder;
 import fr.maxlego08.zregions.common.sender.RegionSender;
 
 import java.util.List;
@@ -72,6 +73,17 @@ public abstract class RegionCommand {
         plugin.getMessages().send(sender, Message.HELP_ENTRY,
                 "usage", this.usage,
                 "description", getDescription(plugin));
+    }
+
+    /** Maps a shape-building failure to its user-facing message (create/redefine). */
+    protected void sendSelectionError(ZRegionsPlugin plugin, RegionSender sender, SelectionShapeBuilder.Error error) {
+        Message message = switch (error) {
+            case INCOMPLETE -> Message.SELECTION_INCOMPLETE;
+            case WORLD_MISMATCH -> Message.SELECTION_WORLD_MISMATCH;
+            case RADIUS_TOO_SMALL -> Message.SELECTION_RADIUS_TOO_SMALL;
+            case POINTS_NEEDED -> Message.SELECTION_POINTS_NEEDED;
+        };
+        plugin.getMessages().send(sender, message);
     }
 
     /** Quiet lookup for tab completion: first case-insensitive match across all worlds. */

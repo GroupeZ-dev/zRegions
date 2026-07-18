@@ -14,9 +14,13 @@ commands:
     entry: '<gray> • <yellow>/rg <usage></yellow> <dark_gray>- <gray><description>'
   descriptions:
     help: 'Muestra esta ayuda'
+    wand: 'Da la varita de selección (clic izquierdo = pos1, clic derecho = pos2)'
     pos1: 'Establece la primera esquina de la selección'
     pos2: 'Establece la segunda esquina de la selección'
-    create: 'Crea una región a partir de tu selección'
+    addpoint: 'Añade un vértice del polígono en tu posición'
+    clearpoints: 'Borra los vértices del polígono'
+    star: 'Genera el contorno de una estrella a tu alrededor (termina con la forma polygon)'
+    create: 'Crea una región a partir de tu selección (cuboide, cilindro, esfera o polígono)'
     remove: 'Elimina una región'
     list: 'Lista las regiones de un mundo'
     info: 'Muestra los detalles de una región'
@@ -33,7 +37,15 @@ selection:
   pos1: '<prefix><gray>Posición <yellow>1</yellow> establecida en <yellow><position></yellow>.'
   pos2: '<prefix><gray>Posición <yellow>2</yellow> establecida en <yellow><position></yellow>.'
   incomplete: '<prefix><red>Selecciona primero dos posiciones (<yellow>/rg pos1</yellow> y <yellow>/rg pos2</yellow>).'
-  world-mismatch: '<prefix><red>Ambas posiciones deben estar en el mismo mundo.'
+  world-mismatch: '<prefix><red>Toda la selección debe estar en el mismo mundo.'
+  radius-too-small: '<prefix><red>Las posiciones 1 y 2 están demasiado cerca — el radio debe ser de al menos <yellow>1</yellow> bloque.'
+  points-needed: '<prefix><red>Un polígono necesita al menos <yellow>3</yellow> puntos (<yellow>/rg addpoint</yellow> o <yellow>/rg star</yellow>).'
+  point-added: '<prefix><gray>Punto <yellow>#<count></yellow> añadido en <yellow><position></yellow>.'
+  points-cleared: '<prefix><gray>Puntos del polígono borrados.'
+  star-generated: '<prefix><green>Estrella de <yellow><branches></yellow> puntas generada (<yellow><points></yellow> puntos) a tu alrededor. Define la altura con <yellow>/rg pos1</yellow>/<yellow>pos2</yellow> y luego crea con la forma <yellow>polygon</yellow>.'
+  wand:
+    name: '<gold>Varita de zRegions'
+    given: '<prefix><green>Varita recibida: <yellow>clic izquierdo</yellow> = posición 1, <yellow>clic derecho</yellow> = posición 2.'
 
 region:
   created: '<prefix><green>Región <yellow><region></yellow> creada (<gray><shape></gray>, prioridad <gray><priority></gray>).'

@@ -63,6 +63,11 @@ final class AbstractRegionPlayer<T> implements RegionPlayer {
     }
 
     @Override
+    public void giveWand() {
+        this.factory.giveWand(this.handle);
+    }
+
+    @Override
     public boolean isOnline() {
         return this.factory.isOnline(this.handle);
     }

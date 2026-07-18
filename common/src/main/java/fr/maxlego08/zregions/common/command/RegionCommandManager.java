@@ -2,6 +2,8 @@ package fr.maxlego08.zregions.common.command;
 
 import fr.maxlego08.zregions.common.command.abstraction.RegionCommand;
 import fr.maxlego08.zregions.common.command.commands.AddMemberCommand;
+import fr.maxlego08.zregions.common.command.commands.AddPointCommand;
+import fr.maxlego08.zregions.common.command.commands.ClearPointsCommand;
 import fr.maxlego08.zregions.common.command.commands.CreateCommand;
 import fr.maxlego08.zregions.common.command.commands.FlagCommand;
 import fr.maxlego08.zregions.common.command.commands.HelpCommand;
@@ -16,6 +18,8 @@ import fr.maxlego08.zregions.common.command.commands.RemoveMemberCommand;
 import fr.maxlego08.zregions.common.command.commands.SetParentCommand;
 import fr.maxlego08.zregions.common.command.commands.SetPriorityCommand;
 import fr.maxlego08.zregions.common.command.commands.ShowCommand;
+import fr.maxlego08.zregions.common.command.commands.StarCommand;
+import fr.maxlego08.zregions.common.command.commands.WandCommand;
 import fr.maxlego08.zregions.common.command.tabcomplete.CompletionSupplier;
 import fr.maxlego08.zregions.common.command.tabcomplete.TabCompleter;
 import fr.maxlego08.zregions.common.command.util.ArgumentList;
@@ -43,8 +47,12 @@ public class RegionCommandManager {
     public RegionCommandManager(ZRegionsPlugin plugin) {
         this.plugin = plugin;
         register(new HelpCommand());
+        register(new WandCommand());
         register(new Pos1Command());
         register(new Pos2Command());
+        register(new AddPointCommand());
+        register(new ClearPointsCommand());
+        register(new StarCommand());
         register(new CreateCommand());
         register(new RemoveCommand());
         register(new ListCommand());

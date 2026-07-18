@@ -14,9 +14,13 @@ commands:
     entry: '<gray> • <yellow>/rg <usage></yellow> <dark_gray>- <gray><description>'
   descriptions:
     help: 'Mostra questo aiuto'
+    wand: 'Dà la bacchetta di selezione (clic sinistro = pos1, clic destro = pos2)'
     pos1: 'Imposta il primo angolo della selezione'
     pos2: 'Imposta il secondo angolo della selezione'
-    create: 'Crea una regione dalla tua selezione'
+    addpoint: 'Aggiunge un vertice del poligono alla tua posizione'
+    clearpoints: 'Cancella i vertici del poligono'
+    star: 'Genera il contorno di una stella intorno a te (concludi con la forma polygon)'
+    create: 'Crea una regione dalla tua selezione (cuboide, cilindro, sfera o poligono)'
     remove: 'Elimina una regione'
     list: 'Elenca le regioni di un mondo'
     info: 'Mostra i dettagli di una regione'
@@ -33,7 +37,15 @@ selection:
   pos1: '<prefix><gray>Posizione <yellow>1</yellow> impostata su <yellow><position></yellow>.'
   pos2: '<prefix><gray>Posizione <yellow>2</yellow> impostata su <yellow><position></yellow>.'
   incomplete: '<prefix><red>Seleziona prima due posizioni (<yellow>/rg pos1</yellow> e <yellow>/rg pos2</yellow>).'
-  world-mismatch: '<prefix><red>Entrambe le posizioni devono trovarsi nello stesso mondo.'
+  world-mismatch: '<prefix><red>L''intera selezione deve trovarsi nello stesso mondo.'
+  radius-too-small: '<prefix><red>Le posizioni 1 e 2 sono troppo vicine — il raggio deve essere di almeno <yellow>1</yellow> blocco.'
+  points-needed: '<prefix><red>Un poligono richiede almeno <yellow>3</yellow> punti (<yellow>/rg addpoint</yellow> o <yellow>/rg star</yellow>).'
+  point-added: '<prefix><gray>Punto <yellow>#<count></yellow> aggiunto in <yellow><position></yellow>.'
+  points-cleared: '<prefix><gray>Punti del poligono cancellati.'
+  star-generated: '<prefix><green>Stella con <yellow><branches></yellow> punte generata (<yellow><points></yellow> punti) intorno a te. Imposta l''altezza con <yellow>/rg pos1</yellow>/<yellow>pos2</yellow>, poi crea con la forma <yellow>polygon</yellow>.'
+  wand:
+    name: '<gold>Bacchetta zRegions'
+    given: '<prefix><green>Bacchetta ricevuta: <yellow>clic sinistro</yellow> = posizione 1, <yellow>clic destro</yellow> = posizione 2.'
 
 region:
   created: '<prefix><green>Regione <yellow><region></yellow> creata (<gray><shape></gray>, priorità <gray><priority></gray>).'

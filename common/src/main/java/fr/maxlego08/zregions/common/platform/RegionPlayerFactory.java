@@ -28,6 +28,9 @@ public abstract class RegionPlayerFactory<T> {
     /** Spawns a border particle at the coordinates, visible to this player only. */
     protected abstract void spawnBorderParticle(T handle, double x, double y, double z);
 
+    /** Hands the player the selection wand item. */
+    protected abstract void giveWand(T handle);
+
     protected abstract boolean isOnline(T handle);
 
     public final RegionPlayer wrap(T handle) {

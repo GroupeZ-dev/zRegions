@@ -14,9 +14,13 @@ commands:
     entry: '<gray> • <yellow>/rg <usage></yellow> <dark_gray>- <gray><description>'
   descriptions:
     help: 'Shows this help'
+    wand: 'Gives the selection wand (left click = pos1, right click = pos2)'
     pos1: 'Sets the first selection corner'
     pos2: 'Sets the second selection corner'
-    create: 'Creates a region from your selection'
+    addpoint: 'Adds a polygon vertex at your position'
+    clearpoints: 'Clears the polygon vertices'
+    star: 'Generates a star outline around you (finish with the polygon shape)'
+    create: 'Creates a region from your selection (cuboid, cylinder, sphere or polygon)'
     remove: 'Deletes a region'
     list: 'Lists the regions of a world'
     info: 'Shows the details of a region'
@@ -33,7 +37,15 @@ selection:
   pos1: '<prefix><gray>Position <yellow>1</yellow> set to <yellow><position></yellow>.'
   pos2: '<prefix><gray>Position <yellow>2</yellow> set to <yellow><position></yellow>.'
   incomplete: '<prefix><red>Select two positions first (<yellow>/rg pos1</yellow> and <yellow>/rg pos2</yellow>).'
-  world-mismatch: '<prefix><red>Both positions must be in the same world.'
+  world-mismatch: '<prefix><red>The whole selection must be in the same world.'
+  radius-too-small: '<prefix><red>Positions 1 and 2 are too close — the radius must be at least <yellow>1</yellow> block.'
+  points-needed: '<prefix><red>A polygon needs at least <yellow>3</yellow> points (<yellow>/rg addpoint</yellow> or <yellow>/rg star</yellow>).'
+  point-added: '<prefix><gray>Point <yellow>#<count></yellow> added at <yellow><position></yellow>.'
+  points-cleared: '<prefix><gray>Polygon points cleared.'
+  star-generated: '<prefix><green>Star with <yellow><branches></yellow> branches generated (<yellow><points></yellow> points) around you. Set the height with <yellow>/rg pos1</yellow>/<yellow>pos2</yellow>, then create with the <yellow>polygon</yellow> shape.'
+  wand:
+    name: '<gold>zRegions wand'
+    given: '<prefix><green>Wand received: <yellow>left click</yellow> = position 1, <yellow>right click</yellow> = position 2.'
 
 region:
   created: '<prefix><green>Region <yellow><region></yellow> created (<gray><shape></gray>, priority <gray><priority></gray>).'
