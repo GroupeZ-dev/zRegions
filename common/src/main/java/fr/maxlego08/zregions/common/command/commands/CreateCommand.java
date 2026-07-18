@@ -1,5 +1,6 @@
 package fr.maxlego08.zregions.common.command.commands;
 
+import fr.maxlego08.zregions.api.manager.RegionManager;
 import fr.maxlego08.zregions.api.region.Region;
 import fr.maxlego08.zregions.api.shape.ShapeType;
 import fr.maxlego08.zregions.common.command.abstraction.RegionCommand;
@@ -67,6 +68,10 @@ public class CreateCommand extends RegionCommand {
         }
 
         String name = optionalName.get();
+        if (RegionManager.GLOBAL_REGION_NAME.equalsIgnoreCase(name)) {
+            plugin.getMessages().send(sender, Message.REGION_NAME_RESERVED, "region", name);
+            return;
+        }
         try {
             Region region = plugin.getRegionManager().createRegion(
                     result.worldName(), name, result.shape(), priority, player.getUniqueId());

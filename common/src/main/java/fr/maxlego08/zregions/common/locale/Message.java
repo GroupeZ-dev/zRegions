@@ -29,6 +29,9 @@ public enum Message {
 
     REGION_CREATED("region.created", "<prefix><green>Region <yellow><region></yellow> created (<gray><shape></gray>, priority <gray><priority></gray>)."),
     REGION_ALREADY_EXISTS("region.already-exists", "<prefix><red>A region named <yellow><region></yellow> already exists in this world."),
+    REGION_NAME_RESERVED("region.name-reserved", "<prefix><red>The name <yellow><region></yellow> is reserved. Use <yellow>/rg global</yellow> to create the global region."),
+    REGION_GLOBAL_CREATED("region.global-created", "<prefix><green>Global region <yellow><region></yellow> created for world <yellow><world></yellow> — its flags now apply wherever no region overrides them."),
+    REGION_GLOBAL_EXISTS("region.global-exists", "<prefix><gray>World <yellow><world></yellow> already has its global region (<yellow><region></yellow>)."),
     REGION_NOT_FOUND("region.not-found", "<prefix><red>No region named <yellow><region></yellow> was found."),
     REGION_AMBIGUOUS("region.ambiguous", "<prefix><red>Several regions are named <yellow><region></yellow> (worlds: <yellow><worlds></yellow>). Use <yellow>world:<region></yellow>."),
     REGION_REMOVED("region.removed", "<prefix><green>Region <yellow><region></yellow> removed."),

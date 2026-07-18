@@ -21,6 +21,7 @@ commands:
     clearpoints: 'Efface les sommets du polygone'
     star: 'Génère le contour d''une étoile autour de vous (terminez avec la forme polygon)'
     create: 'Crée une région à partir de votre sélection (cuboïde, cylindre, sphère ou polygone)'
+    global: 'Crée la région globale d''un monde'
     remove: 'Supprime une région'
     list: 'Liste les régions d''un monde'
     info: 'Affiche les détails d''une région'
@@ -50,6 +51,9 @@ selection:
 region:
   created: '<prefix><green>Région <yellow><region></yellow> créée (<gray><shape></gray>, priorité <gray><priority></gray>).'
   already-exists: '<prefix><red>Une région nommée <yellow><region></yellow> existe déjà dans ce monde.'
+  name-reserved: '<prefix><red>Le nom <yellow><region></yellow> est réservé. Utilisez <yellow>/rg global</yellow> pour créer la région globale.'
+  global-created: '<prefix><green>Région globale <yellow><region></yellow> créée pour le monde <yellow><world></yellow> — ses flags s''appliquent désormais partout où aucune région ne les surcharge.'
+  global-exists: '<prefix><gray>Le monde <yellow><world></yellow> possède déjà sa région globale (<yellow><region></yellow>).'
   not-found: '<prefix><red>Aucune région nommée <yellow><region></yellow> n''a été trouvée.'
   ambiguous: '<prefix><red>Plusieurs régions se nomment <yellow><region></yellow> (mondes : <yellow><worlds></yellow>). Utilisez <yellow>monde:<region></yellow>.'
   removed: '<prefix><green>Région <yellow><region></yellow> supprimée.'

@@ -86,6 +86,11 @@ public abstract class RegionCommand {
         plugin.getMessages().send(sender, message);
     }
 
+    /** The shape display name of a region — the global region has no shape. */
+    protected static String shapeName(Region region) {
+        return region.getShape() == null ? "GLOBAL" : region.getShape().getType().name();
+    }
+
     /** Quiet lookup for tab completion: first case-insensitive match across all worlds. */
     protected Optional<Region> findRegion(ZRegionsPlugin plugin, String name) {
         return plugin.getRegionManager().getRegions().stream()

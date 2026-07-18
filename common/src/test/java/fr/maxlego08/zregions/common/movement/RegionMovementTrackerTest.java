@@ -171,6 +171,66 @@ class RegionMovementTrackerTest {
     }
 
     @Test
+    void titleAndActionBarShowOnEnterOnly() {
+        this.manager.setFlag(this.region, Flags.TITLE, GroupTarget.ALL, "Welcome");
+        this.manager.setFlag(this.region, Flags.ACTION_BAR, GroupTarget.ALL, "in <region>");
+
+        assertTrue(this.tracker.handleMove(this.player, at(5, 5, 5), false));
+        assertEquals(1, this.player.titles.size(), "entering must show the title once");
+        assertEquals(1, this.player.actionBars.size(), "entering must show the action bar once");
+
+        assertTrue(this.tracker.handleMove(this.player, at(6, 5, 6), false));
+        assertTrue(this.tracker.handleMove(this.player, at(50, 5, 50), false));
+        assertEquals(1, this.player.titles.size(), "moving inside or leaving must not re-show");
+        assertEquals(1, this.player.actionBars.size());
+    }
+
+    @Test
+    void subtitleAloneStillShowsATitle() {
+        this.manager.setFlag(this.region, Flags.SUBTITLE, GroupTarget.ALL, "the subtitle");
+
+        assertTrue(this.tracker.handleMove(this.player, at(5, 5, 5), false));
+
+        assertEquals(1, this.player.titles.size(), "a lone subtitle must still be displayed");
+        assertEquals(Component.empty(), this.player.titles.get(0)[0], "the main title line stays empty");
+        assertNotNull(this.player.titles.get(0)[1]);
+    }
+
+    @Test
+    void enteringOverlappingRegionsShowsTheHighestPriorityDisplayOnly() {
+        // displays are last-write-wins on the client: the priority-10 title must win
+        Region town = this.manager.createRegion(WORLD, "town", new CuboidShape(0, 0, 0, 10, 10, 10), 1, null);
+        this.manager.setFlag(this.region, Flags.TITLE, GroupTarget.ALL, "Arena");
+        this.manager.setFlag(town, Flags.TITLE, GroupTarget.ALL, "Town");
+
+        assertTrue(this.tracker.handleMove(this.player, at(5, 5, 5), false));
+
+        assertEquals(1, this.player.titles.size(), "one title for the whole crossing, not one per region");
+        assertEquals(this.plugin.getMessages().formatRaw("Arena", "player", "Notch", "region", "shop"),
+                this.player.titles.get(0)[0], "the highest-priority region's title must be the one shown");
+    }
+
+    @Test
+    void displayChannelsFallThroughToTheNextRegionIndependently() {
+        // the high-priority region has no action bar: the low-priority one still shows
+        Region town = this.manager.createRegion(WORLD, "town", new CuboidShape(0, 0, 0, 10, 10, 10), 1, null);
+        this.manager.setFlag(this.region, Flags.TITLE, GroupTarget.ALL, "Arena");
+        this.manager.setFlag(town, Flags.ACTION_BAR, GroupTarget.ALL, "in town");
+
+        assertTrue(this.tracker.handleMove(this.player, at(5, 5, 5), false));
+
+        assertEquals(1, this.player.titles.size());
+        assertEquals(1, this.player.actionBars.size(), "an unset channel falls through to the next region");
+    }
+
+    @Test
+    void regionWithoutDisplaysShowsNothing() {
+        assertTrue(this.tracker.handleMove(this.player, at(5, 5, 5), false));
+        assertEquals(0, this.player.titles.size());
+        assertEquals(0, this.player.actionBars.size());
+    }
+
+    @Test
     void deniedMessageIsThrottled() {
         this.manager.setFlag(this.region, Flags.ENTRY, GroupTarget.ALL, false);
 
@@ -189,6 +249,8 @@ class RegionMovementTrackerTest {
 
         private final UUID uniqueId = UUID.randomUUID();
         private final List<Component> messages = new ArrayList<>();
+        private final List<Component> actionBars = new ArrayList<>();
+        private final List<Component[]> titles = new ArrayList<>();
         private RegionLocation location = at(0, 64, 0);
 
         @Override
@@ -219,6 +281,16 @@ class RegionMovementTrackerTest {
         @Override
         public void sendMessage(Component message) {
             this.messages.add(message);
+        }
+
+        @Override
+        public void sendActionBar(Component message) {
+            this.actionBars.add(message);
+        }
+
+        @Override
+        public void sendTitle(Component title, Component subtitle) {
+            this.titles.add(new Component[]{title, subtitle});
         }
 
         @Override

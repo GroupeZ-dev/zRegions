@@ -22,10 +22,11 @@ never the whole region set.
 
 ## 1. Overview
 
-- **Region protection** driven by **35 flags** (blocks, environment, entities, players, zone),
+- **Region protection** driven by **46 flags** (blocks, environment, entities, players, zone),
   every one of them actually enforced by a listener — no dead flags.
-- **Enter/exit engine**: `entry`/`exit` enforcement, `greeting`/`farewell` messages (MiniMessage),
-  recomputed only when a player crosses a block boundary.
+- **Enter/exit engine**: `entry`/`exit` enforcement, `greeting`/`farewell` messages plus
+  `title`/`subtitle`/`action-bar` displays (MiniMessage), recomputed only when a player crosses
+  a block boundary.
 - **Per-target flag values**: a flag can hold a different value for `owner`, `member`,
   `visitor` or `all`.
 - **Priorities and inheritance**: overlapping regions resolve highest-priority-first; a region can
@@ -58,6 +59,7 @@ subcommands currently live under `/rg`)*.
 | `/rg clearpoints` | Clears the polygon vertices (keeps pos1/pos2) | `zregions.admin` |
 | `/rg star <branches> <outerRadius> [innerRadius]` | Fills the vertex list with a star centered on you (default inner radius: half the outer) | `zregions.admin` |
 | `/rg create <name> [shape] [priority]` | Creates a region from your selection — shape `cuboid` (default), `cylinder`, `sphere` or `polygon` | `zregions.admin` |
+| `/rg global [world]` | Creates the world-wide **global region** of a world (yours by default; the console must name one). Get-or-create: reports the existing one instead of failing | `zregions.admin` |
 | `/rg redefine <name> [shape]` | Replaces a region's shape with your current selection, in its current shape type or an explicit one (same world only) | `zregions.admin` |
 | `/rg remove <name>` | Deletes a region | `zregions.admin` |
 | `/rg list [world]` | Lists regions (your world by default; every world from console) | `zregions.use` |
@@ -90,8 +92,8 @@ subcommands currently live under `/rg`)*.
 | `zregions.bypass` | op | Bypasses **every** region protection, including `entry`/`exit` |
 
 The **bypass node is configurable**: `permissions.bypass` in `config.yml` (applied on `/rg reload`).
-The player-condition flags (`invincible`, `fall-damage`, `hunger`) ignore bypass — they protect
-the player rather than restrict them.
+The player-condition flags (`invincible`, `fall-damage`, `hunger`, `mob-damage`, `keep-inventory`,
+`exp-drop`) ignore bypass — they protect the player rather than restrict them.
 
 ## 5. Regions
 
@@ -111,7 +113,10 @@ the player rather than restrict them.
   at resolution time.
 - **Members**: `owner` and `member` roles. A flag may hold different values per role — see targets.
 - **Global region**: a per-world region without shape acting as world-wide fallback after every
-  positional lookup (currently seeded through the database; a dedicated command is planned).
+  positional lookup. Created with `/rg global [world]` under the reserved name `__global__`
+  (refused to normal regions), then managed like any region: `/rg flag __global__ pvp deny`,
+  `/rg setparent`, `/rg remove __global__`… One per world; it is never indexed, never listed as a
+  positional match, and has no shape (`/rg show` and `/rg redefine` refuse it).
 
 ## 6. Flags
 
@@ -168,10 +173,18 @@ until you deny something.
 |---|---|---|
 | `pvp` | allow | Deny cancels player-vs-player damage (projectiles included) |
 | `damage-animals` | allow | Deny protects animals from players |
+| `mob-damage` | allow | Deny protects players from mobs and other non-player entities (mob projectiles included) — no bypass, silent |
 | `invincible` | **deny** | **Allow** makes players inside immune to all damage |
 | `fall-damage` | allow | Deny cancels fall damage inside |
 | `hunger` | allow | Deny freezes hunger loss inside |
 | `enderpearl` · `chorus-fruit` | allow | Deny blocks teleporting **into** the region by pearl / chorus |
+| `keep-inventory` | **deny** | **Allow** preserves inventory **and XP** on death inside (no drops, no orbs) — no bypass |
+| `exp-drop` | allow | Deny removes the XP orbs of deaths inside (items still drop) — no bypass |
+| `chat` | allow | Deny blocks chatting while inside (bypass exempt, throttled message) |
+| `elytra` | allow | Deny prevents **starting** to glide inside (bypass exempt) |
+| `fly` | allow | Deny prevents **starting** to fly inside — survival/adventure only, creative and spectator flight untouched (bypass exempt) |
+| `totem` | allow | Deny makes totems of undying fail inside (bypass exempt) |
+| `command-blacklist` | *empty list* | Comma-separated command names blocked inside (`/rg flag spawn command-blacklist tp, home, sethome`). Case-insensitive, leading `/` optional, `minecraft:`-style prefixes matched too; only the command name is compared, never its arguments. Bypass exempt |
 
 **Zone** (region-scoped):
 
@@ -181,6 +194,8 @@ until you deny something.
 | `exit` | state | Deny prevents leaving — bypass exempt |
 | `greeting` | text | MiniMessage sent on enter; placeholders `<player>`, `<region>` |
 | `farewell` | text | MiniMessage sent on leave (also on death/respawn out of the region) |
+| `title` · `subtitle` | text | MiniMessage title shown on enter (either line may be set alone); same placeholders |
+| `action-bar` | text | MiniMessage shown in the action bar on enter; same placeholders |
 
 ## 7. Configuration reference (`config.yml`)
 
@@ -246,9 +261,11 @@ language inside the jar.
   RegionManager regions = Bukkit.getServicesManager().load(RegionManager.class);
   ```
 - Key API surface: `RegionManager` (CRUD, `getRegionsAt`, positional & region-scoped
-  `resolveFlag`, members/priority/parent/redefine, `reload(UUID)`), `Region`, `Flag<T>`,
-  `FlagRegistry` (register custom flags **before** regions load), `RegionShape`/`BoundingBox`/
-  `Vector3` (`RegionShape.sampleBorder(spacing)` yields the outline points used by `/rg show`).
+  `resolveFlag`, members/priority/parent/redefine, `reload(UUID)`,
+  `createGlobalRegion(world)`/`getGlobalRegion(world)` with the reserved
+  `RegionManager.GLOBAL_REGION_NAME`), `Region`, `Flag<T>`, `FlagRegistry` (register custom flags
+  **before** regions load), `RegionShape`/`BoundingBox`/`Vector3`
+  (`RegionShape.sampleBorder(spacing)` yields the outline points used by `/rg show`).
 - Architecture (LuckPerms model — `api` / `common` / `bukkit`): see `ARCHITECTURE.md`.
 
 ## 11. Version history
@@ -257,8 +274,13 @@ language inside the jar.
 - Region engine: cuboid/cylinder/sphere/polygon shapes, per-world chunk index, priorities,
   parents, members, per-target flag values, Sarah storage (SQLite/MySQL/MariaDB),
   multi-server-ready schema.
-- 35 enforced flags; enter/exit engine with greeting/farewell; two-phase (check/commit) movement
+- 46 enforced flags; enter/exit engine with greeting/farewell; two-phase (check/commit) movement
   listeners covering walks, teleports, portals, respawns and world changes.
+- `/rg global [world]`: in-game creation of the per-world global region (reserved name
+  `__global__`, refused to normal regions), manageable like any region afterwards.
+- 11 new flags: `mob-damage`, `keep-inventory`, `exp-drop`, `chat`, `elytra`, `fly`, `totem`,
+  `command-blacklist` (first list-valued flag, comma-separated), and the enter displays
+  `title`/`subtitle`/`action-bar` delivered through the platform-agnostic player abstraction.
 - Commands: help, pos1/pos2, create, redefine, remove, list, info, flag (multi-word values,
   targets, unset), addmember/removemember, setpriority, setparent, reload.
 - Per-language folders with on-demand extraction (en/fr/es/it bundled); localized command

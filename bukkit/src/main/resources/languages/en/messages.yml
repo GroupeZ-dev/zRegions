@@ -21,6 +21,7 @@ commands:
     clearpoints: 'Clears the polygon vertices'
     star: 'Generates a star outline around you (finish with the polygon shape)'
     create: 'Creates a region from your selection (cuboid, cylinder, sphere or polygon)'
+    global: 'Creates the world-wide global region of a world'
     remove: 'Deletes a region'
     list: 'Lists the regions of a world'
     info: 'Shows the details of a region'
@@ -50,6 +51,9 @@ selection:
 region:
   created: '<prefix><green>Region <yellow><region></yellow> created (<gray><shape></gray>, priority <gray><priority></gray>).'
   already-exists: '<prefix><red>A region named <yellow><region></yellow> already exists in this world.'
+  name-reserved: '<prefix><red>The name <yellow><region></yellow> is reserved. Use <yellow>/rg global</yellow> to create the global region.'
+  global-created: '<prefix><green>Global region <yellow><region></yellow> created for world <yellow><world></yellow> — its flags now apply wherever no region overrides them.'
+  global-exists: '<prefix><gray>World <yellow><world></yellow> already has its global region (<yellow><region></yellow>).'
   not-found: '<prefix><red>No region named <yellow><region></yellow> was found.'
   ambiguous: '<prefix><red>Several regions are named <yellow><region></yellow> (worlds: <yellow><worlds></yellow>). Use <yellow>world:<region></yellow>.'
   removed: '<prefix><green>Region <yellow><region></yellow> removed.'

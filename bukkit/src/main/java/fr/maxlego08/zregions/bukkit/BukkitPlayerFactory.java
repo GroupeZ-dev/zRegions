@@ -7,6 +7,7 @@ import fr.maxlego08.zregions.common.plugin.ZRegionsPlugin;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -67,6 +68,18 @@ public final class BukkitPlayerFactory extends RegionPlayerFactory<Player> {
     @Override
     protected void sendMessage(Player player, Component message) {
         this.audiences.sender(player).sendMessage(message);
+    }
+
+    // Action bars and titles go through the Audience too — adventure-platform
+    // does the packet work, so this stays Spigot-compatible.
+    @Override
+    protected void sendActionBar(Player player, Component message) {
+        this.audiences.sender(player).sendActionBar(message);
+    }
+
+    @Override
+    protected void sendTitle(Player player, Component title, Component subtitle) {
+        this.audiences.sender(player).showTitle(Title.title(title, subtitle));
     }
 
     @Override

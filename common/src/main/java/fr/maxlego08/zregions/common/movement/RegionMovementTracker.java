@@ -8,7 +8,9 @@ import fr.maxlego08.zregions.common.locale.Message;
 import fr.maxlego08.zregions.common.platform.RegionLocation;
 import fr.maxlego08.zregions.common.platform.RegionPlayer;
 import fr.maxlego08.zregions.common.plugin.ZRegionsPlugin;
+import net.kyori.adventure.text.Component;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -154,10 +156,15 @@ public final class RegionMovementTracker {
                 }
             }
         }
+        List<Region> entered = new ArrayList<>();
         for (Region region : now) {
             if (was == null || !was.contains(region.getId())) {
                 sendZoneMessage(player, region, Flags.GREETING);
+                entered.add(region);
             }
+        }
+        if (!entered.isEmpty()) {
+            sendZoneDisplays(player, entered);
         }
     }
 
@@ -182,9 +189,53 @@ public final class RegionMovementTracker {
         if (text == null || text.isEmpty()) {
             return;
         }
-        player.sendMessage(this.plugin.getMessages().formatRaw(text,
+        player.sendMessage(render(player, region, text));
+    }
+
+    /**
+     * Title/subtitle and action bar on enter — same flag model as greeting, but
+     * displays are last-write-wins on the client: only the FIRST region defining
+     * each channel shows ({@code entered} comes in priority order, highest first),
+     * so the highest-priority display wins instead of being overwritten.
+     */
+    private void sendZoneDisplays(RegionPlayer player, List<Region> entered) {
+        RegionManager manager = this.plugin.getRegionManager();
+        UUID playerId = player.getUniqueId();
+
+        boolean titleShown = false;
+        boolean actionBarShown = false;
+        for (Region region : entered) {
+            if (!titleShown) {
+                String title = manager.resolveFlag(region, Flags.TITLE, playerId);
+                String subtitle = manager.resolveFlag(region, Flags.SUBTITLE, playerId);
+                if (!isEmpty(title) || !isEmpty(subtitle)) {
+                    player.sendTitle(
+                            isEmpty(title) ? Component.empty() : render(player, region, title),
+                            isEmpty(subtitle) ? Component.empty() : render(player, region, subtitle));
+                    titleShown = true;
+                }
+            }
+            if (!actionBarShown) {
+                String actionBar = manager.resolveFlag(region, Flags.ACTION_BAR, playerId);
+                if (!isEmpty(actionBar)) {
+                    player.sendActionBar(render(player, region, actionBar));
+                    actionBarShown = true;
+                }
+            }
+            if (titleShown && actionBarShown) {
+                return;
+            }
+        }
+    }
+
+    private Component render(RegionPlayer player, Region region, String text) {
+        return this.plugin.getMessages().formatRaw(text,
                 "player", player.getName(),
-                "region", region.getName()));
+                "region", region.getName());
+    }
+
+    private static boolean isEmpty(String text) {
+        return text == null || text.isEmpty();
     }
 
     private void sendDenied(RegionPlayer player, Message message, Region region) {

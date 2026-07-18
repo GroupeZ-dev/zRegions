@@ -23,6 +23,12 @@ public interface RegionPlayer {
 
     void sendMessage(Component message);
 
+    /** Shows a message in the player's action bar (above the hotbar). */
+    void sendActionBar(Component message);
+
+    /** Shows a title/subtitle pair with the platform's default fade timings. */
+    void sendTitle(Component title, Component subtitle);
+
     void teleport(RegionLocation location);
 
     /**

@@ -53,6 +53,16 @@ final class AbstractRegionPlayer<T> implements RegionPlayer {
     }
 
     @Override
+    public void sendActionBar(Component message) {
+        this.factory.sendActionBar(this.handle, message);
+    }
+
+    @Override
+    public void sendTitle(Component title, Component subtitle) {
+        this.factory.sendTitle(this.handle, title, subtitle);
+    }
+
+    @Override
     public void teleport(RegionLocation location) {
         this.factory.teleport(this.handle, location);
     }

@@ -89,6 +89,9 @@ public class ZRegionManager implements RegionManager {
 
     @Override
     public Region createRegion(String worldName, String name, RegionShape shape, int priority, UUID creator) {
+        if (GLOBAL_REGION_NAME.equalsIgnoreCase(name)) {
+            throw new IllegalArgumentException("The name '" + GLOBAL_REGION_NAME + "' is reserved for the global region");
+        }
         ZRegion region = new ZRegion(UUID.randomUUID(), name, worldName, shape, priority, null, false);
         if (creator != null) {
             region.putMember(creator, MemberRole.OWNER);
@@ -113,6 +116,31 @@ public class ZRegionManager implements RegionManager {
             }
         });
         return region;
+    }
+
+    @Override
+    public Region createGlobalRegion(String worldName) {
+        ZRegion region = new ZRegion(UUID.randomUUID(), GLOBAL_REGION_NAME, worldName, null, 0, null, true);
+
+        this.writeLock.lock();
+        try {
+            // the name check also catches an is_global row seeded under another name
+            if (this.globalByWorld.containsKey(worldName) || getRegion(worldName, GLOBAL_REGION_NAME).isPresent()) {
+                throw new IllegalArgumentException("World '" + worldName + "' already has a global region");
+            }
+            addToCaches(region);
+        } finally {
+            this.writeLock.unlock();
+        }
+
+        StoredRegion stored = toStored(region);
+        persist(() -> this.plugin.getStorage().saveRegion(stored));
+        return region;
+    }
+
+    @Override
+    public Optional<Region> getGlobalRegion(String worldName) {
+        return Optional.ofNullable(this.globalByWorld.get(worldName));
     }
 
     @Override

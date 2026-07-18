@@ -17,6 +17,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -123,6 +124,59 @@ class RegionManagerMutationTest {
 
         assertThrows(IllegalArgumentException.class,
                 () -> this.manager.redefine(global, new CuboidShape(0, 0, 0, 10, 10, 10)));
+    }
+
+    @Test
+    void createGlobalRegionServesAsFlagFallbackAndPersists() {
+        Region global = this.manager.createGlobalRegion(WORLD);
+        this.manager.setFlag(global, Flags.PVP, GroupTarget.ALL, false);
+
+        assertTrue(global.isGlobal());
+        assertEquals("__global__", global.getName());
+        assertSame(global, this.manager.getGlobalRegion(WORLD).orElseThrow());
+        assertFalse(this.manager.resolveFlag(WORLD, 12345, 64, 12345, Flags.PVP, null),
+                "the global deny must apply anywhere in the world");
+        assertTrue(this.manager.getRegionsAt(WORLD, 12345, 64, 12345).isEmpty(),
+                "the global region is a fallback, never an indexed match");
+
+        StoredRegion stored = this.plugin.storage().loadRegion(global.getId()).orElseThrow();
+        assertTrue(stored.global(), "is_global must round-trip");
+        assertNull(stored.shapeType(), "the global region has no shape");
+    }
+
+    @Test
+    void createGlobalRegionTwiceThrows() {
+        this.manager.createGlobalRegion(WORLD);
+        assertThrows(IllegalArgumentException.class, () -> this.manager.createGlobalRegion(WORLD));
+    }
+
+    @Test
+    void globalRegionsAreIndependentPerWorld() {
+        this.manager.createGlobalRegion(WORLD);
+        assertTrue(this.manager.getGlobalRegion("nether").isEmpty());
+        this.manager.createGlobalRegion("nether");
+        assertEquals(2, this.manager.getRegions().size());
+    }
+
+    @Test
+    void reservedGlobalNameIsRefusedForNormalRegions() {
+        assertThrows(IllegalArgumentException.class, () -> this.manager.createRegion(
+                WORLD, "__global__", new CuboidShape(0, 0, 0, 10, 10, 10), 0, null));
+        assertThrows(IllegalArgumentException.class, () -> this.manager.createRegion(
+                WORLD, "__GLOBAL__", new CuboidShape(0, 0, 0, 10, 10, 10), 0, null),
+                "the reservation is case-insensitive, like name uniqueness");
+    }
+
+    @Test
+    void deleteGlobalRegionClearsTheFallback() {
+        Region global = this.manager.createGlobalRegion(WORLD);
+        this.manager.setFlag(global, Flags.PVP, GroupTarget.ALL, false);
+
+        this.manager.deleteRegion(global);
+
+        assertTrue(this.manager.getGlobalRegion(WORLD).isEmpty());
+        assertTrue(this.manager.resolveFlag(WORLD, 5, 64, 5, Flags.PVP, null), "back to the flag default");
+        assertTrue(this.plugin.storage().loadRegion(global.getId()).isEmpty(), "the stored row must be gone");
     }
 
     @Test

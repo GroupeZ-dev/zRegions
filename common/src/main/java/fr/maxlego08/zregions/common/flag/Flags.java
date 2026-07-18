@@ -7,9 +7,10 @@ import java.util.List;
 
 /**
  * The built-in flags. State flags default to allow — a freshly created region
- * changes nothing until an owner denies something ({@code invincible} is the one
- * exception: players are vulnerable by default). Registered once at startup,
- * before regions are loaded (stored values need the registry to parse).
+ * changes nothing until an owner denies something ({@code invincible} and
+ * {@code keep-inventory} are the exceptions: those protections are off until a
+ * region allows them). Registered once at startup, before regions are loaded
+ * (stored values need the registry to parse).
  *
  * <p>Every flag listed here is enforced by a platform listener — no dead flags.</p>
  */
@@ -43,6 +44,7 @@ public final class Flags {
     public static final Flag<Boolean> MOB_SPAWNING = state("mob-spawning");
     public static final Flag<Boolean> MOB_GRIEFING = state("mob-griefing");
     public static final Flag<Boolean> DAMAGE_ANIMALS = state("damage-animals");
+    public static final Flag<Boolean> MOB_DAMAGE = state("mob-damage");
 
     // --- players ---
     public static final Flag<Boolean> PVP = state("pvp");
@@ -53,12 +55,22 @@ public final class Flags {
     public static final Flag<Boolean> ITEM_PICKUP = state("item-pickup");
     public static final Flag<Boolean> ENDERPEARL = state("enderpearl");
     public static final Flag<Boolean> CHORUS_FRUIT = state("chorus-fruit");
+    public static final Flag<Boolean> KEEP_INVENTORY = new StateFlag("keep-inventory", false);
+    public static final Flag<Boolean> EXP_DROP = state("exp-drop");
+    public static final Flag<Boolean> CHAT = state("chat");
+    public static final Flag<Boolean> ELYTRA = state("elytra");
+    public static final Flag<Boolean> FLY = state("fly");
+    public static final Flag<Boolean> TOTEM = state("totem");
+    public static final Flag<List<String>> COMMAND_BLACKLIST = new StringListFlag("command-blacklist", List.of());
 
     // --- zone ---
     public static final Flag<Boolean> ENTRY = state("entry");
     public static final Flag<Boolean> EXIT = state("exit");
     public static final Flag<String> GREETING = new StringFlag("greeting", "");
     public static final Flag<String> FAREWELL = new StringFlag("farewell", "");
+    public static final Flag<String> TITLE = new StringFlag("title", "");
+    public static final Flag<String> SUBTITLE = new StringFlag("subtitle", "");
+    public static final Flag<String> ACTION_BAR = new StringFlag("action-bar", "");
 
     private static final List<Flag<?>> ALL = List.of(
             BLOCK_BREAK, BLOCK_PLACE, INTERACT, CONTAINER_ACCESS,
@@ -66,10 +78,11 @@ public final class Flags {
             VEHICLE_PLACE, VEHICLE_DESTROY, CROP_TRAMPLE,
             REDSTONE, PISTON, FIRE_IGNITE, FIRE_SPREAD, FLUID_FLOW, LEAF_DECAY,
             BLOCK_EXPLOSION, ENTITY_EXPLOSION,
-            MOB_SPAWNING, MOB_GRIEFING, DAMAGE_ANIMALS,
+            MOB_SPAWNING, MOB_GRIEFING, DAMAGE_ANIMALS, MOB_DAMAGE,
             PVP, INVINCIBLE, FALL_DAMAGE, HUNGER, ITEM_DROP, ITEM_PICKUP,
-            ENDERPEARL, CHORUS_FRUIT,
-            ENTRY, EXIT, GREETING, FAREWELL);
+            ENDERPEARL, CHORUS_FRUIT, KEEP_INVENTORY, EXP_DROP, CHAT,
+            ELYTRA, FLY, TOTEM, COMMAND_BLACKLIST,
+            ENTRY, EXIT, GREETING, FAREWELL, TITLE, SUBTITLE, ACTION_BAR);
 
     private Flags() {
     }

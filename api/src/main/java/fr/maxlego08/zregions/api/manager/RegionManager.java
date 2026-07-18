@@ -20,12 +20,29 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface RegionManager {
 
+    /** Reserved name of the per-world global region ({@link #createGlobalRegion}). */
+    String GLOBAL_REGION_NAME = "__global__";
+
     /**
      * Creates, indexes and asynchronously persists a new region.
      *
-     * @throws IllegalArgumentException if a region with this name already exists in the world
+     * @throws IllegalArgumentException if a region with this name already exists in the world,
+     *         or if the name is the reserved {@link #GLOBAL_REGION_NAME}
      */
     Region createRegion(String worldName, String name, RegionShape shape, int priority, UUID creator);
+
+    /**
+     * Creates, caches and asynchronously persists the world-wide global region of
+     * {@code worldName} — a shapeless region whose flags apply as fallback after
+     * every positional lookup. Named {@link #GLOBAL_REGION_NAME}, priority 0.
+     *
+     * @throws IllegalArgumentException if the world already has a global region,
+     *         or a region squatting the reserved name
+     */
+    Region createGlobalRegion(String worldName);
+
+    /** The world-wide global region of {@code worldName}, if one was created. */
+    Optional<Region> getGlobalRegion(String worldName);
 
     /** Removes the region from the cache/index and asynchronously deletes it from storage. */
     void deleteRegion(Region region);

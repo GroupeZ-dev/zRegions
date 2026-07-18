@@ -63,7 +63,7 @@ public class ListCommand extends RegionCommand {
         for (Region region : regions) {
             plugin.getMessages().send(sender, Message.REGION_LIST_ENTRY,
                     "region", region.getName(),
-                    "shape", region.getShape().getType().name(),
+                    "shape", shapeName(region),
                     "priority", String.valueOf(region.getPriority()));
         }
     }

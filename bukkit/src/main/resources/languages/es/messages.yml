@@ -21,6 +21,7 @@ commands:
     clearpoints: 'Borra los vértices del polígono'
     star: 'Genera el contorno de una estrella a tu alrededor (termina con la forma polygon)'
     create: 'Crea una región a partir de tu selección (cuboide, cilindro, esfera o polígono)'
+    global: 'Crea la región global de un mundo'
     remove: 'Elimina una región'
     list: 'Lista las regiones de un mundo'
     info: 'Muestra los detalles de una región'
@@ -50,6 +51,9 @@ selection:
 region:
   created: '<prefix><green>Región <yellow><region></yellow> creada (<gray><shape></gray>, prioridad <gray><priority></gray>).'
   already-exists: '<prefix><red>Ya existe una región llamada <yellow><region></yellow> en este mundo.'
+  name-reserved: '<prefix><red>El nombre <yellow><region></yellow> está reservado. Usa <yellow>/rg global</yellow> para crear la región global.'
+  global-created: '<prefix><green>Región global <yellow><region></yellow> creada para el mundo <yellow><world></yellow> — sus flags se aplican ahora dondequiera que ninguna región los sobrescriba.'
+  global-exists: '<prefix><gray>El mundo <yellow><world></yellow> ya tiene su región global (<yellow><region></yellow>).'
   not-found: '<prefix><red>No se encontró ninguna región llamada <yellow><region></yellow>.'
   ambiguous: '<prefix><red>Hay varias regiones llamadas <yellow><region></yellow> (mundos: <yellow><worlds></yellow>). Usa <yellow>mundo:<region></yellow>.'
   removed: '<prefix><green>Región <yellow><region></yellow> eliminada.'

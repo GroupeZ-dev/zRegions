@@ -23,6 +23,12 @@ public abstract class RegionPlayerFactory<T> {
 
     protected abstract void sendMessage(T handle, Component message);
 
+    /** Shows a message in the player's action bar. */
+    protected abstract void sendActionBar(T handle, Component message);
+
+    /** Shows a title/subtitle pair with the platform's default fade timings. */
+    protected abstract void sendTitle(T handle, Component title, Component subtitle);
+
     protected abstract void teleport(T handle, RegionLocation location);
 
     /** Spawns a border particle at the coordinates, visible to this player only. */

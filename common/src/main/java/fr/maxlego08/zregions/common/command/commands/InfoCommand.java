@@ -57,7 +57,7 @@ public class InfoCommand extends RegionCommand {
         MessageService messages = plugin.getMessages();
         messages.send(sender, Message.REGION_INFO_HEADER, "region", region.getName());
         messages.send(sender, Message.REGION_INFO_WORLD, "world", region.getWorldName());
-        messages.send(sender, Message.REGION_INFO_SHAPE, "shape", region.getShape().getType().name());
+        messages.send(sender, Message.REGION_INFO_SHAPE, "shape", shapeName(region));
         messages.send(sender, Message.REGION_INFO_PRIORITY, "priority", String.valueOf(region.getPriority()));
         messages.send(sender, Message.REGION_INFO_MEMBERS, "members", formatMembers(plugin, region));
         messages.send(sender, Message.REGION_INFO_FLAGS, "flags", formatFlags(plugin, region));

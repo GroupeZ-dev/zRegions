@@ -4,6 +4,7 @@ import fr.maxlego08.zregions.api.flag.Flag;
 import fr.maxlego08.zregions.bukkit.ZRegionsBukkitPlugin;
 import fr.maxlego08.zregions.common.flag.Flags;
 import fr.maxlego08.zregions.common.locale.Message;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -25,17 +26,25 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityPlaceEvent;
+import org.bukkit.event.entity.EntityResurrectEvent;
+import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,6 +57,13 @@ public final class ProtectionListener implements Listener {
 
     private final ZRegionsBukkitPlugin plugin;
     private final Map<UUID, Long> lastDeniedMessage = new ConcurrentHashMap<>();
+
+    /**
+     * Bypass state refreshed by every synchronous check and read by the async
+     * chat handler — {@code Player#hasPermission} is not thread-safe on vanilla
+     * Spigot (PermissibleBase recalculates into a plain HashMap on the main thread).
+     */
+    private final Map<UUID, Boolean> lastKnownBypass = new ConcurrentHashMap<>();
 
     public ProtectionListener(ZRegionsBukkitPlugin plugin) {
         this.plugin = plugin;
@@ -180,9 +196,102 @@ public final class ProtectionListener implements Listener {
         }
     }
 
+    /**
+     * Fires off the main thread. The region lookup is lock-free and safe there,
+     * but the Bukkit permission query is not — the async path reads the bypass
+     * state cached by the synchronous checks instead.
+     */
+    @EventHandler(ignoreCancelled = true)
+    public void onChat(AsyncPlayerChatEvent event) {
+        Player player = event.getPlayer();
+        boolean bypass = event.isAsynchronous()
+                ? this.lastKnownBypass.getOrDefault(player.getUniqueId(), false)
+                : hasBypass(player);
+        if (bypass) return;
+
+        Location location = player.getLocation();
+        boolean allowed = this.plugin.getRegionManager().resolveFlag(player.getWorld().getName(),
+                location.getX(), location.getY(), location.getZ(), Flags.CHAT, player.getUniqueId());
+        if (!allowed) {
+            event.setCancelled(true);
+            sendDeniedMessage(player);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onCommandPreprocess(PlayerCommandPreprocessEvent event) {
+        Player player = event.getPlayer();
+        if (hasBypass(player)) return;
+
+        Location location = player.getLocation();
+        List<String> blocked = this.plugin.getRegionManager().resolveFlag(player.getWorld().getName(),
+                location.getX(), location.getY(), location.getZ(), Flags.COMMAND_BLACKLIST, player.getUniqueId());
+        if (blocked.isEmpty()) return;
+
+        String command = rootCommand(event.getMessage());
+        String unNamespaced = command.substring(command.indexOf(':') + 1);
+        for (String entry : blocked) {
+            String normalized = (entry.startsWith("/") ? entry.substring(1) : entry).toLowerCase(Locale.ROOT);
+            if (command.equals(normalized) || unNamespaced.equals(normalized)) {
+                event.setCancelled(true);
+                sendDeniedMessage(player);
+                return;
+            }
+        }
+    }
+
+    /** The bare command name of a chat line: "/minecraft:tp a b" -> "minecraft:tp". */
+    private static String rootCommand(String message) {
+        String stripped = message.startsWith("/") ? message.substring(1) : message;
+        int space = stripped.indexOf(' ');
+        return (space == -1 ? stripped : stripped.substring(0, space)).toLowerCase(Locale.ROOT);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onToggleGlide(EntityToggleGlideEvent event) {
+        if (!(event.getEntity() instanceof Player player) || !event.isGliding()) return;
+
+        if (isDenied(player, Flags.ELYTRA, player.getLocation())) {
+            event.setCancelled(true);
+            sendDeniedMessage(player);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onToggleFlight(PlayerToggleFlightEvent event) {
+        if (!event.isFlying()) return;
+        Player player = event.getPlayer();
+        // creative/spectator flight is a gamemode ability, not this flag's concern
+        GameMode mode = player.getGameMode();
+        if (mode == GameMode.CREATIVE || mode == GameMode.SPECTATOR) return;
+
+        if (isDenied(player, Flags.FLY, player.getLocation())) {
+            event.setCancelled(true);
+            sendDeniedMessage(player);
+        }
+    }
+
+    /** Arrives already-cancelled when there is no totem — ignoreCancelled keeps only real pops. */
+    @EventHandler(ignoreCancelled = true)
+    public void onResurrect(EntityResurrectEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+
+        if (isDenied(player, Flags.TOTEM, player.getLocation())) {
+            event.setCancelled(true);
+            sendDeniedMessage(player);
+        }
+    }
+
+    /** Seeds the bypass cache so a player who only chats is judged correctly. */
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        hasBypass(event.getPlayer());
+    }
+
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         this.lastDeniedMessage.remove(event.getPlayer().getUniqueId());
+        this.lastKnownBypass.remove(event.getPlayer().getUniqueId());
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -255,9 +364,16 @@ public final class ProtectionListener implements Listener {
     }
 
     private boolean isDenied(Player player, Flag<Boolean> flag, String worldName, double x, double y, double z) {
-        if (player.hasPermission(this.plugin.getConfiguration().getBypassPermission())) return false;
+        if (hasBypass(player)) return false;
         boolean allowed = this.plugin.getRegionManager().resolveFlag(worldName, x, y, z, flag, player.getUniqueId());
         return !allowed;
+    }
+
+    /** Main thread only: queries Bukkit and refreshes the async-readable cache. */
+    private boolean hasBypass(Player player) {
+        boolean bypass = player.hasPermission(this.plugin.getConfiguration().getBypassPermission());
+        this.lastKnownBypass.put(player.getUniqueId(), bypass);
+        return bypass;
     }
 
     /** Environment-scoped resolution: no player, no bypass, silent at the call sites. */

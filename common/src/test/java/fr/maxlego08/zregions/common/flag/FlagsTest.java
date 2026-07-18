@@ -20,7 +20,7 @@ class FlagsTest {
 
     @Test
     void allContainsEveryBuiltInFlag() {
-        assertEquals(35, Flags.all().size());
+        assertEquals(46, Flags.all().size());
     }
 
     @Test
@@ -59,12 +59,27 @@ class FlagsTest {
         assertTrue(Flags.ENTRY.getDefaultValue());
         assertTrue(Flags.EXIT.getDefaultValue());
         assertTrue(Flags.PVP.getDefaultValue());
+        assertTrue(Flags.CHAT.getDefaultValue());
+        assertTrue(Flags.ELYTRA.getDefaultValue());
+        assertTrue(Flags.FLY.getDefaultValue());
+        assertTrue(Flags.TOTEM.getDefaultValue());
+        assertTrue(Flags.EXP_DROP.getDefaultValue());
+        assertTrue(Flags.MOB_DAMAGE.getDefaultValue());
         assertFalse(Flags.INVINCIBLE.getDefaultValue(), "players are vulnerable by default");
+        assertFalse(Flags.KEEP_INVENTORY.getDefaultValue(), "death drops everything by default");
     }
 
     @Test
     void zoneMessageFlagsDefaultToEmpty() {
         assertEquals("", Flags.GREETING.getDefaultValue());
         assertEquals("", Flags.FAREWELL.getDefaultValue());
+        assertEquals("", Flags.TITLE.getDefaultValue());
+        assertEquals("", Flags.SUBTITLE.getDefaultValue());
+        assertEquals("", Flags.ACTION_BAR.getDefaultValue());
+    }
+
+    @Test
+    void commandBlacklistDefaultsToAnEmptyList() {
+        assertTrue(Flags.COMMAND_BLACKLIST.getDefaultValue().isEmpty(), "no command is blocked by default");
     }
 }
