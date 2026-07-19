@@ -9,11 +9,15 @@ import fr.maxlego08.zregions.api.region.Region;
 import fr.maxlego08.zregions.common.locale.Message;
 import fr.maxlego08.zregions.hooks.zmenu.FlagMaterials;
 import fr.maxlego08.zregions.hooks.zmenu.ZMenuGuiService;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +30,8 @@ import java.util.Optional;
  * the same page. Value-typed flags (text, lists) point back to {@code /rg flag}.
  */
 public final class RegionFlagsButton extends PaginateButton {
+
+    private static final int MAX_WORDS_PER_LINE = 6;
 
     private final ZMenuGuiService service;
 
@@ -52,14 +58,15 @@ public final class RegionFlagsButton extends PaginateButton {
             placeholders.register("flag", flag.getKey());
             placeholders.register("value", explicitValue(region, flag).orElse("unset"));
             placeholders.register("default", serializeDefault(flag));
-            // localized one-line description, same source as /rg flags (flags.<key> in messages.yml)
-            placeholders.register("description", this.service.getPlugin().getMessages().flagDescription(flag.getKey()));
             // a telling icon per flag; unknown flags keep the YAML template material
             ItemStack item = getItemStack().build(player, false, placeholders);
             Material material = FlagMaterials.resolve(flag.getKey());
             if (material != null) {
                 item.setType(material);
             }
+            // localized description (same source as /rg flags), wrapped to <=6 words/line and
+            // prepended to the lore in Java — zMenu placeholders can't add lore lines themselves
+            prependDescription(item, this.service.getPlugin().getMessages().flagDescription(flag.getKey()));
             inventoryEngine.addItem(slot, item)
                     .setClick(event -> onFlagClick(player, event, flag, inventoryEngine.getPage()));
         });
@@ -95,6 +102,38 @@ public final class RegionFlagsButton extends PaginateButton {
             this.service.getPlugin().getRegionManager().setFlag(live, stateFlag, GroupTarget.ALL, true);
         }
         this.service.openFlagEditor(player, live, page);
+    }
+
+    /** Prepends the flag description (wrapped to {@link #MAX_WORDS_PER_LINE} words/line) to the item lore. */
+    private void prependDescription(ItemStack item, String description) {
+        if (description == null || description.isBlank()) {
+            return;
+        }
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return;
+        }
+        List<String> lore = meta.getLore() != null ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
+        List<String> result = new ArrayList<>();
+        for (String line : wrap(description, MAX_WORDS_PER_LINE)) {
+            result.add(ChatColor.GRAY + line);
+        }
+        if (!lore.isEmpty()) {
+            result.add(""); // blank line between the description and the value/controls
+        }
+        result.addAll(lore);
+        meta.setLore(result);
+        item.setItemMeta(meta);
+    }
+
+    /** Splits text into lines of at most {@code maxWords} words each (word-preserving). */
+    private static List<String> wrap(String text, int maxWords) {
+        String[] words = text.trim().split("\\s+");
+        List<String> lines = new ArrayList<>();
+        for (int i = 0; i < words.length; i += maxWords) {
+            lines.add(String.join(" ", Arrays.copyOfRange(words, i, Math.min(i + maxWords, words.length))));
+        }
+        return lines;
     }
 
     private <T> Optional<String> explicitValue(Region region, Flag<T> flag) {

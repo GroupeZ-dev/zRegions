@@ -564,8 +564,12 @@ use them. An unrecognized `%zregions_…%` placeholder is left untouched.
 - **Flag descriptions + `/rg flags`**: every one of the 162 flags now has a localized one-line
   description (`flags.<key>` in each language file — en/fr/es/it), surfaced by the new **`/rg flags`**
   catalogue command (hover for the description, click to start a `/rg flag` command; paginated) and in
-  the zMenu flag editor lore. Backed by a `FlagDescriptions` English fallback so the catalogue is never
-  blank.
+  the zMenu flag editor lore (**word-wrapped to ≤6 words per line**, injected into the item lore). Backed
+  by a `FlagDescriptions` English fallback so the catalogue is never blank.
+- **Interactive flag messages**: the `/rg flag` feedback now makes the flag name itself interactive —
+  in the *set*/*unset*/*invalid-value* messages it hovers to show the flag's description and clicks to
+  re-open `/rg flag <region> <flag> `; the *unknown flag* message links (click) to `/rg flags`. Built in
+  Java and injected as a MiniMessage component placeholder, so hover text with apostrophes stays safe.
 - **Interactive messages** (MiniMessage click/hover): `/rg remove` now requires a **confirmation** — a
   clickable `[✔ Confirm]` button (running `/rg remove <name> confirm`) — so a region is never deleted by
   a single command. `/rg list` entries are clickable to their `/rg info`, and `/rg help` (now

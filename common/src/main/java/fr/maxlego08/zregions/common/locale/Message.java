@@ -78,6 +78,7 @@ public enum Message {
     FLAG_SET("flag.set", "<prefix><success>Flag <accent><flag></accent> set to <accent><value></accent> for <accent><target></accent> in <accent><region></accent>."),
     FLAG_UNSET("flag.unset", "<prefix><success>Flag <accent><flag></accent> removed for <accent><target></accent> in <accent><region></accent>."),
     FLAG_UNKNOWN("flag.unknown", "<prefix><error>Unknown flag <accent><flag></accent>."),
+    FLAG_UNKNOWN_HOVER("flag.unknown-hover", "<body>Click to browse all flags."),
     FLAG_VALUE_INVALID("flag.invalid-value", "<prefix><error>Invalid value <accent><value></accent> for flag <accent><flag></accent>."),
     FLAG_TARGET_INVALID("flag.invalid-target", "<prefix><error>Unknown target <accent><target></accent>. Use <accent>owner</accent>, <accent>member</accent>, <accent>visitor</accent> or <accent>all</accent>."),
 

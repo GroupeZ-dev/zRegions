@@ -82,6 +82,15 @@ public final class MessageService {
     }
 
     /**
+     * Formats a message with an extra resolver on top of the usual ones — typically a
+     * {@code Placeholder.component(key, …)} that injects an interactive (hover/click)
+     * Component at a placeholder position, e.g. a clickable flag name in the flag messages.
+     */
+    public Component format(Message message, TagResolver extra, String... placeholders) {
+        return this.miniMessage.deserialize(raw(message), baseResolvers(placeholders).resolver(extra).build());
+    }
+
+    /**
      * Formats a raw MiniMessage string that does not come from the language file
      * (e.g. a greeting/farewell flag value). Same placeholder contract as
      * {@link #format}; the {@code <prefix>} tag and palette resolve too.

@@ -9,8 +9,14 @@ import fr.maxlego08.zregions.common.command.tabcomplete.CompletionSupplier;
 import fr.maxlego08.zregions.common.command.tabcomplete.TabCompleter;
 import fr.maxlego08.zregions.common.command.util.ArgumentList;
 import fr.maxlego08.zregions.common.locale.Message;
+import fr.maxlego08.zregions.common.locale.MessageService;
 import fr.maxlego08.zregions.common.plugin.ZRegionsPlugin;
 import fr.maxlego08.zregions.common.sender.RegionSender;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 
 import java.util.Arrays;
 import java.util.List;
@@ -47,7 +53,12 @@ public class FlagCommand extends RegionCommand {
 
         Optional<Flag<?>> flag = plugin.getFlagRegistry().getFlag(optionalFlag.get());
         if (flag.isEmpty()) {
-            plugin.getMessages().send(sender, Message.FLAG_UNKNOWN, "flag", optionalFlag.get());
+            // the unknown name links to the flag catalogue so a typo is one click from the list
+            MessageService messages = plugin.getMessages();
+            Component unknown = Component.text(optionalFlag.get(), messages.palette().accent())
+                    .hoverEvent(HoverEvent.showText(messages.format(Message.FLAG_UNKNOWN_HOVER)))
+                    .clickEvent(ClickEvent.runCommand("/rg flags"));
+            sender.sendMessage(messages.format(Message.FLAG_UNKNOWN, Placeholder.component("flag", unknown)));
             return;
         }
 
@@ -78,28 +89,43 @@ public class FlagCommand extends RegionCommand {
             return;
         }
 
+        MessageService messages = plugin.getMessages();
+        // the flag name in the feedback hovers to show its description and clicks to re-open
+        // the /rg flag command for the same region — built in Java, injected as a component
         if (value.equalsIgnoreCase("unset") || value.equals("-")) {
             plugin.getRegionManager().removeFlag(region.get(), flag.get(), target);
-            plugin.getMessages().send(sender, Message.FLAG_UNSET,
-                    "flag", flag.get().getKey(),
+            sender.sendMessage(messages.format(Message.FLAG_UNSET, flagLink(messages, region.get(), flag.get()),
                     "target", target.name(),
-                    "region", region.get().getName());
+                    "region", region.get().getName()));
             return;
         }
 
         Optional<String> applied = apply(plugin, region.get(), flag.get(), target, value);
         if (applied.isEmpty()) {
-            plugin.getMessages().send(sender, Message.FLAG_VALUE_INVALID,
-                    "value", value,
-                    "flag", flag.get().getKey());
+            sender.sendMessage(messages.format(Message.FLAG_VALUE_INVALID, flagLink(messages, region.get(), flag.get()),
+                    "value", value));
             return;
         }
 
-        plugin.getMessages().send(sender, Message.FLAG_SET,
-                "flag", flag.get().getKey(),
+        sender.sendMessage(messages.format(Message.FLAG_SET, flagLink(messages, region.get(), flag.get()),
                 "value", applied.get(),
                 "target", target.name(),
-                "region", region.get().getName());
+                "region", region.get().getName()));
+    }
+
+    /**
+     * An interactive {@code <flag>} component placeholder: the flag key coloured with
+     * the palette accent, hovering to its description ({@link Message#FLAG_LIST_HOVER})
+     * and clicking to suggest {@code /rg flag <region> <flag> } for a quick re-edit.
+     */
+    private static TagResolver flagLink(MessageService messages, Region region, Flag<?> flag) {
+        Component hover = messages.format(Message.FLAG_LIST_HOVER,
+                "flag", flag.getKey(),
+                "description", messages.flagDescription(flag.getKey()));
+        Component link = Component.text(flag.getKey(), messages.palette().accent())
+                .hoverEvent(HoverEvent.showText(hover))
+                .clickEvent(ClickEvent.suggestCommand("/rg flag " + region.getName() + " " + flag.getKey() + " "));
+        return Placeholder.component("flag", link);
     }
 
     /**

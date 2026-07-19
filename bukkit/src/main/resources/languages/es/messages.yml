@@ -100,6 +100,7 @@ flag:
   set: '<prefix><success>Flag <accent><flag></accent> establecido en <accent><value></accent> para <accent><target></accent> en <accent><region></accent>.'
   unset: '<prefix><success>Flag <accent><flag></accent> eliminado para <accent><target></accent> en <accent><region></accent>.'
   unknown: '<prefix><error>Flag <accent><flag></accent> desconocido.'
+  unknown-hover: '<body>Haz clic para ver todos los flags.'
   invalid-value: '<prefix><error>Valor <accent><value></accent> inválido para el flag <accent><flag></accent>.'
   invalid-target: '<prefix><error>Objetivo <accent><target></accent> desconocido. Usa <accent>owner</accent>, <accent>member</accent>, <accent>visitor</accent> o <accent>all</accent>.'
   list:

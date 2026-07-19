@@ -2,7 +2,9 @@ package fr.maxlego08.zregions.common.locale;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.junit.jupiter.api.Test;
 // Palette is in the same package (fr.maxlego08.zregions.common.locale) — no import needed
 
@@ -11,6 +13,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Guards the message palette: the semantic tags must resolve to the fixed hex
@@ -49,6 +52,27 @@ class MessageServiceTest {
         assertEquals(TextColor.color(0x111111), colorOf(segments, "a"));
         assertEquals(TextColor.color(0x222222), colorOf(segments, "b"));
         assertEquals(TextColor.color(0x666666), colorOf(segments, "c"));
+    }
+
+    @Test
+    void anInteractiveFlagComponentSurvivesInsertionIntoAMessage() {
+        // the flag messages inject a clickable/hoverable <flag> as a component placeholder
+        Component link = Component.text("pvp", Palette.ACCENT)
+                .clickEvent(ClickEvent.suggestCommand("/rg flag spawn pvp "));
+        Component rendered = messages.format(Message.FLAG_SET, Placeholder.component("flag", link),
+                "value", "deny", "target", "ALL", "region", "spawn");
+
+        List<Segment> segments = flatten(rendered);
+        assertEquals(Palette.ACCENT, colorOf(segments, "pvp"), "the flag keeps its accent colour");
+        assertTrue(hasSuggestClick(rendered, "/rg flag spawn pvp "), "the flag keeps its click command");
+    }
+
+    private static boolean hasSuggestClick(Component component, String command) {
+        ClickEvent click = component.clickEvent();
+        if (click != null && click.action() == ClickEvent.Action.SUGGEST_COMMAND && click.value().equals(command)) {
+            return true;
+        }
+        return component.children().stream().anyMatch(child -> hasSuggestClick(child, command));
     }
 
     @Test
