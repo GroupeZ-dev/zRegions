@@ -41,6 +41,16 @@ class ZRegionsConfigurationPaletteTest {
         assertEquals(Palette.BODY, palette.body());
     }
 
+    @Test
+    void nonSixDigitHexFallsBackInsteadOfGuessing() {
+        // #fff must NOT silently become #000FFF (Adventure parses "fff" as 0xFFF)
+        Palette palette = configWith(Map.of(
+                "messages.palette.success", "#fff",
+                "messages.palette.primary", "#1234567")).getPalette();
+        assertEquals(Palette.SUCCESS, palette.success());
+        assertEquals(Palette.PRIMARY, palette.primary());
+    }
+
     private static ZRegionsConfiguration configWith(Map<String, String> values) {
         return new ZRegionsConfiguration(new MapConfigurationAdapter(values));
     }

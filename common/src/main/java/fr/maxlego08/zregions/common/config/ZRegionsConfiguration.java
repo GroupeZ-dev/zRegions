@@ -64,10 +64,13 @@ public final class ZRegionsConfiguration {
 
     private TextColor paletteColor(String role, TextColor def) {
         String value = this.adapter.getString("messages.palette." + role, "").trim();
-        if (value.isEmpty()) {
+        String hex = value.startsWith("#") ? value.substring(1) : value;
+        // strictly #RRGGBB: reject shorthand (#fff would parse to a surprising colour,
+        // not expand CSS-style) and any other length, so a typo predictably keeps the default
+        if (hex.length() != 6) {
             return def;
         }
-        TextColor parsed = TextColor.fromHexString(value.startsWith("#") ? value : "#" + value);
+        TextColor parsed = TextColor.fromHexString("#" + hex);
         return parsed != null ? parsed : def;
     }
 
