@@ -11,6 +11,7 @@ import fr.maxlego08.zregions.common.plugin.bootstrap.ZRegionsBootstrap;
 import fr.maxlego08.zregions.common.plugin.logging.PluginLogger;
 import fr.maxlego08.zregions.common.selection.SelectionManager;
 import fr.maxlego08.zregions.common.sender.RegionSender;
+import fr.maxlego08.zregions.common.state.RegionPlayerStateService;
 import fr.maxlego08.zregions.common.storage.RegionStorage;
 import fr.maxlego08.zregions.common.visual.BorderDisplayManager;
 
@@ -42,6 +43,9 @@ public interface ZRegionsPlugin {
     SelectionManager getSelectionManager();
 
     RegionMovementTracker getMovementTracker();
+
+    /** Applies/restores the persistent player-state flags (gamemode, time-lock, speeds…). */
+    RegionPlayerStateService getPlayerStateService();
 
     BorderDisplayManager getBorderDisplay();
 

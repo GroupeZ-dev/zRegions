@@ -89,6 +89,76 @@ final class AbstractRegionPlayer<T> implements RegionPlayer {
     }
 
     @Override
+    public void setPlayerTime(long ticks) {
+        this.factory.setPlayerTime(this.handle, ticks);
+    }
+
+    @Override
+    public void resetPlayerTime() {
+        this.factory.resetPlayerTime(this.handle);
+    }
+
+    @Override
+    public void setPlayerWeather(boolean rain) {
+        this.factory.setPlayerWeather(this.handle, rain);
+    }
+
+    @Override
+    public void resetPlayerWeather() {
+        this.factory.resetPlayerWeather(this.handle);
+    }
+
+    @Override
+    public void setWalkSpeed(float speed) {
+        this.factory.setWalkSpeed(this.handle, speed);
+    }
+
+    @Override
+    public void setFlySpeed(float speed) {
+        this.factory.setFlySpeed(this.handle, speed);
+    }
+
+    @Override
+    public String getGameMode() {
+        return this.factory.getGameMode(this.handle);
+    }
+
+    @Override
+    public void setGameMode(String mode) {
+        this.factory.setGameMode(this.handle, mode);
+    }
+
+    @Override
+    public double getHealth() {
+        return this.factory.getHealth(this.handle);
+    }
+
+    @Override
+    public void setHealth(double health) {
+        this.factory.setHealth(this.handle, health);
+    }
+
+    @Override
+    public double getMaxHealth() {
+        return this.factory.getMaxHealth(this.handle);
+    }
+
+    @Override
+    public int getFoodLevel() {
+        return this.factory.getFoodLevel(this.handle);
+    }
+
+    @Override
+    public void setFoodLevel(int level) {
+        this.factory.setFoodLevel(this.handle, level);
+    }
+
+    @Override
+    public void setGlowing(boolean glowing) {
+        this.factory.setGlowing(this.handle, glowing);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof AbstractRegionPlayer<?> other)) return false;

@@ -113,6 +113,39 @@ class RegionMovementTrackerTest {
     }
 
     @Test
+    void walkSpeedAppliedOnEnterAndRestoredOnExit() {
+        this.manager.setFlag(this.region, Flags.WALK_SPEED, GroupTarget.ALL, 0.5);
+
+        assertTrue(this.tracker.handleMove(this.player, at(5, 5, 5), false));
+        assertEquals(0.5f, this.player.walkSpeed, 1e-6f, "walk-speed applied on enter");
+
+        assertTrue(this.tracker.handleMove(this.player, at(50, 5, 50), false));
+        assertEquals(0.2f, this.player.walkSpeed, 1e-6f, "walk-speed restored to default on exit");
+    }
+
+    @Test
+    void gamemodeAppliedOnEnterAndOriginalRestoredOnExit() {
+        this.manager.setFlag(this.region, Flags.GAMEMODE, GroupTarget.ALL, "adventure");
+
+        assertTrue(this.tracker.handleMove(this.player, at(5, 5, 5), false));
+        assertEquals("adventure", this.player.gameMode, "gamemode applied on enter");
+
+        assertTrue(this.tracker.handleMove(this.player, at(50, 5, 50), false));
+        assertEquals("survival", this.player.gameMode, "the original gamemode is restored on exit");
+    }
+
+    @Test
+    void glowAppliedOnEnterAndClearedOnExit() {
+        this.manager.setFlag(this.region, Flags.GLOW, GroupTarget.ALL, true);
+
+        assertTrue(this.tracker.handleMove(this.player, at(5, 5, 5), false));
+        assertTrue(this.player.glowing, "glow applied on enter");
+
+        assertTrue(this.tracker.handleMove(this.player, at(50, 5, 50), false));
+        assertFalse(this.player.glowing, "glow cleared on exit");
+    }
+
+    @Test
     void arrivalInitializesTheSetAndGreets() {
         this.manager.setFlag(this.region, Flags.GREETING, GroupTarget.ALL, "hi <player>");
 
@@ -333,6 +366,86 @@ class RegionMovementTrackerTest {
         @Override
         public boolean isOnline() {
             return true;
+        }
+
+        private String gameMode = "survival";
+        private Long playerTime = null;
+        private Boolean playerWeather = null;
+        private float walkSpeed = 0.2f;
+        private float flySpeed = 0.1f;
+
+        @Override
+        public void setPlayerTime(long ticks) {
+            this.playerTime = ticks;
+        }
+
+        @Override
+        public void resetPlayerTime() {
+            this.playerTime = null;
+        }
+
+        @Override
+        public void setPlayerWeather(boolean rain) {
+            this.playerWeather = rain;
+        }
+
+        @Override
+        public void resetPlayerWeather() {
+            this.playerWeather = null;
+        }
+
+        @Override
+        public void setWalkSpeed(float speed) {
+            this.walkSpeed = speed;
+        }
+
+        @Override
+        public void setFlySpeed(float speed) {
+            this.flySpeed = speed;
+        }
+
+        @Override
+        public String getGameMode() {
+            return this.gameMode;
+        }
+
+        @Override
+        public void setGameMode(String mode) {
+            this.gameMode = mode;
+        }
+
+        private double health = 20.0;
+        private int foodLevel = 20;
+        private boolean glowing = false;
+
+        @Override
+        public double getHealth() {
+            return this.health;
+        }
+
+        @Override
+        public void setHealth(double health) {
+            this.health = health;
+        }
+
+        @Override
+        public double getMaxHealth() {
+            return 20.0;
+        }
+
+        @Override
+        public int getFoodLevel() {
+            return this.foodLevel;
+        }
+
+        @Override
+        public void setFoodLevel(int level) {
+            this.foodLevel = level;
+        }
+
+        @Override
+        public void setGlowing(boolean glowing) {
+            this.glowing = glowing;
         }
     }
 }

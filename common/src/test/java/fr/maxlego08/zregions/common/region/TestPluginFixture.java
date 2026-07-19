@@ -18,6 +18,7 @@ import fr.maxlego08.zregions.common.plugin.scheduler.JavaSchedulerAdapter;
 import fr.maxlego08.zregions.common.plugin.scheduler.SchedulerAdapter;
 import fr.maxlego08.zregions.common.selection.SelectionManager;
 import fr.maxlego08.zregions.common.sender.RegionSender;
+import fr.maxlego08.zregions.common.state.RegionPlayerStateService;
 import fr.maxlego08.zregions.common.storage.RegionStorage;
 import fr.maxlego08.zregions.common.storage.StoredRegion;
 import fr.maxlego08.zregions.common.visual.BorderDisplayManager;
@@ -49,6 +50,7 @@ public final class TestPluginFixture implements ZRegionsPlugin {
     private final MessageService messages = new MessageService();
     private final ZFlagRegistry flagRegistry = new ZFlagRegistry();
     private final RegionMovementTracker movementTracker = new RegionMovementTracker(this);
+    private final RegionPlayerStateService playerStateService = new RegionPlayerStateService(this);
     private final BorderDisplayManager borderDisplay = new BorderDisplayManager(this);
     private ZRegionManager regionManager;
 
@@ -107,6 +109,11 @@ public final class TestPluginFixture implements ZRegionsPlugin {
     @Override
     public RegionMovementTracker getMovementTracker() {
         return this.movementTracker;
+    }
+
+    @Override
+    public RegionPlayerStateService getPlayerStateService() {
+        return this.playerStateService;
     }
 
     @Override

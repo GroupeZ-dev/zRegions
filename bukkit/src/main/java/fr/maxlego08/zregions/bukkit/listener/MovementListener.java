@@ -61,6 +61,11 @@ public final class MovementListener implements Listener {
         Player nativePlayer = event.getPlayer();
         RegionPlayer player = this.plugin.getPlayerFactory().wrap(nativePlayer);
         boolean bypass = nativePlayer.hasPermission(this.plugin.getConfiguration().getBypassPermission());
+        // "move" freeze: a player standing in a move-deny region cannot cross block boundaries
+        if (isDenied(nativePlayer, Flags.MOVE, from)) {
+            event.setTo(from);
+            return;
+        }
         if (!this.plugin.getMovementTracker().checkMove(player, toRegionLocation(to), bypass)) {
             // Push back instead of cancelling — setCancelled glitches on some clients.
             event.setTo(from);
@@ -95,6 +100,18 @@ public final class MovementListener implements Listener {
             return;
         }
 
+        Location from = event.getFrom();
+        if (from != null && isDenied(nativePlayer, Flags.TELEPORT_OUT, from)) {
+            event.setCancelled(true);
+            sendDeniedMessage(nativePlayer, from);
+            return;
+        }
+        if (isDenied(nativePlayer, Flags.TELEPORT_IN, to)) {
+            event.setCancelled(true);
+            sendDeniedMessage(nativePlayer, to);
+            return;
+        }
+
         if (!checkArrivalAt(nativePlayer, to)) {
             event.setCancelled(true);
         }
@@ -109,8 +126,14 @@ public final class MovementListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPortal(PlayerPortalEvent event) {
+        Player player = event.getPlayer();
+        if (isDenied(player, Flags.PORTAL_USE, event.getFrom())) {
+            event.setCancelled(true);
+            sendDeniedMessage(player, event.getFrom());
+            return;
+        }
         Location to = event.getTo();
-        if (to != null && !checkArrivalAt(event.getPlayer(), to)) {
+        if (to != null && !checkArrivalAt(player, to)) {
             event.setCancelled(true);
         }
     }
@@ -130,7 +153,10 @@ public final class MovementListener implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        UUID playerId = event.getPlayer().getUniqueId();
+        Player nativePlayer = event.getPlayer();
+        UUID playerId = nativePlayer.getUniqueId();
+        // restore persisted overrides (speeds, game mode) before the player leaves
+        this.plugin.getPlayerStateService().clear(this.plugin.getPlayerFactory().wrap(nativePlayer));
         this.plugin.getMovementTracker().handleQuit(playerId);
         this.plugin.getBorderDisplay().hide(playerId);
         this.lastDeniedMessage.remove(playerId);

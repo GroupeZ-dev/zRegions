@@ -53,6 +53,7 @@ import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -324,6 +325,17 @@ public final class ProtectionListener implements Listener {
         String stripped = message.startsWith("/") ? message.substring(1) : message;
         int space = stripped.indexOf(' ');
         return (space == -1 ? stripped : stripped.substring(0, space)).toLowerCase(Locale.ROOT);
+    }
+
+    @EventHandler
+    public void onExpChange(PlayerExpChangeEvent event) {
+        Player player = event.getPlayer();
+        Location location = player.getLocation();
+        double multiplier = this.plugin.getRegionManager().resolveFlag(location.getWorld().getName(),
+                location.getX(), location.getY(), location.getZ(), Flags.EXPERIENCE_MULTIPLIER, player.getUniqueId());
+        if (multiplier != 1.0) {
+            event.setAmount(Math.max(0, (int) Math.round(event.getAmount() * multiplier)));
+        }
     }
 
     @EventHandler(ignoreCancelled = true)

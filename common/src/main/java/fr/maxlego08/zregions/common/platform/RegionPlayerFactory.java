@@ -46,6 +46,36 @@ public abstract class RegionPlayerFactory<T> {
 
     protected abstract boolean isOnline(T handle);
 
+    // --- player-state overrides ---
+
+    protected abstract void setPlayerTime(T handle, long ticks);
+
+    protected abstract void resetPlayerTime(T handle);
+
+    protected abstract void setPlayerWeather(T handle, boolean rain);
+
+    protected abstract void resetPlayerWeather(T handle);
+
+    protected abstract void setWalkSpeed(T handle, float speed);
+
+    protected abstract void setFlySpeed(T handle, float speed);
+
+    protected abstract String getGameMode(T handle);
+
+    protected abstract void setGameMode(T handle, String mode);
+
+    protected abstract double getHealth(T handle);
+
+    protected abstract void setHealth(T handle, double health);
+
+    protected abstract double getMaxHealth(T handle);
+
+    protected abstract int getFoodLevel(T handle);
+
+    protected abstract void setFoodLevel(T handle, int level);
+
+    protected abstract void setGlowing(T handle, boolean glowing);
+
     public final RegionPlayer wrap(T handle) {
         Objects.requireNonNull(handle, "handle");
         return new AbstractRegionPlayer<>(this, handle);

@@ -22,9 +22,10 @@ never the whole region set.
 
 ## 1. Overview
 
-- **Region protection** driven by **130 flags** (blocks, environment, entities, players, zone,
-  fine interactions, world/weather cycles, growth, fine spawns & explosions, item lifecycle), every
-  one of them actually enforced by a listener — no dead flags.
+- **Region protection** driven by **149 flags** (blocks, environment, entities, players, zone,
+  fine interactions, world/weather cycles, growth, fine spawns & explosions, item lifecycle,
+  persistent player state, heal/feed, movement & teleport), every one of them actually enforced by
+  a listener — no dead flags.
 - **Enter/exit engine**: `entry`/`exit` enforcement, `greeting`/`farewell` messages plus
   `title`/`subtitle`/`action-bar` displays (MiniMessage), recomputed only when a player crosses
   a block boundary.
@@ -314,6 +315,41 @@ decides. So `fluid-flow deny` stops every fluid, then `water-flow allow` in a su
 | `block-drops` | Blocks broken here drop no items |
 | `drop-on-death` | A player dying here drops no items (XP is handled by `exp-drop`) |
 
+**Persistent player state** — applied on entering a region that sets it and restored on leaving (highest-priority region wins; per-target values supported):
+
+| Flag | Type | Effect |
+|---|---|---|
+| `gamemode` | text | Game mode inside (`survival`/`creative`/`adventure`/`spectator`); the mode from before entering is restored on exit |
+| `time-lock` | text | Client-only time of day (`day`/`noon`/`sunset`/`night`/`midnight`/`sunrise`, or a tick number); reset on exit |
+| `weather-lock` | text | Client-only weather (`clear` or `rain`); reset on exit |
+| `walk-speed` · `fly-speed` | number | Walk / fly speed inside (0.0–1.0); restored to the vanilla default (0.2 / 0.1) on exit |
+
+> These override the player's state only while inside; another plugin managing the same state may conflict. Values that persist across sessions (speeds, game mode) are also restored on quit.
+
+**Heal & feed** — applied on a one-second tick to players inside; silent:
+
+| Flag | Type | Effect |
+|---|---|---|
+| `heal-amount` · `feed-amount` | number | Health / food added each interval (negative = poison / starve zone); setting it is what activates the effect |
+| `heal-delay` · `feed-delay` | number | Seconds between applications (default 2) |
+| `heal-min-health` · `heal-max-health` | number | Health bounds of the effect (default 0 / 20) |
+| `feed-min-hunger` · `feed-max-hunger` | number | Food bounds of the effect (default 0 / 20) |
+
+**Extended state**:
+
+| Flag | Default | Effect |
+|---|---|---|
+| `glow` | deny | Allow makes players glow while inside (restored on exit/quit) |
+| `experience-multiplier` | `1.0` | Multiplies XP gained inside (`0` = none, `2` = double) |
+
+**Movement, portals & teleport**:
+
+| Flag | Blocks when denied |
+|---|---|
+| `portal-use` | Using nether / end portals |
+| `move` | Moving inside — freezes the player at their block (bypass exempt; a teleport still works) |
+| `teleport-in` · `teleport-out` | Teleporting **into** / **out of** the region (bypass exempt) |
+
 ## 7. Configuration reference (`config.yml`)
 
 The default config.yml is shipped **translated** (same keys everywhere, only the comments
@@ -484,6 +520,17 @@ use them. An unrecognized `%zregions_…%` placeholder is left untouched.
 ## 14. Version history
 
 ### 1.0.0 — Unreleased
+- **14 new flags** (135 → 149). **Heal/feed** (new `RegionHealFeedTicker`, one-second tick):
+  `heal-amount`/`feed-amount` with `*-delay`/`*-min-*`/`*-max-*` bounds (negative amounts = poison/
+  starve zones). **Extended state**: `glow`, `experience-multiplier`. **Movement/teleport** (batch
+  B10, in the movement listener): `portal-use`, `move` (freeze), `teleport-in`, `teleport-out`.
+  Adds the `RegionPlayer` health/food/glow hooks.
+- **5 persistent player-state flags** (130 → 135), applied on region enter and restored on exit:
+  `gamemode` (restores the previous mode), `time-lock` & `weather-lock` (client-only, named or tick/
+  keyword values), `walk-speed` & `fly-speed`. Backed by a new `RegionPlayerStateService` wired into
+  the movement tracker (per-player apply/restore, restored on quit) and a new numeric `DoubleFlag`
+  type (also the building block for future rate flags). Adds the `RegionPlayer` platform hooks
+  (`setPlayerTime`/`setPlayerWeather`/`setWalkSpeed`/`setFlySpeed`/`getGameMode`/`setGameMode`).
 - **15 new flags** (115 → 130), all enforced. **Fine block interactions** (override `interact`/
   `block-break`/`block-place` where set): `door-use`, `trapdoor-use`, `button-use`, `lever-use`,
   `pressure-plate-use`, `ender-chest-use`, `crafting-table-use`, `enchant-table-use`,

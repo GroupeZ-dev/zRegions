@@ -144,6 +144,8 @@ public final class RegionMovementTracker {
             return;
         }
         this.currentRegions.put(playerId, nowIds);
+        // apply/restore the persistent player-state overrides for the new region set
+        this.plugin.getPlayerStateService().update(player, location);
         if (!withMessages) {
             return;
         }

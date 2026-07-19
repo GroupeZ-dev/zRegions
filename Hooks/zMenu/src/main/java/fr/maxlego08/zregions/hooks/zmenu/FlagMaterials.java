@@ -175,6 +175,31 @@ public final class FlagMaterials {
         BY_FLAG.put("mob-drops", Material.ROTTEN_FLESH);
         BY_FLAG.put("block-drops", Material.COBBLESTONE);
         BY_FLAG.put("drop-on-death", Material.SKELETON_SKULL);
+
+        // batch B9 — persistent player state
+        BY_FLAG.put("gamemode", Material.JIGSAW);
+        BY_FLAG.put("time-lock", Material.CLOCK);
+        BY_FLAG.put("weather-lock", Material.WATER_BUCKET);
+        BY_FLAG.put("walk-speed", Material.LEATHER_BOOTS);
+        BY_FLAG.put("fly-speed", Material.PHANTOM_MEMBRANE);
+
+        // batch B9+ — heal/feed & extended player state
+        BY_FLAG.put("heal-amount", Material.GOLDEN_APPLE);
+        BY_FLAG.put("heal-delay", Material.REPEATER);
+        BY_FLAG.put("heal-min-health", Material.REDSTONE);
+        BY_FLAG.put("heal-max-health", Material.GLISTERING_MELON_SLICE);
+        BY_FLAG.put("feed-amount", Material.BREAD);
+        BY_FLAG.put("feed-delay", Material.COMPARATOR);
+        BY_FLAG.put("feed-min-hunger", Material.SPIDER_EYE);
+        BY_FLAG.put("feed-max-hunger", Material.CAKE);
+        BY_FLAG.put("glow", Material.GLOWSTONE_DUST);
+        BY_FLAG.put("experience-multiplier", Material.EXPERIENCE_BOTTLE);
+
+        // batch B10 — movement, portals & teleport
+        BY_FLAG.put("portal-use", Material.ENDER_EYE);
+        BY_FLAG.put("move", Material.CHAIN);
+        BY_FLAG.put("teleport-in", Material.ENDER_PEARL);
+        BY_FLAG.put("teleport-out", Material.CHORUS_FRUIT);
     }
 
     private FlagMaterials() {

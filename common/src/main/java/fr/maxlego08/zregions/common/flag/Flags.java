@@ -163,6 +163,31 @@ public final class Flags {
     public static final Flag<Boolean> BLOCK_DROPS = state("block-drops");
     public static final Flag<Boolean> DROP_ON_DEATH = state("drop-on-death");
 
+    // --- persistent player state (batch B9), applied on enter / restored on exit ---
+    public static final Flag<String> GAMEMODE = new StringFlag("gamemode", "");
+    public static final Flag<String> TIME_LOCK = new StringFlag("time-lock", "");
+    public static final Flag<String> WEATHER_LOCK = new StringFlag("weather-lock", "");
+    public static final Flag<Double> WALK_SPEED = new DoubleFlag("walk-speed", 0.2, 0.0, 1.0);
+    public static final Flag<Double> FLY_SPEED = new DoubleFlag("fly-speed", 0.1, 0.0, 1.0);
+
+    // --- heal/feed & extended player state (batch B9+) ---
+    public static final Flag<Double> HEAL_AMOUNT = new DoubleFlag("heal-amount", 0.0);
+    public static final Flag<Double> HEAL_DELAY = new DoubleFlag("heal-delay", 2.0, 0.05, 3600.0);
+    public static final Flag<Double> HEAL_MIN_HEALTH = new DoubleFlag("heal-min-health", 0.0);
+    public static final Flag<Double> HEAL_MAX_HEALTH = new DoubleFlag("heal-max-health", 20.0);
+    public static final Flag<Double> FEED_AMOUNT = new DoubleFlag("feed-amount", 0.0);
+    public static final Flag<Double> FEED_DELAY = new DoubleFlag("feed-delay", 2.0, 0.05, 3600.0);
+    public static final Flag<Double> FEED_MIN_HUNGER = new DoubleFlag("feed-min-hunger", 0.0);
+    public static final Flag<Double> FEED_MAX_HUNGER = new DoubleFlag("feed-max-hunger", 20.0);
+    public static final Flag<Boolean> GLOW = new StateFlag("glow", false);
+    public static final Flag<Double> EXPERIENCE_MULTIPLIER = new DoubleFlag("experience-multiplier", 1.0, 0.0, 100.0);
+
+    // --- movement, portals & teleport (batch B10) ---
+    public static final Flag<Boolean> PORTAL_USE = state("portal-use");
+    public static final Flag<Boolean> MOVE = state("move");
+    public static final Flag<Boolean> TELEPORT_IN = state("teleport-in");
+    public static final Flag<Boolean> TELEPORT_OUT = state("teleport-out");
+
     // --- zone ---
     public static final Flag<Boolean> ENTRY = state("entry");
     public static final Flag<Boolean> EXIT = state("exit");
@@ -200,6 +225,10 @@ public final class Flags {
             DOOR_USE, TRAPDOOR_USE, BUTTON_USE, LEVER_USE, PRESSURE_PLATE_USE, ENDER_CHEST_USE,
             CRAFTING_TABLE_USE, ENCHANT_TABLE_USE, BREAK_SPAWNERS, PLACE_SPAWNERS,
             ITEM_DESPAWN, ITEM_MERGE, MOB_DROPS, BLOCK_DROPS, DROP_ON_DEATH,
+            GAMEMODE, TIME_LOCK, WEATHER_LOCK, WALK_SPEED, FLY_SPEED,
+            HEAL_AMOUNT, HEAL_DELAY, HEAL_MIN_HEALTH, HEAL_MAX_HEALTH,
+            FEED_AMOUNT, FEED_DELAY, FEED_MIN_HUNGER, FEED_MAX_HUNGER, GLOW, EXPERIENCE_MULTIPLIER,
+            PORTAL_USE, MOVE, TELEPORT_IN, TELEPORT_OUT,
             ENTRY, EXIT, GREETING, FAREWELL, TITLE, SUBTITLE, ACTION_BAR);
 
     private Flags() {

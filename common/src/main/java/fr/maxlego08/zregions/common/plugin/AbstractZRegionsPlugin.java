@@ -12,6 +12,8 @@ import fr.maxlego08.zregions.common.locale.MessageService;
 import fr.maxlego08.zregions.common.movement.RegionMovementTracker;
 import fr.maxlego08.zregions.common.region.ZRegionManager;
 import fr.maxlego08.zregions.common.selection.SelectionManager;
+import fr.maxlego08.zregions.common.state.RegionHealFeedTicker;
+import fr.maxlego08.zregions.common.state.RegionPlayerStateService;
 import fr.maxlego08.zregions.common.storage.RegionStorage;
 import fr.maxlego08.zregions.common.storage.SarahRegionStorage;
 import fr.maxlego08.zregions.common.visual.BorderDisplayManager;
@@ -41,6 +43,8 @@ public abstract class AbstractZRegionsPlugin implements ZRegionsPlugin {
     private SelectionManager selectionManager;
     private ZRegionManager regionManager;
     private RegionMovementTracker movementTracker;
+    private RegionPlayerStateService playerStateService;
+    private RegionHealFeedTicker healFeedTicker;
     private BorderDisplayManager borderDisplay;
     private RegionCommandManager commandManager;
     private GuiService guiService = GuiService.NONE;
@@ -140,6 +144,9 @@ public abstract class AbstractZRegionsPlugin implements ZRegionsPlugin {
         this.regionManager = new ZRegionManager(this);
         this.regionManager.loadAllBlocking();
         this.movementTracker = new RegionMovementTracker(this);
+        this.playerStateService = new RegionPlayerStateService(this);
+        this.healFeedTicker = new RegionHealFeedTicker(this);
+        this.healFeedTicker.start();
         this.borderDisplay = new BorderDisplayManager(this);
 
         // 5. commands & platform wiring
@@ -168,6 +175,9 @@ public abstract class AbstractZRegionsPlugin implements ZRegionsPlugin {
 
     public final void disable() {
         this.running = false;
+        if (this.healFeedTicker != null) {
+            this.healFeedTicker.stop();
+        }
         getBootstrap().getScheduler().shutdownScheduler();
         if (this.storage != null) {
             this.storage.disconnect();
@@ -249,6 +259,11 @@ public abstract class AbstractZRegionsPlugin implements ZRegionsPlugin {
     @Override
     public RegionMovementTracker getMovementTracker() {
         return this.movementTracker;
+    }
+
+    @Override
+    public RegionPlayerStateService getPlayerStateService() {
+        return this.playerStateService;
     }
 
     @Override

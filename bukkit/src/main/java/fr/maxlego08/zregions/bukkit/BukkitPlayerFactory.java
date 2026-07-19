@@ -9,11 +9,15 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
+import org.bukkit.WeatherType;
 import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -185,5 +189,87 @@ public final class BukkitPlayerFactory extends RegionPlayerFactory<Player> {
     @Override
     protected boolean isOnline(Player player) {
         return player.isOnline();
+    }
+
+    // --- player-state overrides (region flags) ---
+
+    @Override
+    protected void setPlayerTime(Player player, long ticks) {
+        player.setPlayerTime(ticks, false); // absolute, not relative to the world time
+    }
+
+    @Override
+    protected void resetPlayerTime(Player player) {
+        player.resetPlayerTime();
+    }
+
+    @Override
+    protected void setPlayerWeather(Player player, boolean rain) {
+        player.setPlayerWeather(rain ? WeatherType.DOWNFALL : WeatherType.CLEAR);
+    }
+
+    @Override
+    protected void resetPlayerWeather(Player player) {
+        player.resetPlayerWeather();
+    }
+
+    @Override
+    protected void setWalkSpeed(Player player, float speed) {
+        player.setWalkSpeed(clampSpeed(speed));
+    }
+
+    @Override
+    protected void setFlySpeed(Player player, float speed) {
+        player.setFlySpeed(clampSpeed(speed));
+    }
+
+    /** Bukkit rejects speeds outside [-1, 1]. */
+    private static float clampSpeed(float speed) {
+        return Math.max(-1f, Math.min(1f, speed));
+    }
+
+    @Override
+    protected String getGameMode(Player player) {
+        return player.getGameMode().name().toLowerCase(Locale.ROOT);
+    }
+
+    @Override
+    protected void setGameMode(Player player, String mode) {
+        try {
+            player.setGameMode(GameMode.valueOf(mode.toUpperCase(Locale.ROOT)));
+        } catch (IllegalArgumentException exception) {
+            // unknown game-mode name — ignore, the flag value was invalid
+        }
+    }
+
+    @Override
+    protected double getHealth(Player player) {
+        return player.getHealth();
+    }
+
+    @Override
+    protected void setHealth(Player player, double health) {
+        player.setHealth(Math.max(0.0, Math.min(health, getMaxHealth(player))));
+    }
+
+    @Override
+    protected double getMaxHealth(Player player) {
+        AttributeInstance attribute = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        return attribute != null ? attribute.getValue() : 20.0;
+    }
+
+    @Override
+    protected int getFoodLevel(Player player) {
+        return player.getFoodLevel();
+    }
+
+    @Override
+    protected void setFoodLevel(Player player, int level) {
+        player.setFoodLevel(Math.max(0, Math.min(level, 20)));
+    }
+
+    @Override
+    protected void setGlowing(Player player, boolean glowing) {
+        player.setGlowing(glowing);
     }
 }
