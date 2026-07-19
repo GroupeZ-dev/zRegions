@@ -8,6 +8,7 @@ import fr.maxlego08.zregions.common.platform.RegionPlayer;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
 import org.bukkit.entity.AbstractVillager;
@@ -91,37 +92,66 @@ public final class ProtectionListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
-        check(Flags.BLOCK_BREAK, event.getBlock(), event.getPlayer(), event);
+        Block block = event.getBlock();
+        Player player = event.getPlayer();
+        boolean denied = block.getType() == Material.SPAWNER
+                ? isDeniedOrGeneral(player, Flags.BREAK_SPAWNERS, Flags.BLOCK_BREAK, block.getLocation())
+                : isDenied(player, Flags.BLOCK_BREAK, block.getLocation());
+        if (denied) {
+            event.setCancelled(true);
+            sendDeniedMessage(player);
+        }
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
-        check(Flags.BLOCK_PLACE, event.getBlock(), event.getPlayer(), event);
+        Block block = event.getBlock();
+        Player player = event.getPlayer();
+        boolean denied = block.getType() == Material.SPAWNER
+                ? isDeniedOrGeneral(player, Flags.PLACE_SPAWNERS, Flags.BLOCK_PLACE, block.getLocation())
+                : isDenied(player, Flags.BLOCK_PLACE, block.getLocation());
+        if (denied) {
+            event.setCancelled(true);
+            sendDeniedMessage(player);
+        }
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onInteract(PlayerInteractEvent event) {
         if (event.getAction() == Action.PHYSICAL) {
-            handleTrample(event);
+            handlePhysical(event);
             return;
         }
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         Block block = event.getClickedBlock();
         if (block == null) return;
 
-        Flag<Boolean> flag;
-        if (block.getType() == Material.RESPAWN_ANCHOR) {
-            flag = Flags.RESPAWN_ANCHOR;
-        } else if (block.getState() instanceof Container) {
-            flag = Flags.CONTAINER_ACCESS;
-        } else {
-            flag = Flags.INTERACT;
-        }
         Player player = event.getPlayer();
-        if (isDenied(player, flag, block.getWorld().getName(), block.getX(), block.getY(), block.getZ())) {
+        Material type = block.getType();
+        Flag<Boolean> specific = specificInteractFlag(type);
+        boolean denied;
+        if (type == Material.RESPAWN_ANCHOR) {
+            denied = isDenied(player, Flags.RESPAWN_ANCHOR, block.getLocation());
+        } else if (specific != null) {
+            // doors/trapdoors/buttons/levers refine the general interact flag
+            denied = isDeniedOrGeneral(player, specific, Flags.INTERACT, block.getLocation());
+        } else if (block.getState() instanceof Container) {
+            denied = isDenied(player, Flags.CONTAINER_ACCESS, block.getLocation());
+        } else {
+            denied = isDenied(player, Flags.INTERACT, block.getLocation());
+        }
+        if (denied) {
             event.setUseInteractedBlock(Event.Result.DENY);
             sendDeniedMessage(player);
         }
+    }
+
+    private static Flag<Boolean> specificInteractFlag(Material type) {
+        if (Tag.DOORS.isTagged(type) || Tag.FENCE_GATES.isTagged(type)) return Flags.DOOR_USE;
+        if (Tag.TRAPDOORS.isTagged(type)) return Flags.TRAPDOOR_USE;
+        if (Tag.BUTTONS.isTagged(type)) return Flags.BUTTON_USE;
+        if (type == Material.LEVER) return Flags.LEVER_USE;
+        return null;
     }
 
     // getBlock() is the block CraftBukkit actually changes: the fluid block on fill,
@@ -471,6 +501,12 @@ public final class ProtectionListener implements Listener {
             flag = Flags.USE_ANVIL;
         } else if (type == InventoryType.BEACON) {
             flag = Flags.BEACON;
+        } else if (type == InventoryType.ENDER_CHEST) {
+            flag = Flags.ENDER_CHEST_USE;
+        } else if (type == InventoryType.WORKBENCH) {
+            flag = Flags.CRAFTING_TABLE_USE;
+        } else if (type == InventoryType.ENCHANTING) {
+            flag = Flags.ENCHANT_TABLE_USE;
         } else {
             return;
         }
@@ -546,14 +582,20 @@ public final class ProtectionListener implements Listener {
         }
     }
 
-    private void handleTrample(PlayerInteractEvent event) {
+    private void handlePhysical(PlayerInteractEvent event) {
         Block block = event.getClickedBlock();
         if (block == null) return;
         Material type = block.getType();
-        if (type != Material.FARMLAND && type != Material.TURTLE_EGG) return;
-
         Player player = event.getPlayer();
-        if (isDenied(player, Flags.CROP_TRAMPLE, block.getWorld().getName(), block.getX(), block.getY(), block.getZ())) {
+        if (Tag.PRESSURE_PLATES.isTagged(type)) {
+            // stepping on plates repeatedly — deny silently, no message spam
+            if (isDenied(player, Flags.PRESSURE_PLATE_USE, block.getLocation())) {
+                event.setUseInteractedBlock(Event.Result.DENY);
+            }
+            return;
+        }
+        if (type != Material.FARMLAND && type != Material.TURTLE_EGG) return;
+        if (isDenied(player, Flags.CROP_TRAMPLE, block.getLocation())) {
             event.setUseInteractedBlock(Event.Result.DENY);
             sendDeniedMessage(player);
         }

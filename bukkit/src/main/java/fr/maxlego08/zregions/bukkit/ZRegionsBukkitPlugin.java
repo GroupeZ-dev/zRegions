@@ -3,6 +3,7 @@ package fr.maxlego08.zregions.bukkit;
 import fr.maxlego08.zregions.api.manager.RegionManager;
 import fr.maxlego08.zregions.bukkit.listener.EnvironmentProtectionListener;
 import fr.maxlego08.zregions.bukkit.listener.GrowthListener;
+import fr.maxlego08.zregions.bukkit.listener.ItemListener;
 import fr.maxlego08.zregions.bukkit.listener.MovementListener;
 import fr.maxlego08.zregions.bukkit.listener.PlayerStateListener;
 import fr.maxlego08.zregions.bukkit.listener.ProtectionListener;
@@ -72,6 +73,7 @@ public final class ZRegionsBukkitPlugin extends AbstractZRegionsPlugin {
         pluginManager.registerEvents(new ProtectionListener(this), loader);
         pluginManager.registerEvents(new EnvironmentProtectionListener(this), loader);
         pluginManager.registerEvents(new GrowthListener(this), loader);
+        pluginManager.registerEvents(new ItemListener(this), loader);
         pluginManager.registerEvents(new PlayerStateListener(this), loader);
         pluginManager.registerEvents(new MovementListener(this), loader);
         pluginManager.registerEvents(new WandListener(this), loader);

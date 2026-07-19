@@ -22,9 +22,9 @@ never the whole region set.
 
 ## 1. Overview
 
-- **Region protection** driven by **115 flags** (blocks, environment, entities, players, zone,
-  fine interactions, world/weather cycles, growth, fine spawns & explosions), every one of them
-  actually enforced by a listener — no dead flags.
+- **Region protection** driven by **130 flags** (blocks, environment, entities, players, zone,
+  fine interactions, world/weather cycles, growth, fine spawns & explosions, item lifecycle), every
+  one of them actually enforced by a listener — no dead flags.
 - **Enter/exit engine**: `entry`/`exit` enforcement, `greeting`/`farewell` messages plus
   `title`/`subtitle`/`action-bar` displays (MiniMessage), recomputed only when a player crosses
   a block boundary.
@@ -293,6 +293,27 @@ decides. So `fluid-flow deny` stops every fluid, then `water-flow allow` in a su
 | `creeper-explosion` · `tnt` · `ghast-fireball` · `wither-damage` · `enderdragon-block-damage` | allow | Block damage from that source — each overrides the general `entity-explosion` where set |
 | `potion-splash` | allow | Splash / lingering potions taking effect here |
 
+**Fine block interactions** — denial cancels the interaction and messages the player (except pressure plates, silent):
+
+| Flag | Blocks when denied |
+|---|---|
+| `door-use` · `trapdoor-use` | Opening doors & fence gates / trapdoors — override `interact` |
+| `button-use` · `lever-use` | Pressing buttons / flipping levers — override `interact` |
+| `pressure-plate-use` | Triggering pressure plates (silent) |
+| `ender-chest-use` | Opening ender chests |
+| `crafting-table-use` · `enchant-table-use` | Opening crafting / enchanting tables |
+| `break-spawners` · `place-spawners` | Breaking / placing mob spawners — override `block-break`/`block-place` |
+
+**Items, drops & merges** — silent (outcomes, not actions):
+
+| Flag | Effect when denied |
+|---|---|
+| `item-despawn` | Dropped items never despawn |
+| `item-merge` | Dropped items don't merge into stacks |
+| `mob-drops` | Mobs dying here drop no items or XP |
+| `block-drops` | Blocks broken here drop no items |
+| `drop-on-death` | A player dying here drops no items (XP is handled by `exp-drop`) |
+
 ## 7. Configuration reference (`config.yml`)
 
 The default config.yml is shipped **translated** (same keys everywhere, only the comments
@@ -463,6 +484,11 @@ use them. An unrecognized `%zregions_…%` placeholder is left untouched.
 ## 14. Version history
 
 ### 1.0.0 — Unreleased
+- **15 new flags** (115 → 130), all enforced. **Fine block interactions** (override `interact`/
+  `block-break`/`block-place` where set): `door-use`, `trapdoor-use`, `button-use`, `lever-use`,
+  `pressure-plate-use`, `ender-chest-use`, `crafting-table-use`, `enchant-table-use`,
+  `break-spawners`, `place-spawners`. **Item lifecycle** (new `ItemListener`, silent): `item-despawn`,
+  `item-merge`, `mob-drops`, `block-drops`, `drop-on-death`.
 - **34 new flags** (81 → 115), all enforced, in three families. **Growth** (`GrowthListener`):
   `crop-growth`, `tree-growth`, `mushroom-growth`, `vine-growth`, `grass-spread`, `mycelium-spread`,
   `sculk-growth`, `bone-meal`, `entity-transform`. **Fine spawns** (refine `mob-spawning`, most-specific

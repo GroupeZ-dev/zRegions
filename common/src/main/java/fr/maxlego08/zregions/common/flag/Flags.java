@@ -144,6 +144,25 @@ public final class Flags {
     public static final Flag<Boolean> MELEE_PVP = state("melee-pvp");
     public static final Flag<Boolean> PROJECTILE_PVP = state("projectile-pvp");
 
+    // --- fine block interactions (batch B7) ---
+    public static final Flag<Boolean> DOOR_USE = state("door-use");
+    public static final Flag<Boolean> TRAPDOOR_USE = state("trapdoor-use");
+    public static final Flag<Boolean> BUTTON_USE = state("button-use");
+    public static final Flag<Boolean> LEVER_USE = state("lever-use");
+    public static final Flag<Boolean> PRESSURE_PLATE_USE = state("pressure-plate-use");
+    public static final Flag<Boolean> ENDER_CHEST_USE = state("ender-chest-use");
+    public static final Flag<Boolean> CRAFTING_TABLE_USE = state("crafting-table-use");
+    public static final Flag<Boolean> ENCHANT_TABLE_USE = state("enchant-table-use");
+    public static final Flag<Boolean> BREAK_SPAWNERS = state("break-spawners");
+    public static final Flag<Boolean> PLACE_SPAWNERS = state("place-spawners");
+
+    // --- items, drops & merges (batch B8) ---
+    public static final Flag<Boolean> ITEM_DESPAWN = state("item-despawn");
+    public static final Flag<Boolean> ITEM_MERGE = state("item-merge");
+    public static final Flag<Boolean> MOB_DROPS = state("mob-drops");
+    public static final Flag<Boolean> BLOCK_DROPS = state("block-drops");
+    public static final Flag<Boolean> DROP_ON_DEATH = state("drop-on-death");
+
     // --- zone ---
     public static final Flag<Boolean> ENTRY = state("entry");
     public static final Flag<Boolean> EXIT = state("exit");
@@ -178,6 +197,9 @@ public final class Flags {
             VILLAGER_DAMAGE, MONSTER_DAMAGE, PET_DAMAGE, FIREWORK_DAMAGE, ENTITY_EXPLOSION_DAMAGE,
             CREEPER_EXPLOSION, TNT, GHAST_FIREBALL, WITHER_DAMAGE, ENDERDRAGON_BLOCK_DAMAGE,
             POTION_SPLASH, MELEE_PVP, PROJECTILE_PVP,
+            DOOR_USE, TRAPDOOR_USE, BUTTON_USE, LEVER_USE, PRESSURE_PLATE_USE, ENDER_CHEST_USE,
+            CRAFTING_TABLE_USE, ENCHANT_TABLE_USE, BREAK_SPAWNERS, PLACE_SPAWNERS,
+            ITEM_DESPAWN, ITEM_MERGE, MOB_DROPS, BLOCK_DROPS, DROP_ON_DEATH,
             ENTRY, EXIT, GREETING, FAREWELL, TITLE, SUBTITLE, ACTION_BAR);
 
     private Flags() {

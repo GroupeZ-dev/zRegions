@@ -156,6 +156,25 @@ public final class FlagMaterials {
         BY_FLAG.put("potion-splash", Material.SPLASH_POTION);
         BY_FLAG.put("melee-pvp", Material.NETHERITE_SWORD);
         BY_FLAG.put("projectile-pvp", Material.ARROW);
+
+        // batch B7 — fine block interactions
+        BY_FLAG.put("door-use", Material.OAK_DOOR);
+        BY_FLAG.put("trapdoor-use", Material.OAK_TRAPDOOR);
+        BY_FLAG.put("button-use", Material.STONE_BUTTON);
+        BY_FLAG.put("lever-use", Material.LEVER);
+        BY_FLAG.put("pressure-plate-use", Material.STONE_PRESSURE_PLATE);
+        BY_FLAG.put("ender-chest-use", Material.ENDER_CHEST);
+        BY_FLAG.put("crafting-table-use", Material.CRAFTING_TABLE);
+        BY_FLAG.put("enchant-table-use", Material.ENCHANTING_TABLE);
+        BY_FLAG.put("break-spawners", Material.DIAMOND_PICKAXE);
+        BY_FLAG.put("place-spawners", Material.SPAWNER);
+
+        // batch B8 — items, drops & merges
+        BY_FLAG.put("item-despawn", Material.CLOCK);
+        BY_FLAG.put("item-merge", Material.SLIME_BALL);
+        BY_FLAG.put("mob-drops", Material.ROTTEN_FLESH);
+        BY_FLAG.put("block-drops", Material.COBBLESTONE);
+        BY_FLAG.put("drop-on-death", Material.SKELETON_SKULL);
     }
 
     private FlagMaterials() {
