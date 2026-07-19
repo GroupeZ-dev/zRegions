@@ -17,6 +17,13 @@ messages:
   # stesso giocatore, così spingere contro un confine non intasa la chat.
   deny-throttle-milliseconds: 2000
 
+# Comportamento delle regioni.
+regions:
+  # Se true (predefinito), /rg create aggiunge il creatore come owner della regione.
+  # Imposta false affinché le nuove regioni non abbiano owner (gestite solo da
+  # un admin, zregions.admin).
+  creator-becomes-owner: true
+
 # Strumento di selezione.
 selection:
   # Material di Bukkit della bacchetta data da /rg wand (clic sinistro = pos1, clic destro = pos2).

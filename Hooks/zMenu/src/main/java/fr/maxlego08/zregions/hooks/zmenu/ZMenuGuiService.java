@@ -13,6 +13,7 @@ import fr.maxlego08.zregions.common.plugin.ZRegionsPlugin;
 import fr.maxlego08.zregions.hooks.zmenu.button.AddMemberButton;
 import fr.maxlego08.zregions.hooks.zmenu.button.MembersButton;
 import fr.maxlego08.zregions.hooks.zmenu.button.OpenMenuButton;
+import fr.maxlego08.zregions.hooks.zmenu.button.PriorityButton;
 import fr.maxlego08.zregions.hooks.zmenu.button.RegionFlagsButton;
 import fr.maxlego08.zregions.hooks.zmenu.button.RegionInfoButton;
 import fr.maxlego08.zregions.hooks.zmenu.button.RegionListButton;
@@ -89,6 +90,7 @@ public final class ZMenuGuiService implements GuiService {
         buttonManager.register(new ServiceButtonLoader(loader, "ZREGIONS_OPEN_MEMBERS", () -> new OpenMenuButton(this, OpenMenuButton.Target.MEMBERS)));
         buttonManager.register(new ServiceButtonLoader(loader, "ZREGIONS_OPEN_ADD_MEMBER", () -> new OpenMenuButton(this, OpenMenuButton.Target.ADD_MEMBER)));
         buttonManager.register(new ServiceButtonLoader(loader, "ZREGIONS_SHOW_BORDERS", () -> new ShowBordersButton(this)));
+        buttonManager.register(new ServiceButtonLoader(loader, "ZREGIONS_PRIORITY", () -> new PriorityButton(this)));
 
         loadInventories();
     }

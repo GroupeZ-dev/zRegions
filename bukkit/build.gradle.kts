@@ -16,6 +16,8 @@ dependencies {
     compileOnly("org.spigotmc:spigot-api:1.20.4-R0.1-SNAPSHOT")
     // Envoi Adventure identique sur Spigot ET Paper (jamais l'Adventure natif Paper).
     implementation("net.kyori:adventure-platform-bukkit:4.3.4")
+    // Télémétrie bStats (shadée + relocalisée pour éviter tout conflit inter-plugins).
+    implementation("org.bstats:bstats-bukkit:3.1.0")
 
     // sourceSet paper : Paper/Folia (schedulers régionisés, AsyncTabCompleteEvent).
     "paperCompileOnly"("io.papermc.paper:paper-api:1.21.7-R0.1-SNAPSHOT")
@@ -48,6 +50,8 @@ tasks {
         relocate("com.google.gson", "fr.maxlego08.zregions.libs.gson")
         // Spigot embarque son propre snakeyaml — la relocation évite tout conflit de version
         relocate("org.yaml.snakeyaml", "fr.maxlego08.zregions.libs.snakeyaml")
+        // bStats impose la relocation (sinon conflit si un autre plugin l'embarque non relocalisé)
+        relocate("org.bstats", "fr.maxlego08.zregions.libs.bstats")
     }
 
     build { dependsOn(shadowJar) }

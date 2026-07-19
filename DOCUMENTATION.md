@@ -16,7 +16,7 @@ never the whole region set.
 | **Java** | 21+ |
 | **Bedrock** | Playable through Geyser/Floodgate (server-side plugin, no client mod) |
 | **Storage** | SQLite (default) · MySQL · MariaDB |
-| **Soft dependencies** | **zMenu** (optional GUI — see §11), PlaceholderAPI, WorldEdit, LuckPerms *(planned — none required)*. WorldGuard regions are importable via `/rg import` (file-based, works without WorldGuard) |
+| **Soft dependencies** | **zMenu** (optional GUI — see §11), **PlaceholderAPI** (outgoing `%zregions_…%` placeholders — see §12), WorldEdit, LuckPerms *(planned)* — none required. WorldGuard regions are importable via `/rg import` (file-based, works without WorldGuard) |
 
 ---
 
@@ -213,6 +213,7 @@ translated. The language itself is **not** a config.yml key — see §8.
 | `debug` | `false` | Verbose logging |
 | `permissions.bypass` | `zregions.bypass` | Permission node bypassing every protection |
 | `messages.deny-throttle-milliseconds` | `2000` | Minimum delay between two "denied" messages to the same player |
+| `regions.creator-becomes-owner` | `true` | Whether `/rg create` adds the creator as the region's owner; `false` = new regions have no owner (admin-managed only, `zregions.admin`) |
 | `selection.wand-item` | `BLAZE_ROD` | Bukkit Material of the `/rg wand` item (invalid names fall back to BLAZE_ROD) |
 | `borders.particle` | `FLAME` | Bukkit particle used by `/rg show` (invalid names fall back to FLAME) |
 | `borders.display-seconds` | `10` | How long the outline stays visible when the command gives no duration |
@@ -314,12 +315,14 @@ without it, **every feature stays available through commands** (the GUI is a lay
 requirement; the command then points back to `/rg help`).
 
 - **Region list** (`/rg menu`): every region, paginated, world then name order; click to manage.
-- **Region menu** (`/rg menu <region>` or a list click): details, flag editor, member manager,
-  border outline (same per-player particles as `/rg show`), back to the list.
-- **Flag editor**: all flags paginated with their current explicit value and default;
-  left-clicking a state flag cycles unset → deny → allow → unset, right-clicking removes the
-  value directly (values apply to the `all` target — use `/rg flag … -t <target>` for per-role
-  values); text/list flags point back to `/rg flag`.
+- **Region menu** (`/rg menu <region>` or a list click): details, a **priority +/- control**
+  (left click +1, right click −1, shift ×10, never below 0, live `%priority%`), flag editor,
+  member manager, border outline (same per-player particles as `/rg show`), back to the list.
+- **Flag editor**: all flags paginated, **each with its own telling icon** (pvp → sword,
+  block-break → pickaxe, chat → paper…; addon flags keep the template item), showing their
+  current explicit value and default; left-clicking a state flag cycles unset → deny → allow →
+  unset, right-clicking removes the value directly (values apply to the `all` target — use
+  `/rg flag … -t <target>` for per-role values); text/list flags point back to `/rg flag`.
 - **Member manager**: the region's members paginated, owners first; left click toggles the role
   owner ↔ member, right click removes. The **add** button lists online players not yet members —
   click to add as member (offline players go through `/rg addmember`).
@@ -331,7 +334,27 @@ inventory (`%region%`, `%world%`, `%flag%`, `%value%`, `%player%`, `%role%`… p
 provided by zRegions button types `ZREGIONS_*`), then `/rg reload`. A region deleted while its
 menu is open closes the menu with a message instead of going stale.
 
-## 12. For developers
+## 12. PlaceholderAPI
+
+When [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) is installed,
+zRegions registers an outgoing `%zregions_…%` expansion automatically at startup — no
+configuration needed. Every placeholder is resolved at the requesting player's **current
+location** from the in-memory index (never a database hit) and requires an online player.
+
+| Placeholder | Returns |
+|---|---|
+| `%zregions_current_region%` | Name of the highest-priority region at the player's position (empty if none) |
+| `%zregions_current_region_priority%` | Priority of that region (empty if none) |
+| `%zregions_region_count%` | Total number of regions |
+| `%zregions_region_count_world%` | Number of regions in the player's world |
+| `%zregions_is_owner%` | `true`/`false` — is the player an owner of the region here |
+| `%zregions_is_member%` | `true`/`false` — is the player an owner or member of the region here |
+| `%zregions_flag_<key>%` | Effective value of a flag at the player's position for that player, e.g. `%zregions_flag_pvp%` → `allow`/`deny`. Unknown flag keys return empty |
+
+Any plugin that expands PlaceholderAPI strings (scoreboards, chat, holograms, tab lists…) can
+use them. An unrecognized `%zregions_…%` placeholder is left untouched.
+
+## 13. For developers
 
 - The **`api` module** has zero platform dependencies. On Bukkit the entry point is registered in
   the ServicesManager:
@@ -346,9 +369,20 @@ menu is open closes the menu with a message instead of going stale.
   (`RegionShape.sampleBorder(spacing)` yields the outline points used by `/rg show`).
 - Architecture (LuckPerms model — `api` / `common` / `bukkit`): see `ARCHITECTURE.md`.
 
-## 13. Version history
+## 14. Version history
 
 ### 1.0.0 — Unreleased
+- **PlaceholderAPI expansion** (`%zregions_…%`, §12): outgoing placeholders — current region and
+  its priority, region counts (total / per-world), owner/member checks, and per-flag value
+  (`%zregions_flag_<key>%`) — all resolved at the player's position from the in-memory index and
+  auto-registered when PlaceholderAPI is present, loaded through the `Hooks/` infrastructure.
+- **GUI additions**: a **priority +/- control** in the region menu (left +1 / right −1 / shift
+  ×10, clamped at 0, live `%priority%`, global region left untouched) and a **distinct icon per
+  flag** in the flag editor (addon flags keep the template item).
+- **Config**: `regions.creator-becomes-owner` (default `true`) toggles whether `/rg create` adds
+  the creator as owner — set `false` for admin-only regions.
+- **bStats** telemetry wired (relocated under `libs.bstats`); inert until the service id is set
+  (`storage_type`, `language`, `multi_server`, `regions` charts).
 - Region engine: cuboid/cylinder/sphere/polygon shapes, per-world chunk index, priorities,
   parents, members, per-target flag values, Sarah storage (SQLite/MySQL/MariaDB),
   multi-server-ready schema.

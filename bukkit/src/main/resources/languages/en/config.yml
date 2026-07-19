@@ -17,6 +17,12 @@ messages:
   # same player, so pushing against a border does not spam the chat.
   deny-throttle-milliseconds: 2000
 
+# Region behaviour.
+regions:
+  # When true (default), /rg create adds the creator as the region's owner.
+  # Set to false so new regions have no owner (admin-managed only, zregions.admin).
+  creator-becomes-owner: true
+
 # Selection tool.
 selection:
   # Bukkit Material of the wand given by /rg wand (left click = pos1, right click = pos2).

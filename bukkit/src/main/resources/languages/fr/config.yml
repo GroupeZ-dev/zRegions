@@ -17,6 +17,13 @@ messages:
   # même joueur, pour que pousser contre une bordure ne spamme pas le chat.
   deny-throttle-milliseconds: 2000
 
+# Comportement des régions.
+regions:
+  # Si true (défaut), /rg create ajoute le créateur comme owner de la région.
+  # Mettez false pour que les nouvelles régions n'aient pas d'owner (gérées
+  # uniquement par un admin, zregions.admin).
+  creator-becomes-owner: true
+
 # Outil de sélection.
 selection:
   # Material Bukkit de la baguette donnée par /rg wand (clic gauche = pos1, clic droit = pos2).

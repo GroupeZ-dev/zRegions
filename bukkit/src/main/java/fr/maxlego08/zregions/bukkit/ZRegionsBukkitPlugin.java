@@ -14,6 +14,9 @@ import fr.maxlego08.zregions.common.plugin.AbstractZRegionsPlugin;
 import fr.maxlego08.zregions.common.plugin.ZRegionsPlugin;
 import fr.maxlego08.zregions.common.sender.RegionSender;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
+import org.bstats.charts.SingleLineChart;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
@@ -32,6 +35,8 @@ import java.nio.file.Path;
 public final class ZRegionsBukkitPlugin extends AbstractZRegionsPlugin {
 
     private static final String[] COMMANDS = {"region", "zregions"};
+    
+    private static final int BSTATS_PLUGIN_ID = 32753;
 
     private final ZRegionsBukkitBootstrap bootstrap;
     private BukkitSenderFactory senderFactory;
@@ -104,6 +109,18 @@ public final class ZRegionsBukkitPlugin extends AbstractZRegionsPlugin {
                 getLogger().warn("Unable to hook into zMenu, the GUI stays disabled (commands still work).", throwable);
             }
         }
+
+        Plugin placeholderApi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI");
+        if (placeholderApi != null && placeholderApi.isEnabled()) {
+            try {
+                Class<?> clazz = Class.forName("fr.maxlego08.zregions.hooks.placeholderapi.ZRegionsExpansion");
+                Object expansion = clazz.getConstructor(ZRegionsPlugin.class).newInstance(this);
+                clazz.getMethod("register").invoke(expansion);
+                getLogger().info("Hooked into PlaceholderAPI — %zregions_...% placeholders enabled.");
+            } catch (Throwable throwable) {
+                getLogger().warn("Unable to hook into PlaceholderAPI, its placeholders stay unavailable.", throwable);
+            }
+        }
     }
 
     @Override
@@ -114,11 +131,33 @@ public final class ZRegionsBukkitPlugin extends AbstractZRegionsPlugin {
 
     @Override
     protected void performFinalSetup() {
+        setupMetrics();
+
         // Seed the movement tracker silently for players already online (server
         // /reload, plugin managers): no greeting replay, no ENTRY re-enforcement.
         for (Player player : Bukkit.getOnlinePlayers()) {
             RegionPlayer wrapped = this.playerFactory.wrap(player);
             getMovementTracker().seed(wrapped, wrapped.getLocation());
+        }
+    }
+
+    /**
+     * bStats telemetry (relocated). Disabled until {@link #BSTATS_PLUGIN_ID} holds
+     * the real service id, so nothing is ever reported to another plugin's page.
+     */
+    private void setupMetrics() {
+        if (BSTATS_PLUGIN_ID <= 0) {
+            return;
+        }
+        try {
+            Metrics metrics = new Metrics(this.bootstrap.getLoader(), BSTATS_PLUGIN_ID);
+            metrics.addCustomChart(new SimplePie("storage_type", () -> getConfiguration().getStorageType()));
+            metrics.addCustomChart(new SimplePie("language", this::getLanguage));
+            metrics.addCustomChart(new SimplePie("multi_server",
+                    () -> getConfiguration().isMultiServerEnabled() ? "enabled" : "disabled"));
+            metrics.addCustomChart(new SingleLineChart("regions", () -> getRegionManager().getRegions().size()));
+        } catch (Throwable throwable) {
+            getLogger().warn("Unable to initialise bStats metrics.", throwable);
         }
     }
 

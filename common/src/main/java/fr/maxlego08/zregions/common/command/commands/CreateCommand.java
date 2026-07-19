@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Creates a region from the player's current selection, in any of the four
@@ -73,8 +74,10 @@ public class CreateCommand extends RegionCommand {
             return;
         }
         try {
+            // config toggle: the creator is added as owner unless disabled
+            UUID creator = plugin.getConfiguration().isCreatorBecomesOwner() ? player.getUniqueId() : null;
             Region region = plugin.getRegionManager().createRegion(
-                    result.worldName(), name, result.shape(), priority, player.getUniqueId());
+                    result.worldName(), name, result.shape(), priority, creator);
             plugin.getMessages().send(sender, Message.REGION_CREATED,
                     "region", region.getName(),
                     "shape", region.getShape().getType().name(),

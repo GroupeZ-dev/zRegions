@@ -7,9 +7,12 @@ import fr.maxlego08.zregions.api.flag.Flag;
 import fr.maxlego08.zregions.api.flag.GroupTarget;
 import fr.maxlego08.zregions.api.region.Region;
 import fr.maxlego08.zregions.common.locale.Message;
+import fr.maxlego08.zregions.hooks.zmenu.FlagMaterials;
 import fr.maxlego08.zregions.hooks.zmenu.ZMenuGuiService;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Comparator;
 import java.util.List;
@@ -49,7 +52,13 @@ public final class RegionFlagsButton extends PaginateButton {
             placeholders.register("flag", flag.getKey());
             placeholders.register("value", explicitValue(region, flag).orElse("unset"));
             placeholders.register("default", serializeDefault(flag));
-            inventoryEngine.addItem(slot, getItemStack().build(player, false, placeholders))
+            // a telling icon per flag; unknown flags keep the YAML template material
+            ItemStack item = getItemStack().build(player, false, placeholders);
+            Material material = FlagMaterials.resolve(flag.getKey());
+            if (material != null) {
+                item.setType(material);
+            }
+            inventoryEngine.addItem(slot, item)
                     .setClick(event -> onFlagClick(player, event, flag, inventoryEngine.getPage()));
         });
     }

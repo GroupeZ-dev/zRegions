@@ -89,6 +89,17 @@ public final class ZRegionsConfiguration {
         return this.adapter.getBoolean("debug", false);
     }
 
+    // --- region behaviour (read at command time, not hot path) ---
+
+    /**
+     * Whether {@code /rg create} adds the creator as the region's owner (default
+     * {@code true}). When {@code false}, new regions have no owner and are only
+     * manageable by an admin ({@code zregions.admin}).
+     */
+    public boolean isCreatorBecomesOwner() {
+        return this.adapter.getBoolean("regions.creator-becomes-owner", true);
+    }
+
     // --- storage ---
 
     public String getStorageType() {
