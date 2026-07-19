@@ -2,6 +2,7 @@ package fr.maxlego08.zregions.common.platform;
 
 import net.kyori.adventure.text.Component;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -65,6 +66,11 @@ final class AbstractRegionPlayer<T> implements RegionPlayer {
     @Override
     public void teleport(RegionLocation location) {
         this.factory.teleport(this.handle, location);
+    }
+
+    @Override
+    public Optional<RegionLocation> findSafeSpot(RegionLocation target) {
+        return this.factory.findSafeSpot(target);
     }
 
     @Override

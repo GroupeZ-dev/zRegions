@@ -35,6 +35,9 @@ public enum Message {
     REGION_NOT_FOUND("region.not-found", "<prefix><red>No region named <yellow><region></yellow> was found."),
     REGION_AMBIGUOUS("region.ambiguous", "<prefix><red>Several regions are named <yellow><region></yellow> (worlds: <yellow><worlds></yellow>). Use <yellow>world:<region></yellow>."),
     REGION_REMOVED("region.removed", "<prefix><green>Region <yellow><region></yellow> removed."),
+    REGION_TELEPORTED("region.teleported", "<prefix><green>Teleported to <yellow><region></yellow>."),
+    REGION_TELEPORT_GLOBAL("region.teleport-global", "<prefix><red>The global region covers the whole world — there is nowhere specific to teleport to."),
+    REGION_TELEPORT_NO_SAFE("region.teleport-no-safe", "<prefix><red>No safe spot found to teleport into <yellow><region></yellow>."),
 
     REGION_LIST_HEADER("region.list.header", "<prefix><gray>Regions in <yellow><world></yellow> (<count>):"),
     REGION_LIST_ENTRY("region.list.entry", "<gray> • <yellow><region></yellow> <dark_gray>(<gray><shape></gray>, priority <gray><priority></gray><dark_gray>)"),

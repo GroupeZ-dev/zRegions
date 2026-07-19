@@ -14,12 +14,14 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -92,6 +94,48 @@ public final class BukkitPlayerFactory extends RegionPlayerFactory<Player> {
         }
         player.teleport(new Location(world, location.getX(), location.getY(), location.getZ(),
                 location.getYaw(), location.getPitch()));
+    }
+
+    /**
+     * Scans the target column for a standable spot: solid ground with two passable,
+     * non-liquid blocks above. Tries the region-centre height first, then the world
+     * top. Reads blocks, so callers must run this on the game thread.
+     */
+    @Override
+    protected Optional<RegionLocation> findSafeSpot(RegionLocation target) {
+        World world = Bukkit.getWorld(target.getWorldName());
+        if (world == null) {
+            return Optional.empty();
+        }
+        int x = target.getBlockX();
+        int z = target.getBlockZ();
+        int minY = world.getMinHeight();
+        int maxY = world.getMaxHeight() - 1;
+        int start = Math.max(minY + 1, Math.min(maxY - 1, target.getBlockY()));
+
+        Optional<Integer> found = scanDown(world, x, z, start, minY);
+        if (found.isEmpty()) {
+            found = scanDown(world, x, z, maxY - 1, minY);
+        }
+        return found.map(safeY -> new RegionLocation(world.getName(), x + 0.5, safeY, z + 0.5,
+                target.getYaw(), target.getPitch()));
+    }
+
+    /** First Y (scanning downward) with solid ground below and two empty blocks above. */
+    private static Optional<Integer> scanDown(World world, int x, int z, int fromY, int minY) {
+        for (int y = fromY; y > minY; y--) {
+            Block ground = world.getBlockAt(x, y - 1, z);
+            Block feet = world.getBlockAt(x, y, z);
+            Block head = world.getBlockAt(x, y + 1, z);
+            if (ground.getType().isSolid() && isEmptySpace(feet) && isEmptySpace(head)) {
+                return Optional.of(y);
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static boolean isEmptySpace(Block block) {
+        return !block.getType().isSolid() && !block.isLiquid();
     }
 
     /** {@link Player#spawnParticle} sends per-player packets — nobody else sees the outline. */

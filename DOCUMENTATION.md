@@ -69,6 +69,7 @@ subcommands currently live under `/rg`)*.
 | `/rg info [name]` | Region details — without argument: the highest-priority region at your position | `zregions.use` |
 | `/rg menu [region]` | Opens the region GUI — the region list, or one region's menu (**requires zMenu**; without it the command points back to `/rg help`) | `zregions.admin` |
 | `/rg show [name] [seconds]` | Outlines a region's borders with particles **only you can see** (shape-aware: box edges, circles, sphere rings, polygon edges); without argument: the region at your position. The optional duration overrides `borders.display-seconds` (capped at 3600 s); `/rg show 30` reads a plain number matching no region name as the duration. Re-running replaces the outline | `zregions.use` |
+| `/rg teleport <region>` · `/rg tp` | Teleports you to a safe standable spot at the region's bounding-box centre column — refused for the shapeless global region, and messaged when no safe spot exists | `zregions.teleport` |
 | `/rg flag <region> <flag> <value…\|unset> [-t <target>]` | Sets, unsets or targets a flag value | `zregions.admin` |
 | `/rg addmember <region> <player> [owner\|member]` | Adds a player (default role: member) | `zregions.admin` |
 | `/rg removemember <region> <player>` | Removes a member | `zregions.admin` |
@@ -94,6 +95,7 @@ subcommands currently live under `/rg`)*.
 |---|---|---|
 | `zregions.use` | everyone | `/rg help`, `/rg list`, `/rg info` |
 | `zregions.admin` | op | Every region management command |
+| `zregions.teleport` | op | `/rg teleport` / `/rg tp` |
 | `zregions.bypass` | op | Bypasses **every** region protection, including `entry`/`exit` |
 
 The **bypass node is configurable**: `permissions.bypass` in `config.yml` (applied on `/rg reload`).
@@ -372,6 +374,11 @@ use them. An unrecognized `%zregions_…%` placeholder is left untouched.
 ## 14. Version history
 
 ### 1.0.0 — Unreleased
+- **`/rg teleport <region>`** (alias **`/rg tp`**, permission `zregions.teleport`): teleports the
+  player to a safe standable spot in the region's bounding-box centre column (solid ground, two
+  passable non-liquid blocks above); the shapeless global region is refused and a message is sent
+  when no safe spot exists. The world read and the teleport are dispatched to the game thread
+  (commands run async). Sub-commands can now carry **aliases**.
 - **PlaceholderAPI expansion** (`%zregions_…%`, §12): outgoing placeholders — current region and
   its priority, region counts (total / per-world), owner/member checks, and per-flag value
   (`%zregions_flag_<key>%`) — all resolved at the player's position from the in-memory index and

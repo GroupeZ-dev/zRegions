@@ -299,6 +299,11 @@ class RegionMovementTrackerTest {
         }
 
         @Override
+        public java.util.Optional<RegionLocation> findSafeSpot(RegionLocation target) {
+            return java.util.Optional.of(target);
+        }
+
+        @Override
         public void spawnBorderParticle(double x, double y, double z) {
         }
 

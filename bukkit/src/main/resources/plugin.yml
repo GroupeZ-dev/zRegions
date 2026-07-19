@@ -23,6 +23,9 @@ permissions:
   zregions.admin:
     description: Allows administrating zRegions
     default: op
+  zregions.teleport:
+    description: Allows teleporting to a region with /rg teleport
+    default: op
   zregions.bypass:
     description: Bypasses every region protection
     default: op

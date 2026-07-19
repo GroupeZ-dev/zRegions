@@ -35,7 +35,7 @@ import java.nio.file.Path;
 public final class ZRegionsBukkitPlugin extends AbstractZRegionsPlugin {
 
     private static final String[] COMMANDS = {"region", "zregions"};
-    
+
     private static final int BSTATS_PLUGIN_ID = 32753;
 
     private final ZRegionsBukkitBootstrap bootstrap;

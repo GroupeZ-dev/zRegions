@@ -3,6 +3,7 @@ package fr.maxlego08.zregions.common.platform;
 import net.kyori.adventure.text.Component;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -30,6 +31,12 @@ public abstract class RegionPlayerFactory<T> {
     protected abstract void sendTitle(T handle, Component title, Component subtitle);
 
     protected abstract void teleport(T handle, RegionLocation location);
+
+    /**
+     * Finds a safe standable spot at {@code target}'s column. Reads the world —
+     * call on the game thread. Empty when the world is unloaded or nothing is safe.
+     */
+    protected abstract Optional<RegionLocation> findSafeSpot(RegionLocation target);
 
     /** Spawns a border particle at the coordinates, visible to this player only. */
     protected abstract void spawnBorderParticle(T handle, double x, double y, double z);

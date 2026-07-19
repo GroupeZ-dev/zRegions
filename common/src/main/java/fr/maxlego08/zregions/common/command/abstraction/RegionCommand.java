@@ -27,16 +27,28 @@ public abstract class RegionCommand {
     private final String permission;
     private final String usage;
     private final String descriptionKeySuffix;
+    private final List<String> aliases;
 
     protected RegionCommand(String name, String permission, String usage, String descriptionKeySuffix) {
+        this(name, permission, usage, descriptionKeySuffix, List.of());
+    }
+
+    protected RegionCommand(String name, String permission, String usage, String descriptionKeySuffix,
+                            List<String> aliases) {
         this.name = name;
         this.permission = permission;
         this.usage = usage;
         this.descriptionKeySuffix = descriptionKeySuffix;
+        this.aliases = List.copyOf(aliases);
     }
 
     public String getName() {
         return this.name;
+    }
+
+    /** Alternate names this command also answers to (e.g. {@code tp} for teleport). */
+    public List<String> getAliases() {
+        return this.aliases;
     }
 
     /** The required permission node, or {@code null} when none is required. */

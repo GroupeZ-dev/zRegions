@@ -22,6 +22,7 @@ import fr.maxlego08.zregions.common.command.commands.SetParentCommand;
 import fr.maxlego08.zregions.common.command.commands.SetPriorityCommand;
 import fr.maxlego08.zregions.common.command.commands.ShowCommand;
 import fr.maxlego08.zregions.common.command.commands.StarCommand;
+import fr.maxlego08.zregions.common.command.commands.TeleportCommand;
 import fr.maxlego08.zregions.common.command.commands.WandCommand;
 import fr.maxlego08.zregions.common.command.tabcomplete.CompletionSupplier;
 import fr.maxlego08.zregions.common.command.tabcomplete.TabCompleter;
@@ -32,6 +33,7 @@ import fr.maxlego08.zregions.common.sender.RegionSender;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -46,6 +48,7 @@ public class RegionCommandManager {
 
     private final ZRegionsPlugin plugin;
     private final Map<String, RegionCommand> commands = new LinkedHashMap<>();
+    private final Map<String, RegionCommand> aliases = new HashMap<>();
 
     public RegionCommandManager(ZRegionsPlugin plugin) {
         this.plugin = plugin;
@@ -63,6 +66,7 @@ public class RegionCommandManager {
         register(new InfoCommand());
         register(new MenuCommand());
         register(new ShowCommand());
+        register(new TeleportCommand());
         register(new FlagCommand());
         register(new AddMemberCommand());
         register(new RemoveMemberCommand());
@@ -75,6 +79,9 @@ public class RegionCommandManager {
 
     private void register(RegionCommand command) {
         this.commands.put(command.getName().toLowerCase(Locale.ROOT), command);
+        for (String alias : command.getAliases()) {
+            this.aliases.put(alias.toLowerCase(Locale.ROOT), command);
+        }
     }
 
     public ZRegionsPlugin getPlugin() {
@@ -92,6 +99,9 @@ public class RegionCommandManager {
 
         RegionCommand command = this.commands.get(name);
         if (command == null) {
+            command = this.aliases.get(name);
+        }
+        if (command == null) {
             this.plugin.getMessages().send(sender, Message.UNKNOWN_COMMAND);
             return;
         }
@@ -101,9 +111,10 @@ public class RegionCommandManager {
         }
 
         ArgumentList arguments = new ArgumentList(args);
+        RegionCommand resolved = command; // effectively final for the async lambda
         this.plugin.getBootstrap().getScheduler().executeAsync(() -> {
             try {
-                command.execute(this.plugin, sender, arguments);
+                resolved.execute(this.plugin, sender, arguments);
             } catch (Throwable throwable) {
                 this.plugin.getLogger().severe(
                         "Exception whilst executing command: /" + label + " " + String.join(" ", arguments), throwable);
@@ -119,7 +130,8 @@ public class RegionCommandManager {
         return TabCompleter.create()
                 .at(0, CompletionSupplier.startsWith(() -> allowed.stream().map(RegionCommand::getName)))
                 .from(1, partial -> allowed.stream()
-                        .filter(command -> command.getName().equalsIgnoreCase(args.get(0)))
+                        .filter(command -> command.getName().equalsIgnoreCase(args.get(0))
+                                || command.getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(args.get(0))))
                         .findFirst()
                         .map(command -> command.tabComplete(this.plugin, sender, new ArgumentList(args)))
                         .orElse(List.of()))
