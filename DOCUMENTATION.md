@@ -22,8 +22,9 @@ never the whole region set.
 
 ## 1. Overview
 
-- **Region protection** driven by **81 flags** (blocks, environment, entities, players, zone,
-  fine interactions, world/weather cycles), every one of them actually enforced by a listener — no dead flags.
+- **Region protection** driven by **115 flags** (blocks, environment, entities, players, zone,
+  fine interactions, world/weather cycles, growth, fine spawns & explosions), every one of them
+  actually enforced by a listener — no dead flags.
 - **Enter/exit engine**: `entry`/`exit` enforcement, `greeting`/`farewell` messages plus
   `title`/`subtitle`/`action-bar` displays (MiniMessage), recomputed only when a player crosses
   a block boundary.
@@ -254,6 +255,44 @@ until you deny something.
 override `fire-spread` — but only where the specific flag is actually set; everywhere else the general flag
 decides. So `fluid-flow deny` stops every fluid, then `water-flow allow` in a sub-region lets water through.
 
+**Growth** — all silent:
+
+| Flag | Blocks when denied |
+|---|---|
+| `crop-growth` | Crops, sugar cane, cactus, bamboo, stems, cave vines… growing |
+| `tree-growth` | Saplings growing into trees |
+| `mushroom-growth` | Mushrooms growing into huge mushrooms |
+| `vine-growth` | Vines (incl. weeping/twisting) spreading — specific of `block-spread` |
+| `grass-spread` · `mycelium-spread` | Grass / mycelium spreading — specifics of `block-spread` |
+| `sculk-growth` | Sculk & sculk veins spreading — specific of `block-spread` |
+| `bone-meal` | Using bone meal |
+| `entity-transform` | Entity transformations (zombie-villager cure, mooshroom, piglin zombification…) |
+
+**Fine spawns** — refine `mob-spawning`, resolved most-specific first (entity type → category → reason → `mob-spawning`); silent. Conversion spawns (drowned, frozen…) are never cancelled — the server would delete the source mob.
+
+| Flag | Blocks the spawn of |
+|---|---|
+| `animal-spawning` · `monster-spawning` | Passive animals / hostile monsters |
+| `phantom-spawning` · `slime-spawning` | Phantoms / slimes & magma cubes |
+| `spawner-spawning` | Mob spawners |
+| `natural-spawning` | Natural (world) spawns |
+| `egg-spawning` · `command-spawning` | Spawn eggs / `/summon` & plugin spawns |
+| `raid-spawning` · `patrol-spawning` | Raid & village mobs / pillager patrols |
+| `portal-spawning` | Nether-portal spawns (zombified piglins…) |
+| `deny-spawn` | *(list)* Explicit entity types blocked here (`/rg flag spawn deny-spawn cow, zombie`; `minecraft:` prefix accepted) |
+
+**Fine damage & explosions**:
+
+| Flag | Default | Effect when denied |
+|---|---|---|
+| `villager-damage` · `monster-damage` | allow | Players damaging villagers / monsters |
+| `pet-damage` | allow | Damaging tamed pets |
+| `firework-damage` | allow | Firework blast damage to entities (no bypass) |
+| `entity-explosion-damage` | allow | Explosion *damage* to entities/players (block damage stays on `entity-explosion`) — no bypass |
+| `melee-pvp` · `projectile-pvp` | allow | Melee / projectile PvP — each overrides the general `pvp` where set |
+| `creeper-explosion` · `tnt` · `ghast-fireball` · `wither-damage` · `enderdragon-block-damage` | allow | Block damage from that source — each overrides the general `entity-explosion` where set |
+| `potion-splash` | allow | Splash / lingering potions taking effect here |
+
 ## 7. Configuration reference (`config.yml`)
 
 The default config.yml is shipped **translated** (same keys everywhere, only the comments
@@ -424,6 +463,17 @@ use them. An unrecognized `%zregions_…%` placeholder is left untouched.
 ## 14. Version history
 
 ### 1.0.0 — Unreleased
+- **34 new flags** (81 → 115), all enforced, in three families. **Growth** (`GrowthListener`):
+  `crop-growth`, `tree-growth`, `mushroom-growth`, `vine-growth`, `grass-spread`, `mycelium-spread`,
+  `sculk-growth`, `bone-meal`, `entity-transform`. **Fine spawns** (refine `mob-spawning`, most-specific
+  first, conversion spawns never cancelled): `animal-spawning`, `monster-spawning`, `spawner-spawning`,
+  `phantom-spawning`, `slime-spawning`, `natural-spawning`, `egg-spawning`, `command-spawning`,
+  `raid-spawning`, `patrol-spawning`, `portal-spawning`, `deny-spawn` (entity-type list). **Fine damage &
+  explosions**: `villager-damage`, `monster-damage`, `pet-damage`, `firework-damage`,
+  `entity-explosion-damage`, `melee-pvp`/`projectile-pvp` (override `pvp`), the explosion family
+  `creeper-explosion`/`tnt`/`ghast-fireball`/`wither-damage`/`enderdragon-block-damage` (override
+  `entity-explosion`) and `potion-splash`. Adds `RegionManager.resolveFlagIfSet` (the N-way building block
+  of the general→specific resolution). WorldGuard import gained the growth mappings.
 - **15 environment flags** (66 → 81), all enforced: `lightning`, `lava-fire`, `water-flow`,
   `lava-flow`, `fire-burn`, `block-spread`, `snow-fall`, `snow-melt`, `ice-form`, `ice-melt`,
   `frosted-ice-form`, `frosted-ice-melt`, `soil-dry`, `coral-fade`, `snowman-trails`. Introduces

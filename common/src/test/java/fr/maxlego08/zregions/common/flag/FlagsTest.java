@@ -20,7 +20,7 @@ class FlagsTest {
 
     @Test
     void allContainsEveryBuiltInFlag() {
-        assertEquals(81, Flags.all().size());
+        assertEquals(115, Flags.all().size());
     }
 
     @Test

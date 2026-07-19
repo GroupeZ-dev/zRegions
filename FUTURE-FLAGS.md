@@ -7,6 +7,9 @@
 ## Sources consultees
 
 - WorldGuard 7 - Region Flags: https://worldguard.enginehub.org/en/latest/regions/flags/
+- WorldGuard ExtraFlags - Spigot: https://www.spigotmc.org/resources/worldguard-extra-flags.4823/
+- WorldGuard ExtraFlags - GitHub: https://github.com/aromaa/WorldGuardExtraFlags
+- WorldGuard ExtraFlags Plus - Spigot: https://www.spigotmc.org/resources/worldguard-extraflags-plus.129946/
 - GriefDefender - Advanced Flags: https://docs.griefdefender.com/wiki/advanced/Flags
 - GriefPrevention - Features: https://docs.griefprevention.com/features/
 - GPFlags - Spigot/Modrinth pages: https://www.spigotmc.org/resources/gpflags.55773/
@@ -42,6 +45,64 @@ La couverture est deja solide pour la protection classique et l'import WorldGuar
 Les manques les plus visibles sont les flags naturels fins, les restrictions
 specialisees de gameplay, les messages custom par region, et quelques flags a valeur
 non booleenne.
+
+## Focus - WorldGuard ExtraFlags
+
+WorldGuard ExtraFlags 4.2.4 annonce 26 flags additionnels. Par rapport a zRegions:
+
+| Flag WorldGuard ExtraFlags | Etat zRegions | A ajouter ? | Notes |
+|---|---|---|---|
+| `teleport-on-entry` | absent | oui | Location flag + integration `RegionMovementTracker`; protection anti-boucle necessaire |
+| `teleport-on-exit` | absent | oui | Meme chantier que `teleport-on-entry` |
+| `command-on-entry` | absent | oui | String/list flag; execution joueur a l'entree |
+| `command-on-exit` | absent | oui | String/list flag; execution joueur a la sortie |
+| `console-command-on-entry` | absent | oui, avec prudence | Puissant mais sensible; placeholders stricts et permission admin only |
+| `console-command-on-exit` | absent | oui, avec prudence | Meme risque securite |
+| `walk-speed` | absent | oui | Double flag; restaurer la vitesse precedente en sortie |
+| `fly-speed` | absent | oui | Double flag; restaurer la vitesse precedente |
+| `keep-inventory` | deja present | non | zRegions preserve inventaire + XP; ExtraFlags separe XP |
+| `keep-exp` | partiel | oui | zRegions n'a pas le flag separe: `keep-inventory` garde XP, `exp-drop` controle les orbs |
+| `chat-prefix` | absent | plus tard | Depend fortement des plugins chat; possible via integration/format hook |
+| `chat-suffix` | absent | plus tard | Meme remarque |
+| `godmode` | present sous `invincible` | non | Equivalent fonctionnel |
+| `blocked-effects` | absent | oui | Liste d'effets potion refuses/retieres en region |
+| `respawn-location` | absent | oui | Location flag + `PlayerRespawnEvent`; attention Essentials/spawn plugins |
+| `worldedit` | absent | oui | Hook WorldEdit/FAWE optionnel; pas dans `common` pur |
+| `give-effects` | absent | oui | Liste d'effets appliques en region + restauration propre en sortie |
+| `fly` | deja present | non | zRegions bloque le demarrage du vol; ExtraFlags peut activer/desactiver le vol a l'entree |
+| `play-sounds` | absent | oui | Sound/list flag, one-shot ou repeat; stop en sortie |
+| `frostwalker` | absent | oui | Peut rejoindre `frosted-ice-form`, mais le nom est plus parlant cote enchant |
+| `nether-portals` | absent | oui | Creation de portails Nether, pas seulement utilisation |
+| `glide` | partiel | oui si effet actif souhaite | zRegions a `elytra` pour bloquer le glide, mais ne donne pas l'effet glide |
+| `chunk-unload` | absent | a etudier | Tres technique; risque memoire si mal utilise |
+| `item-durability` | absent | oui | Annuler l'usure d'items dans la region |
+| `join-location` | absent | oui | Teleport a la connexion si le joueur est dans la region |
+
+WorldGuard ExtraFlags Plus ajoute ou remet en avant d'autres flags absents/interessants:
+
+| Flag ExtraFlags Plus | Etat zRegions | Notes |
+|---|---|---|
+| `disable-completely` | absent | Bloque l'utilisation complete de certains items/actions; demande un modele item/action |
+| `disable-throw` | absent | Bloque uniquement les lancers: egg, snowball, pearl, XP bottle, etc. |
+| `entry-min-level` | absent | Condition d'entree basee sur niveau XP minimum |
+| `entry-max-level` | absent | Condition d'entree basee sur niveau XP maximum |
+| `villager-trade` | deja propose | Tres bon candidat P1 |
+| `disable-collision` | absent | Collision joueur/entite; possiblement scoreboard/team ou Paper API |
+| `deny-item-drops` | present sous `item-drop` | Equivalent proche |
+| `deny-item-pickup` | present sous `item-pickup` | Equivalent proche |
+| `allow-block-place` | absent | Material allowlist pour `block-place` |
+| `deny-block-place` | absent | Material denylist pour `block-place` |
+| `allow-block-break` | absent | Material allowlist pour `block-break` |
+| `deny-block-break` | absent | Material denylist pour `block-break` |
+| `mace` / item blockers modernes | absent | Peut rentrer dans `blocked-items` ou `disable-completely` |
+| `wind-charge` | absent | Peut rentrer dans `disable-throw` ou `projectile-launch` |
+| `totem` | deja present | zRegions peut deja refuser le totem |
+
+Synthese ExtraFlags: les plus gros manques zRegions sont les flags d'action a
+l'entree/sortie (`teleport-*`, `command-*`), les effets persistants (`give-effects`,
+`blocked-effects`, `play-sounds`), les locations (`respawn-location`, `join-location`),
+les vitesses (`walk-speed`, `fly-speed`), `worldedit`, `nether-portals`,
+`item-durability`, et les allow/deny lists de blocks/items.
 
 ## Priorite 1 - Tres utiles et raisonnables
 

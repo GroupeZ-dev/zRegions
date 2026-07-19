@@ -116,6 +116,46 @@ public final class FlagMaterials {
         BY_FLAG.put("soil-dry", Material.FARMLAND);
         BY_FLAG.put("coral-fade", Material.TUBE_CORAL);
         BY_FLAG.put("snowman-trails", Material.CARVED_PUMPKIN);
+
+        // batch B4 — growth
+        BY_FLAG.put("crop-growth", Material.WHEAT_SEEDS);
+        BY_FLAG.put("tree-growth", Material.OAK_SAPLING);
+        BY_FLAG.put("mushroom-growth", Material.RED_MUSHROOM);
+        BY_FLAG.put("vine-growth", Material.WEEPING_VINES);
+        BY_FLAG.put("grass-spread", Material.MOSS_BLOCK);
+        BY_FLAG.put("mycelium-spread", Material.MYCELIUM);
+        BY_FLAG.put("sculk-growth", Material.SCULK);
+        BY_FLAG.put("bone-meal", Material.BONE_MEAL);
+        BY_FLAG.put("entity-transform", Material.ZOMBIE_VILLAGER_SPAWN_EGG);
+
+        // batch B5 — fine spawns
+        BY_FLAG.put("animal-spawning", Material.PIG_SPAWN_EGG);
+        BY_FLAG.put("monster-spawning", Material.SKELETON_SPAWN_EGG);
+        BY_FLAG.put("spawner-spawning", Material.SPAWNER);
+        BY_FLAG.put("phantom-spawning", Material.PHANTOM_SPAWN_EGG);
+        BY_FLAG.put("slime-spawning", Material.SLIME_SPAWN_EGG);
+        BY_FLAG.put("natural-spawning", Material.CREEPER_SPAWN_EGG);
+        BY_FLAG.put("egg-spawning", Material.EGG);
+        BY_FLAG.put("command-spawning", Material.REPEATING_COMMAND_BLOCK);
+        BY_FLAG.put("raid-spawning", Material.CROSSBOW);
+        BY_FLAG.put("patrol-spawning", Material.IRON_AXE);
+        BY_FLAG.put("portal-spawning", Material.OBSIDIAN);
+        BY_FLAG.put("deny-spawn", Material.STRUCTURE_VOID);
+
+        // batch B6 — fine damage & explosions
+        BY_FLAG.put("villager-damage", Material.VILLAGER_SPAWN_EGG);
+        BY_FLAG.put("monster-damage", Material.IRON_SWORD);
+        BY_FLAG.put("pet-damage", Material.BONE);
+        BY_FLAG.put("firework-damage", Material.FIREWORK_STAR);
+        BY_FLAG.put("entity-explosion-damage", Material.TNT_MINECART);
+        BY_FLAG.put("creeper-explosion", Material.GUNPOWDER);
+        BY_FLAG.put("tnt", Material.TNT);
+        BY_FLAG.put("ghast-fireball", Material.GHAST_TEAR);
+        BY_FLAG.put("wither-damage", Material.WITHER_SKELETON_SKULL);
+        BY_FLAG.put("enderdragon-block-damage", Material.DRAGON_HEAD);
+        BY_FLAG.put("potion-splash", Material.SPLASH_POTION);
+        BY_FLAG.put("melee-pvp", Material.NETHERITE_SWORD);
+        BY_FLAG.put("projectile-pvp", Material.ARROW);
     }
 
     private FlagMaterials() {

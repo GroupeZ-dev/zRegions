@@ -169,6 +169,17 @@ class FlagResolutionTest {
                 "both unset → the general flag's default (allow)");
     }
 
+    @Test
+    void resolveFlagIfSetIsEmptyUntilTheFlagIsDefined() {
+        Region region = this.manager.createRegion(WORLD, "zone", new CuboidShape(0, 0, 0, 30, 30, 30), 10, null);
+        assertTrue(this.manager.resolveFlagIfSet(WORLD, 5, 5, 5, Flags.NATURAL_SPAWNING, null).isEmpty(),
+                "an unset flag returns empty here, not its default");
+
+        this.manager.setFlag(region, Flags.NATURAL_SPAWNING, GroupTarget.ALL, false);
+        assertEquals(Boolean.FALSE,
+                this.manager.resolveFlagIfSet(WORLD, 5, 5, 5, Flags.NATURAL_SPAWNING, null).orElse(null));
+    }
+
     private static StoredRegion stored(UUID id, String name, String shapeData, int priority, UUID parentId,
                                        boolean global, List<StoredRegion.StoredFlag> flags,
                                        List<StoredRegion.StoredMember> members) {

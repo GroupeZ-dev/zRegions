@@ -64,6 +64,15 @@ public interface RegionManager {
     <T> T resolveFlag(String worldName, double x, double y, double z, Flag<T> flag, UUID playerId);
 
     /**
+     * The value of {@code flag} at a position when any region (or the world's global
+     * region) explicitly defines it, otherwise empty. Unlike {@link #resolveFlag}, an
+     * unset flag returns empty here instead of its default — the building block for the
+     * general→specific flag families. HOT PATH.
+     */
+    <T> java.util.Optional<T> resolveFlagIfSet(String worldName, double x, double y, double z,
+                                               Flag<T> flag, UUID playerId);
+
+    /**
      * The effective value of {@code specific} at a position when any region (or the
      * world's global region) explicitly defines it, otherwise the effective value of
      * {@code general}. This is the general→specific flag-family override — e.g.

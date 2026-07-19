@@ -104,6 +104,46 @@ public final class Flags {
     public static final Flag<Boolean> CORAL_FADE = state("coral-fade");
     public static final Flag<Boolean> SNOWMAN_TRAILS = state("snowman-trails");
 
+    // --- growth (batch B4) ---
+    public static final Flag<Boolean> CROP_GROWTH = state("crop-growth");
+    public static final Flag<Boolean> TREE_GROWTH = state("tree-growth");
+    public static final Flag<Boolean> MUSHROOM_GROWTH = state("mushroom-growth");
+    public static final Flag<Boolean> VINE_GROWTH = state("vine-growth");
+    public static final Flag<Boolean> GRASS_SPREAD = state("grass-spread");
+    public static final Flag<Boolean> MYCELIUM_SPREAD = state("mycelium-spread");
+    public static final Flag<Boolean> SCULK_GROWTH = state("sculk-growth");
+    public static final Flag<Boolean> BONE_MEAL = state("bone-meal");
+    public static final Flag<Boolean> ENTITY_TRANSFORM = state("entity-transform");
+
+    // --- fine spawns (batch B5) ---
+    public static final Flag<Boolean> ANIMAL_SPAWNING = state("animal-spawning");
+    public static final Flag<Boolean> MONSTER_SPAWNING = state("monster-spawning");
+    public static final Flag<Boolean> SPAWNER_SPAWNING = state("spawner-spawning");
+    public static final Flag<Boolean> PHANTOM_SPAWNING = state("phantom-spawning");
+    public static final Flag<Boolean> SLIME_SPAWNING = state("slime-spawning");
+    public static final Flag<Boolean> NATURAL_SPAWNING = state("natural-spawning");
+    public static final Flag<Boolean> EGG_SPAWNING = state("egg-spawning");
+    public static final Flag<Boolean> COMMAND_SPAWNING = state("command-spawning");
+    public static final Flag<Boolean> RAID_SPAWNING = state("raid-spawning");
+    public static final Flag<Boolean> PATROL_SPAWNING = state("patrol-spawning");
+    public static final Flag<Boolean> PORTAL_SPAWNING = state("portal-spawning");
+    public static final Flag<List<String>> DENY_SPAWN = new StringListFlag("deny-spawn", List.of());
+
+    // --- fine damage & explosions (batch B6) ---
+    public static final Flag<Boolean> VILLAGER_DAMAGE = state("villager-damage");
+    public static final Flag<Boolean> MONSTER_DAMAGE = state("monster-damage");
+    public static final Flag<Boolean> PET_DAMAGE = state("pet-damage");
+    public static final Flag<Boolean> FIREWORK_DAMAGE = state("firework-damage");
+    public static final Flag<Boolean> ENTITY_EXPLOSION_DAMAGE = state("entity-explosion-damage");
+    public static final Flag<Boolean> CREEPER_EXPLOSION = state("creeper-explosion");
+    public static final Flag<Boolean> TNT = state("tnt");
+    public static final Flag<Boolean> GHAST_FIREBALL = state("ghast-fireball");
+    public static final Flag<Boolean> WITHER_DAMAGE = state("wither-damage");
+    public static final Flag<Boolean> ENDERDRAGON_BLOCK_DAMAGE = state("enderdragon-block-damage");
+    public static final Flag<Boolean> POTION_SPLASH = state("potion-splash");
+    public static final Flag<Boolean> MELEE_PVP = state("melee-pvp");
+    public static final Flag<Boolean> PROJECTILE_PVP = state("projectile-pvp");
+
     // --- zone ---
     public static final Flag<Boolean> ENTRY = state("entry");
     public static final Flag<Boolean> EXIT = state("exit");
@@ -130,6 +170,14 @@ public final class Flags {
             LIGHTNING, LAVA_FIRE, WATER_FLOW, LAVA_FLOW, FIRE_BURN, BLOCK_SPREAD,
             SNOW_FALL, SNOW_MELT, ICE_FORM, ICE_MELT, FROSTED_ICE_FORM, FROSTED_ICE_MELT,
             SOIL_DRY, CORAL_FADE, SNOWMAN_TRAILS,
+            CROP_GROWTH, TREE_GROWTH, MUSHROOM_GROWTH, VINE_GROWTH, GRASS_SPREAD,
+            MYCELIUM_SPREAD, SCULK_GROWTH, BONE_MEAL, ENTITY_TRANSFORM,
+            ANIMAL_SPAWNING, MONSTER_SPAWNING, SPAWNER_SPAWNING, PHANTOM_SPAWNING, SLIME_SPAWNING,
+            NATURAL_SPAWNING, EGG_SPAWNING, COMMAND_SPAWNING, RAID_SPAWNING, PATROL_SPAWNING,
+            PORTAL_SPAWNING, DENY_SPAWN,
+            VILLAGER_DAMAGE, MONSTER_DAMAGE, PET_DAMAGE, FIREWORK_DAMAGE, ENTITY_EXPLOSION_DAMAGE,
+            CREEPER_EXPLOSION, TNT, GHAST_FIREBALL, WITHER_DAMAGE, ENDERDRAGON_BLOCK_DAMAGE,
+            POTION_SPLASH, MELEE_PVP, PROJECTILE_PVP,
             ENTRY, EXIT, GREETING, FAREWELL, TITLE, SUBTITLE, ACTION_BAR);
 
     private Flags() {

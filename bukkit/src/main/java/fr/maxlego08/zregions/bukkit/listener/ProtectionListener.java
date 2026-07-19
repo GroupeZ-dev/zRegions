@@ -14,11 +14,14 @@ import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Hanging;
 import org.bukkit.entity.ItemFrame;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -30,6 +33,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityMountEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityPlaceEvent;
@@ -352,20 +356,42 @@ public final class ProtectionListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onEntityDamage(EntityDamageByEntityEvent event) {
+        // firework damage protects the victim no matter who fired it (like mob-damage)
+        if (event.getDamager() instanceof Firework) {
+            if (isDeniedAt(Flags.FIREWORK_DAMAGE, event.getEntity().getLocation())) {
+                event.setCancelled(true);
+            }
+            return;
+        }
+
         Player damager = resolveDamager(event.getDamager());
         if (damager == null) return;
 
         Entity victim = event.getEntity();
-        Flag<Boolean> flag;
         if (victim instanceof Player) {
-            flag = Flags.PVP;
-        } else if (victim instanceof ArmorStand) {
+            // pvp refined into melee/projectile, each overriding the general pvp where set
+            Flag<Boolean> specific = event.getDamager() instanceof Projectile ? Flags.PROJECTILE_PVP : Flags.MELEE_PVP;
+            if (isDeniedOrGeneral(damager, specific, Flags.PVP, victim.getLocation())) {
+                event.setCancelled(true);
+                sendDeniedMessage(damager);
+            }
+            return;
+        }
+
+        Flag<Boolean> flag;
+        if (victim instanceof ArmorStand) {
             flag = Flags.ARMOR_STAND;
         } else if (victim instanceof Hanging) {
             // one punch on an item frame pops the displayed item — that IS a hanging break
             flag = Flags.HANGING_BREAK;
+        } else if (victim instanceof Tameable tameable && tameable.isTamed()) {
+            flag = Flags.PET_DAMAGE;
+        } else if (victim instanceof AbstractVillager) {
+            flag = Flags.VILLAGER_DAMAGE;
         } else if (victim instanceof Animals) {
             flag = Flags.DAMAGE_ANIMALS;
+        } else if (victim instanceof Monster) {
+            flag = Flags.MONSTER_DAMAGE;
         } else {
             return;
         }
@@ -373,6 +399,19 @@ public final class ProtectionListener implements Listener {
         if (isDenied(damager, flag, victim.getLocation())) {
             event.setCancelled(true);
             sendDeniedMessage(damager);
+        }
+    }
+
+    /** Explosion damage to any entity (players included), independent of who caused it. */
+    @EventHandler(ignoreCancelled = true)
+    public void onExplosionDamage(EntityDamageEvent event) {
+        EntityDamageEvent.DamageCause cause = event.getCause();
+        if (cause != EntityDamageEvent.DamageCause.ENTITY_EXPLOSION
+                && cause != EntityDamageEvent.DamageCause.BLOCK_EXPLOSION) {
+            return;
+        }
+        if (isDeniedAt(Flags.ENTITY_EXPLOSION_DAMAGE, event.getEntity().getLocation())) {
+            event.setCancelled(true);
         }
     }
 
@@ -542,6 +581,14 @@ public final class ProtectionListener implements Listener {
     private boolean isDenied(Player player, Flag<Boolean> flag, String worldName, double x, double y, double z) {
         if (hasBypass(player)) return false;
         boolean allowed = this.plugin.getRegionManager().resolveFlag(worldName, x, y, z, flag, player.getUniqueId());
+        return !allowed;
+    }
+
+    /** Player-scoped general→specific resolution (e.g. melee-pvp over pvp), bypass honoured. */
+    private boolean isDeniedOrGeneral(Player player, Flag<Boolean> specific, Flag<Boolean> general, Location location) {
+        if (hasBypass(player)) return false;
+        boolean allowed = this.plugin.getRegionManager().resolveFlagOrGeneral(location.getWorld().getName(),
+                location.getX(), location.getY(), location.getZ(), specific, general, player.getUniqueId());
         return !allowed;
     }
 

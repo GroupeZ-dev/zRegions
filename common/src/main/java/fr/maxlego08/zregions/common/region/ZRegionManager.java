@@ -204,19 +204,26 @@ public class ZRegionManager implements RegionManager {
     }
 
     @Override
-    public <T> T resolveFlagOrGeneral(String worldName, double x, double y, double z,
-                                      Flag<T> specific, Flag<T> general, UUID playerId) {
+    public <T> Optional<T> resolveFlagIfSet(String worldName, double x, double y, double z,
+                                            Flag<T> flag, UUID playerId) {
         for (Region region : getRegionsAt(worldName, x, y, z)) {
-            Optional<T> value = lookupWithParents(region, specific, playerId);
-            if (value.isPresent()) return value.get();
+            Optional<T> value = lookupWithParents(region, flag, playerId);
+            if (value.isPresent()) return value;
         }
         ZRegion global = this.globalByWorld.get(worldName);
         if (global != null) {
-            Optional<T> value = lookupWithParents(global, specific, playerId);
-            if (value.isPresent()) return value.get();
+            Optional<T> value = lookupWithParents(global, flag, playerId);
+            if (value.isPresent()) return value;
         }
-        // the specific flag is defined nowhere at this position → fall back to the general one
-        return resolveFlag(worldName, x, y, z, general, playerId);
+        return Optional.empty();
+    }
+
+    @Override
+    public <T> T resolveFlagOrGeneral(String worldName, double x, double y, double z,
+                                      Flag<T> specific, Flag<T> general, UUID playerId) {
+        // the specific flag wins where it is set; otherwise the general flag decides
+        return resolveFlagIfSet(worldName, x, y, z, specific, playerId)
+                .orElseGet(() -> resolveFlag(worldName, x, y, z, general, playerId));
     }
 
     @Override
