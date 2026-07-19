@@ -63,6 +63,30 @@ public final class Flags {
     public static final Flag<Boolean> TOTEM = state("totem");
     public static final Flag<List<String>> COMMAND_BLACKLIST = new StringListFlag("command-blacklist", List.of());
 
+    // --- interactions & entities (batch B1) ---
+    public static final Flag<Boolean> RIDE = state("ride");
+    public static final Flag<Boolean> SLEEP = state("sleep");
+    public static final Flag<Boolean> RESPAWN_ANCHOR = state("respawn-anchor");
+    public static final Flag<Boolean> ITEM_FRAME_ROTATION = state("item-frame-rotation");
+    public static final Flag<Boolean> USE_ANVIL = state("use-anvil");
+    public static final Flag<Boolean> BEACON = state("beacon");
+    public static final Flag<Boolean> VILLAGER_TRADE = state("villager-trade");
+    public static final Flag<Boolean> SHEAR = state("shear");
+    public static final Flag<Boolean> LEASH = state("leash");
+    public static final Flag<Boolean> ANIMAL_BREEDING = state("animal-breeding");
+    public static final Flag<Boolean> SIGN_EDIT = state("sign-edit");
+    public static final Flag<Boolean> FISHING_HOOK = state("fishing-hook");
+    public static final Flag<Boolean> PROJECTILE_LAUNCH = state("projectile-launch");
+    public static final Flag<Boolean> RECEIVE_CHAT = state("receive-chat");
+    public static final Flag<List<String>> COMMAND_WHITELIST = new StringListFlag("command-whitelist", List.of());
+
+    // --- custom deny messages & exit displays (batch B2) ---
+    public static final Flag<String> DENY_MESSAGE = new StringFlag("deny-message", "");
+    public static final Flag<String> ENTRY_DENY_MESSAGE = new StringFlag("entry-deny-message", "");
+    public static final Flag<String> EXIT_DENY_MESSAGE = new StringFlag("exit-deny-message", "");
+    public static final Flag<String> FAREWELL_TITLE = new StringFlag("farewell-title", "");
+    public static final Flag<String> FAREWELL_SUBTITLE = new StringFlag("farewell-subtitle", "");
+
     // --- zone ---
     public static final Flag<Boolean> ENTRY = state("entry");
     public static final Flag<Boolean> EXIT = state("exit");
@@ -82,6 +106,10 @@ public final class Flags {
             PVP, INVINCIBLE, FALL_DAMAGE, HUNGER, ITEM_DROP, ITEM_PICKUP,
             ENDERPEARL, CHORUS_FRUIT, KEEP_INVENTORY, EXP_DROP, CHAT,
             ELYTRA, FLY, TOTEM, COMMAND_BLACKLIST,
+            RIDE, SLEEP, RESPAWN_ANCHOR, ITEM_FRAME_ROTATION, USE_ANVIL, BEACON,
+            VILLAGER_TRADE, SHEAR, LEASH, ANIMAL_BREEDING, SIGN_EDIT, FISHING_HOOK,
+            PROJECTILE_LAUNCH, RECEIVE_CHAT, COMMAND_WHITELIST,
+            DENY_MESSAGE, ENTRY_DENY_MESSAGE, EXIT_DENY_MESSAGE, FAREWELL_TITLE, FAREWELL_SUBTITLE,
             ENTRY, EXIT, GREETING, FAREWELL, TITLE, SUBTITLE, ACTION_BAR);
 
     private Flags() {

@@ -94,6 +94,25 @@ class RegionMovementTrackerTest {
     }
 
     @Test
+    void entryDenyMessageOverridesTheGenericRefusal() {
+        this.manager.setFlag(this.region, Flags.ENTRY, GroupTarget.ALL, false);
+        this.manager.setFlag(this.region, Flags.ENTRY_DENY_MESSAGE, GroupTarget.ALL, "keep out <player>");
+
+        assertFalse(this.tracker.handleMove(this.player, at(5, 5, 5), false));
+        assertEquals(1, this.player.messages.size(), "a custom entry-deny-message is sent on refusal");
+    }
+
+    @Test
+    void farewellTitleShownOnExit() {
+        this.manager.setFlag(this.region, Flags.FAREWELL_TITLE, GroupTarget.ALL, "bye");
+        assertTrue(this.tracker.handleMove(this.player, at(5, 5, 5), false), "entry is free");
+        assertTrue(this.player.titles.isEmpty(), "no title on enter when only the farewell title is set");
+
+        assertTrue(this.tracker.handleMove(this.player, at(50, 5, 50), false));
+        assertEquals(1, this.player.titles.size(), "leaving shows the farewell title once");
+    }
+
+    @Test
     void arrivalInitializesTheSetAndGreets() {
         this.manager.setFlag(this.region, Flags.GREETING, GroupTarget.ALL, "hi <player>");
 

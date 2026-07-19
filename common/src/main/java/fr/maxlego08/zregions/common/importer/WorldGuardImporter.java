@@ -84,13 +84,21 @@ public final class WorldGuardImporter {
             entry("item-pickup", Flags.ITEM_PICKUP),
             entry("fall-damage", Flags.FALL_DAMAGE),
             entry("invincible", Flags.INVINCIBLE),
-            entry("send-chat", Flags.CHAT));
+            entry("send-chat", Flags.CHAT),
+            entry("ride", Flags.RIDE),
+            entry("sleep", Flags.SLEEP),
+            entry("respawn-anchors", Flags.RESPAWN_ANCHOR),
+            entry("item-frame-rotation", Flags.ITEM_FRAME_ROTATION),
+            entry("use-anvil", Flags.USE_ANVIL),
+            entry("receive-chat", Flags.RECEIVE_CHAT));
 
     /** WG text flag → zRegions text flag (values imported verbatim). */
     private static final Map<String, Flag<String>> TEXT_FLAGS = Map.of(
             "greeting", Flags.GREETING,
             "farewell", Flags.FAREWELL,
-            "greeting-title", Flags.TITLE);
+            "greeting-title", Flags.TITLE,
+            "deny-message", Flags.DENY_MESSAGE,
+            "farewell-title", Flags.FAREWELL_TITLE);
 
     private final ZRegionsPlugin plugin;
 

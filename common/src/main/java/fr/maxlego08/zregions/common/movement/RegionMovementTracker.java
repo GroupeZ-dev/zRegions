@@ -11,6 +11,7 @@ import fr.maxlego08.zregions.common.plugin.ZRegionsPlugin;
 import net.kyori.adventure.text.Component;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +71,7 @@ public final class RegionMovementTracker {
         // entering regions, highest priority first (getRegionsAt is sorted)
         for (Region region : now) {
             if (!was.contains(region.getId()) && !manager.resolveFlag(region, Flags.ENTRY, playerId)) {
-                sendDenied(player, Message.ENTRY_DENIED, region);
+                sendBorderDenied(player, region, Flags.ENTRY_DENY_MESSAGE, Message.ENTRY_DENIED);
                 return false;
             }
         }
@@ -81,7 +82,7 @@ public final class RegionMovementTracker {
             }
             Region region = manager.getRegion(regionId).orElse(null);
             if (region != null && !manager.resolveFlag(region, Flags.EXIT, playerId)) {
-                sendDenied(player, Message.EXIT_DENIED, region);
+                sendBorderDenied(player, region, Flags.EXIT_DENY_MESSAGE, Message.EXIT_DENIED);
                 return false;
             }
         }
@@ -149,11 +150,18 @@ public final class RegionMovementTracker {
 
         if (was != null) {
             RegionManager manager = this.plugin.getRegionManager();
+            List<Region> left = new ArrayList<>();
             for (UUID regionId : was) {
                 if (!nowIds.contains(regionId)) {
-                    manager.getRegion(regionId)
-                            .ifPresent(region -> sendZoneMessage(player, region, Flags.FAREWELL));
+                    manager.getRegion(regionId).ifPresent(region -> {
+                        sendZoneMessage(player, region, Flags.FAREWELL);
+                        left.add(region);
+                    });
                 }
+            }
+            if (!left.isEmpty()) {
+                left.sort(Comparator.comparingInt(Region::getPriority).reversed());
+                sendExitDisplays(player, left);
             }
         }
         List<Region> entered = new ArrayList<>();
@@ -238,13 +246,42 @@ public final class RegionMovementTracker {
         return text == null || text.isEmpty();
     }
 
-    private void sendDenied(RegionPlayer player, Message message, Region region) {
+    /**
+     * farewell-title/subtitle on exit — the highest-priority left region that defines
+     * either channel wins (client displays are last-write-wins, {@code left} is sorted
+     * by priority descending), mirroring the enter displays.
+     */
+    private void sendExitDisplays(RegionPlayer player, List<Region> left) {
+        RegionManager manager = this.plugin.getRegionManager();
+        UUID playerId = player.getUniqueId();
+        for (Region region : left) {
+            String title = manager.resolveFlag(region, Flags.FAREWELL_TITLE, playerId);
+            String subtitle = manager.resolveFlag(region, Flags.FAREWELL_SUBTITLE, playerId);
+            if (!isEmpty(title) || !isEmpty(subtitle)) {
+                player.sendTitle(
+                        isEmpty(title) ? Component.empty() : render(player, region, title),
+                        isEmpty(subtitle) ? Component.empty() : render(player, region, subtitle));
+                return;
+            }
+        }
+    }
+
+    /**
+     * Border denial: a region may override the generic {@code fallback} with a custom
+     * {@code entry-deny-message}/{@code exit-deny-message} (region-scoped, MiniMessage).
+     */
+    private void sendBorderDenied(RegionPlayer player, Region region, Flag<String> messageFlag, Message fallback) {
         long now = System.currentTimeMillis();
         Long last = this.lastDeniedMessage.get(player.getUniqueId());
         if (last != null && now - last < this.plugin.getConfiguration().getDenyMessageThrottleMillis()) {
             return;
         }
         this.lastDeniedMessage.put(player.getUniqueId(), now);
-        this.plugin.getMessages().send(player, message, "region", region.getName());
+        String custom = this.plugin.getRegionManager().resolveFlag(region, messageFlag, player.getUniqueId());
+        if (custom != null && !custom.isEmpty()) {
+            player.sendMessage(render(player, region, custom));
+        } else {
+            this.plugin.getMessages().send(player, fallback, "region", region.getName());
+        }
     }
 }

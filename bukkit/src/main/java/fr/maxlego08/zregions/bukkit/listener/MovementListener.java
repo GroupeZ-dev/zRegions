@@ -85,13 +85,13 @@ public final class MovementListener implements Listener {
         if (event.getCause() == PlayerTeleportEvent.TeleportCause.ENDER_PEARL
                 && isDenied(nativePlayer, Flags.ENDERPEARL, to)) {
             event.setCancelled(true);
-            sendDeniedMessage(nativePlayer);
+            sendDeniedMessage(nativePlayer, to);
             return;
         }
         if (event.getCause() == PlayerTeleportEvent.TeleportCause.CHORUS_FRUIT
                 && isDenied(nativePlayer, Flags.CHORUS_FRUIT, to)) {
             event.setCancelled(true);
-            sendDeniedMessage(nativePlayer);
+            sendDeniedMessage(nativePlayer, to);
             return;
         }
 
@@ -183,11 +183,19 @@ public final class MovementListener implements Listener {
         return !allowed;
     }
 
-    private void sendDeniedMessage(Player player) {
+    private void sendDeniedMessage(Player player, Location location) {
         long now = System.currentTimeMillis();
         Long last = this.lastDeniedMessage.get(player.getUniqueId());
         if (last != null && now - last < this.plugin.getConfiguration().getDenyMessageThrottleMillis()) return;
         this.lastDeniedMessage.put(player.getUniqueId(), now);
-        this.plugin.getMessages().send(this.plugin.getPlayerFactory().wrap(player), Message.ACTION_DENIED);
+
+        RegionPlayer wrapped = this.plugin.getPlayerFactory().wrap(player);
+        String custom = this.plugin.getRegionManager().resolveFlag(location.getWorld().getName(),
+                location.getX(), location.getY(), location.getZ(), Flags.DENY_MESSAGE, player.getUniqueId());
+        if (custom != null && !custom.isEmpty()) {
+            wrapped.sendMessage(this.plugin.getMessages().formatRaw(custom, "player", player.getName()));
+        } else {
+            this.plugin.getMessages().send(wrapped, Message.ACTION_DENIED);
+        }
     }
 }

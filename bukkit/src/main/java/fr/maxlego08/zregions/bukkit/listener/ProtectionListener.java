@@ -4,15 +4,19 @@ import fr.maxlego08.zregions.api.flag.Flag;
 import fr.maxlego08.zregions.bukkit.ZRegionsBukkitPlugin;
 import fr.maxlego08.zregions.common.flag.Flags;
 import fr.maxlego08.zregions.common.locale.Message;
+import fr.maxlego08.zregions.common.platform.RegionPlayer;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
+import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Hanging;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Vehicle;
@@ -23,25 +27,37 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityMountEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityPlaceEvent;
 import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.EntityToggleGlideEvent;
+import org.bukkit.event.entity.PlayerLeashEntityEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
+import org.bukkit.event.vehicle.VehicleEnterEvent;
 
 import java.util.List;
 import java.util.Locale;
@@ -89,7 +105,14 @@ public final class ProtectionListener implements Listener {
         Block block = event.getClickedBlock();
         if (block == null) return;
 
-        Flag<Boolean> flag = block.getState() instanceof Container ? Flags.CONTAINER_ACCESS : Flags.INTERACT;
+        Flag<Boolean> flag;
+        if (block.getType() == Material.RESPAWN_ANCHOR) {
+            flag = Flags.RESPAWN_ANCHOR;
+        } else if (block.getState() instanceof Container) {
+            flag = Flags.CONTAINER_ACCESS;
+        } else {
+            flag = Flags.INTERACT;
+        }
         Player player = event.getPlayer();
         if (isDenied(player, flag, block.getWorld().getName(), block.getX(), block.getY(), block.getZ())) {
             event.setUseInteractedBlock(Event.Result.DENY);
@@ -207,15 +230,23 @@ public final class ProtectionListener implements Listener {
         boolean bypass = event.isAsynchronous()
                 ? this.lastKnownBypass.getOrDefault(player.getUniqueId(), false)
                 : hasBypass(player);
-        if (bypass) return;
-
-        Location location = player.getLocation();
-        boolean allowed = this.plugin.getRegionManager().resolveFlag(player.getWorld().getName(),
-                location.getX(), location.getY(), location.getZ(), Flags.CHAT, player.getUniqueId());
-        if (!allowed) {
-            event.setCancelled(true);
-            sendDeniedMessage(player);
+        if (!bypass) {
+            Location location = player.getLocation();
+            boolean allowed = this.plugin.getRegionManager().resolveFlag(player.getWorld().getName(),
+                    location.getX(), location.getY(), location.getZ(), Flags.CHAT, player.getUniqueId());
+            if (!allowed) {
+                event.setCancelled(true);
+                sendDeniedMessage(player);
+                return;
+            }
         }
+        // receive-chat: recipients standing in a region that denies it never see the message
+        // (independent of the sender's bypass — it protects the recipient's zone)
+        event.getRecipients().removeIf(recipient -> {
+            Location loc = recipient.getLocation();
+            return !this.plugin.getRegionManager().resolveFlag(recipient.getWorld().getName(),
+                    loc.getX(), loc.getY(), loc.getZ(), Flags.RECEIVE_CHAT, recipient.getUniqueId());
+        });
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -224,20 +255,34 @@ public final class ProtectionListener implements Listener {
         if (hasBypass(player)) return;
 
         Location location = player.getLocation();
-        List<String> blocked = this.plugin.getRegionManager().resolveFlag(player.getWorld().getName(),
-                location.getX(), location.getY(), location.getZ(), Flags.COMMAND_BLACKLIST, player.getUniqueId());
-        if (blocked.isEmpty()) return;
+        String world = player.getWorld().getName();
+        UUID playerId = player.getUniqueId();
+        List<String> blacklist = this.plugin.getRegionManager().resolveFlag(world,
+                location.getX(), location.getY(), location.getZ(), Flags.COMMAND_BLACKLIST, playerId);
+        List<String> whitelist = this.plugin.getRegionManager().resolveFlag(world,
+                location.getX(), location.getY(), location.getZ(), Flags.COMMAND_WHITELIST, playerId);
+        if (blacklist.isEmpty() && whitelist.isEmpty()) return;
 
         String command = rootCommand(event.getMessage());
         String unNamespaced = command.substring(command.indexOf(':') + 1);
-        for (String entry : blocked) {
+
+        // the blacklist wins over the whitelist when both are set
+        if (matchesAny(blacklist, command, unNamespaced)
+                || (!whitelist.isEmpty() && !matchesAny(whitelist, command, unNamespaced))) {
+            event.setCancelled(true);
+            sendDeniedMessage(player);
+        }
+    }
+
+    /** Whether a command root (namespaced or not) matches any entry (leading {@code /} optional). */
+    private static boolean matchesAny(List<String> entries, String command, String unNamespaced) {
+        for (String entry : entries) {
             String normalized = (entry.startsWith("/") ? entry.substring(1) : entry).toLowerCase(Locale.ROOT);
             if (command.equals(normalized) || unNamespaced.equals(normalized)) {
-                event.setCancelled(true);
-                sendDeniedMessage(player);
-                return;
+                return true;
             }
         }
+        return false;
     }
 
     /** The bare command name of a chat line: "/minecraft:tp a b" -> "minecraft:tp". */
@@ -331,6 +376,137 @@ public final class ProtectionListener implements Listener {
         }
     }
 
+    // --- batch B1: fine interactions & entity actions ---
+
+    @EventHandler(ignoreCancelled = true)
+    public void onVehicleEnter(VehicleEnterEvent event) {
+        if (!(event.getEntered() instanceof Player player)) return;
+        if (isDenied(player, Flags.RIDE, event.getVehicle().getLocation())) {
+            event.setCancelled(true);
+            sendDeniedMessage(player);
+        }
+    }
+
+    /** Mounting a rideable entity (horse, strider, camel…); vehicles go through {@link #onVehicleEnter}. */
+    @EventHandler(ignoreCancelled = true)
+    public void onEntityMount(EntityMountEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (isDenied(player, Flags.RIDE, event.getMount().getLocation())) {
+            event.setCancelled(true);
+            sendDeniedMessage(player);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onBedEnter(PlayerBedEnterEvent event) {
+        Player player = event.getPlayer();
+        if (isDenied(player, Flags.SLEEP, event.getBed().getLocation())) {
+            event.setCancelled(true);
+            sendDeniedMessage(player);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onEntityInteract(PlayerInteractEntityEvent event) {
+        Player player = event.getPlayer();
+        if (event.getRightClicked() instanceof ItemFrame frame) {
+            // an empty frame is a place (handled elsewhere); a filled frame rotates
+            if (frame.getItem().getType() != Material.AIR
+                    && isDenied(player, Flags.ITEM_FRAME_ROTATION, frame.getLocation())) {
+                event.setCancelled(true);
+                sendDeniedMessage(player);
+            }
+        } else if (event.getRightClicked() instanceof AbstractVillager villager
+                && isDenied(player, Flags.VILLAGER_TRADE, villager.getLocation())) {
+            event.setCancelled(true);
+            sendDeniedMessage(player);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onInventoryOpen(InventoryOpenEvent event) {
+        if (!(event.getPlayer() instanceof Player player)) return;
+        InventoryType type = event.getInventory().getType();
+        Flag<Boolean> flag;
+        if (type == InventoryType.ANVIL) {
+            flag = Flags.USE_ANVIL;
+        } else if (type == InventoryType.BEACON) {
+            flag = Flags.BEACON;
+        } else {
+            return;
+        }
+        Location location = event.getInventory().getLocation();
+        if (location == null) {
+            location = player.getLocation();
+        }
+        if (isDenied(player, flag, location)) {
+            event.setCancelled(true);
+            sendDeniedMessage(player);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onShear(PlayerShearEntityEvent event) {
+        Player player = event.getPlayer();
+        if (isDenied(player, Flags.SHEAR, event.getEntity().getLocation())) {
+            event.setCancelled(true);
+            sendDeniedMessage(player);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onLeash(PlayerLeashEntityEvent event) {
+        Player player = event.getPlayer();
+        if (isDenied(player, Flags.LEASH, event.getEntity().getLocation())) {
+            event.setCancelled(true);
+            sendDeniedMessage(player);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onBreed(EntityBreedEvent event) {
+        Location location = event.getEntity().getLocation();
+        if (event.getBreeder() instanceof Player player) {
+            if (isDenied(player, Flags.ANIMAL_BREEDING, location)) {
+                event.setCancelled(true);
+                sendDeniedMessage(player);
+            }
+        } else if (isDeniedAt(Flags.ANIMAL_BREEDING, location)) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onSignChange(SignChangeEvent event) {
+        Player player = event.getPlayer();
+        if (isDenied(player, Flags.SIGN_EDIT, event.getBlock().getLocation())) {
+            event.setCancelled(true);
+            sendDeniedMessage(player);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onFish(PlayerFishEvent event) {
+        if (event.getState() != PlayerFishEvent.State.CAUGHT_ENTITY) return;
+        Player player = event.getPlayer();
+        Location location = event.getCaught() != null ? event.getCaught().getLocation() : player.getLocation();
+        if (isDenied(player, Flags.FISHING_HOOK, location)) {
+            event.setCancelled(true);
+            sendDeniedMessage(player);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onProjectileLaunch(ProjectileLaunchEvent event) {
+        // a fishing bobber is a projectile too — casting a rod is governed by fishing-hook, not this
+        if (event.getEntity() instanceof FishHook) return;
+        if (!(event.getEntity().getShooter() instanceof Player player)) return;
+        if (isDenied(player, Flags.PROJECTILE_LAUNCH, event.getEntity().getLocation())) {
+            event.setCancelled(true);
+            sendDeniedMessage(player);
+        }
+    }
+
     private void handleTrample(PlayerInteractEvent event) {
         Block block = event.getClickedBlock();
         if (block == null) return;
@@ -388,6 +564,17 @@ public final class ProtectionListener implements Listener {
         Long last = this.lastDeniedMessage.get(player.getUniqueId());
         if (last != null && now - last < this.plugin.getConfiguration().getDenyMessageThrottleMillis()) return;
         this.lastDeniedMessage.put(player.getUniqueId(), now);
-        this.plugin.getMessages().send(this.plugin.getPlayerFactory().wrap(player), Message.ACTION_DENIED);
+
+        RegionPlayer wrapped = this.plugin.getPlayerFactory().wrap(player);
+        // a region may replace the generic denial with a custom deny-message, resolved
+        // at the player's position (the block being acted on is right there)
+        Location location = player.getLocation();
+        String custom = this.plugin.getRegionManager().resolveFlag(location.getWorld().getName(),
+                location.getX(), location.getY(), location.getZ(), Flags.DENY_MESSAGE, player.getUniqueId());
+        if (custom != null && !custom.isEmpty()) {
+            wrapped.sendMessage(this.plugin.getMessages().formatRaw(custom, "player", player.getName()));
+        } else {
+            this.plugin.getMessages().send(wrapped, Message.ACTION_DENIED);
+        }
     }
 }

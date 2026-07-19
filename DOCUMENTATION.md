@@ -22,8 +22,8 @@ never the whole region set.
 
 ## 1. Overview
 
-- **Region protection** driven by **46 flags** (blocks, environment, entities, players, zone),
-  every one of them actually enforced by a listener — no dead flags.
+- **Region protection** driven by **66 flags** (blocks, environment, entities, players, zone,
+  fine interactions), every one of them actually enforced by a listener — no dead flags.
 - **Enter/exit engine**: `entry`/`exit` enforcement, `greeting`/`farewell` messages plus
   `title`/`subtitle`/`action-bar` displays (MiniMessage), recomputed only when a player crosses
   a block boundary.
@@ -137,8 +137,10 @@ For a flag at a block position, for a given player:
 3. the world's **global region** (same target/parent walk);
 4. the flag's **default value**.
 
-`entry`/`exit`/`greeting`/`farewell` are **region-scoped** (region + parents + default, no global
-fallback): a border is a property of its region.
+`entry`/`exit`/`greeting`/`farewell`/`title`/`subtitle`/`action-bar`/`farewell-title`/`farewell-subtitle`/
+`entry-deny-message`/`exit-deny-message` are **region-scoped** (region + parents + default, no global
+fallback): a border and its messages are properties of their region. `deny-message`, `receive-chat` and
+`command-whitelist` resolve positionally, like the other action flags.
 
 ### Catalog
 
@@ -203,6 +205,34 @@ until you deny something.
 | `farewell` | text | MiniMessage sent on leave (also on death/respawn out of the region) |
 | `title` · `subtitle` | text | MiniMessage title shown on enter (either line may be set alone); same placeholders |
 | `action-bar` | text | MiniMessage shown in the action bar on enter; same placeholders |
+
+**Interactions & entities** — denial cancels the action and messages the player (throttled):
+
+| Flag | Blocks when denied |
+|---|---|
+| `ride` | Mounting vehicles (boats, minecarts) and rideable entities (horses, striders, camels…) |
+| `sleep` | Sleeping in a bed |
+| `respawn-anchor` | Charging or using respawn anchors |
+| `item-frame-rotation` | Rotating the item displayed in an item frame |
+| `use-anvil` | Opening anvils |
+| `beacon` | Opening beacons |
+| `villager-trade` | Trading with villagers and wandering traders |
+| `shear` | Shearing sheep, mooshrooms, snow golems… |
+| `leash` | Leashing entities with a lead |
+| `animal-breeding` | Breeding animals |
+| `sign-edit` | Editing sign text (including editable modern signs) |
+| `fishing-hook` | Reeling entities/items in with a fishing rod |
+| `projectile-launch` | Firing projectiles (bow, crossbow, trident, snowball, egg, fireball…) |
+| `receive-chat` | *Receiving* chat while standing inside — independent of the sender's bypass |
+| `command-whitelist` | *(list)* When non-empty, only these command roots are usable inside (`/rg flag spawn command-whitelist spawn, home`). `command-blacklist` wins on conflict; bypass exempt |
+
+**Custom messages & exit displays**:
+
+| Flag | Type | Effect |
+|---|---|---|
+| `deny-message` | text | MiniMessage sent instead of the generic "denied" message for actions refused here (resolved at the player's position); placeholder `<player>` |
+| `entry-deny-message` · `exit-deny-message` | text | MiniMessage replacing the generic entry/exit refusal (region-scoped); placeholders `<player>`, `<region>` |
+| `farewell-title` · `farewell-subtitle` | text | MiniMessage title shown on leave — symmetric to `title`/`subtitle` on enter; same placeholders |
 
 ## 7. Configuration reference (`config.yml`)
 
@@ -374,6 +404,15 @@ use them. An unrecognized `%zregions_…%` placeholder is left untouched.
 ## 14. Version history
 
 ### 1.0.0 — Unreleased
+- **20 new flags** (46 → 66), all enforced. Interactions & entities: `ride`, `sleep`,
+  `respawn-anchor`, `item-frame-rotation`, `use-anvil`, `beacon`, `villager-trade`, `shear`,
+  `leash`, `animal-breeding`, `sign-edit`, `fishing-hook`, `projectile-launch`, `receive-chat`,
+  `command-whitelist` (whitelist counterpart of `command-blacklist`, blacklist wins). Custom
+  messages & exit displays: `deny-message` (positional, overrides the generic denial),
+  `entry-deny-message`/`exit-deny-message` (region-scoped border refusals) and
+  `farewell-title`/`farewell-subtitle` (symmetric to the enter `title`/`subtitle`). WorldGuard
+  import gained the matching mappings (`ride`, `sleep`, `respawn-anchors`, `item-frame-rotation`,
+  `use-anvil`, `receive-chat`, `deny-message`, `farewell-title`).
 - **`/rg teleport <region>`** (alias **`/rg tp`**, permission `zregions.teleport`): teleports the
   player to a safe standable spot in the region's bounding-box centre column (solid ground, two
   passable non-liquid blocks above); the shapeless global region is refused and a message is sent

@@ -75,6 +75,30 @@ public final class FlagMaterials {
         BY_FLAG.put("title", Material.NAME_TAG);
         BY_FLAG.put("subtitle", Material.BOOK);
         BY_FLAG.put("action-bar", Material.MAP);
+
+        // batch B1 — interactions & entities
+        BY_FLAG.put("ride", Material.SADDLE);
+        BY_FLAG.put("sleep", Material.RED_BED);
+        BY_FLAG.put("respawn-anchor", Material.RESPAWN_ANCHOR);
+        BY_FLAG.put("item-frame-rotation", Material.GLOW_ITEM_FRAME);
+        BY_FLAG.put("use-anvil", Material.ANVIL);
+        BY_FLAG.put("beacon", Material.BEACON);
+        BY_FLAG.put("villager-trade", Material.EMERALD);
+        BY_FLAG.put("shear", Material.SHEARS);
+        BY_FLAG.put("leash", Material.LEAD);
+        BY_FLAG.put("animal-breeding", Material.WHEAT);
+        BY_FLAG.put("sign-edit", Material.DARK_OAK_SIGN);
+        BY_FLAG.put("fishing-hook", Material.FISHING_ROD);
+        BY_FLAG.put("projectile-launch", Material.BOW);
+        BY_FLAG.put("receive-chat", Material.WRITABLE_BOOK);
+        BY_FLAG.put("command-whitelist", Material.KNOWLEDGE_BOOK);
+
+        // batch B2 — custom deny messages & exit displays
+        BY_FLAG.put("deny-message", Material.BARRIER);
+        BY_FLAG.put("entry-deny-message", Material.OAK_HANGING_SIGN);
+        BY_FLAG.put("exit-deny-message", Material.SPRUCE_HANGING_SIGN);
+        BY_FLAG.put("farewell-title", Material.NAME_TAG);
+        BY_FLAG.put("farewell-subtitle", Material.BOOK);
     }
 
     private FlagMaterials() {
