@@ -22,10 +22,10 @@ never the whole region set.
 
 ## 1. Overview
 
-- **Region protection** driven by **149 flags** (blocks, environment, entities, players, zone,
+- **Region protection** driven by **162 flags** (blocks, environment, entities, players, zone,
   fine interactions, world/weather cycles, growth, fine spawns & explosions, item lifecycle,
-  persistent player state, heal/feed, movement & teleport), every one of them actually enforced by
-  a listener — no dead flags.
+  persistent player state, heal/feed, movement & teleport, fine damage causes), every one of them
+  actually enforced by a listener — no dead flags.
 - **Enter/exit engine**: `entry`/`exit` enforcement, `greeting`/`farewell` messages plus
   `title`/`subtitle`/`action-bar` displays (MiniMessage), recomputed only when a player crosses
   a block boundary.
@@ -350,6 +350,26 @@ decides. So `fluid-flow deny` stops every fluid, then `water-flow allow` in a su
 | `move` | Moving inside — freezes the player at their block (bypass exempt; a teleport still works) |
 | `teleport-in` · `teleport-out` | Teleporting **into** / **out of** the region (bypass exempt) |
 
+**Fine damage causes** — each protects **players** inside from one damage cause; silent, no bypass. All
+default to **allow** (vanilla damage stays on). `invincible` (allow) still blocks *every* cause outright;
+these are the finer controls for when you only want to neutralise one source.
+
+| Flag | Neutralises when denied |
+|---|---|
+| `fire-damage` | Burning damage (standing in fire / on fire) |
+| `lava-damage` | Damage from standing in lava |
+| `drowning-damage` | Drowning damage |
+| `suffocation-damage` | Suffocation inside a block |
+| `contact-damage` | Cactus / sweet-berry / stalagmite contact damage |
+| `void-damage` | The void (below the world) — the player stops taking damage but does **not** stop falling; pair with a teleport |
+| `freeze-damage` | Powder-snow freezing damage |
+| `starvation-damage` | Starving at empty hunger (distinct from `hunger`, which freezes the bar) |
+| `lightning-damage` | Being struck by lightning (distinct from `lightning`, which stops the strike itself) |
+| `dragon-breath-damage` | The ender dragon's breath cloud |
+| `hot-floor-damage` | Standing on magma blocks |
+| `fly-into-wall-damage` | Elytra kinetic (flying into a wall) damage |
+| `cramming-damage` | Entity-cramming damage (too many entities in one spot) |
+
 ## 7. Configuration reference (`config.yml`)
 
 The default config.yml is shipped **translated** (same keys everywhere, only the comments
@@ -520,6 +540,12 @@ use them. An unrecognized `%zregions_…%` placeholder is left untouched.
 ## 14. Version history
 
 ### 1.0.0 — Unreleased
+- **13 new flags** (149 → 162, batch B12), all enforced. **Fine damage causes** (in the player-state
+  listener, silent, no bypass — each protects players from one `EntityDamageEvent` cause while
+  `invincible` still blocks all): `fire-damage`, `lava-damage`, `drowning-damage`, `suffocation-damage`,
+  `contact-damage`, `void-damage`, `freeze-damage`, `starvation-damage`, `lightning-damage`,
+  `dragon-breath-damage`, `hot-floor-damage`, `fly-into-wall-damage`, `cramming-damage`. All default to
+  allow; no WorldGuard equivalents to import.
 - **14 new flags** (135 → 149). **Heal/feed** (new `RegionHealFeedTicker`, one-second tick):
   `heal-amount`/`feed-amount` with `*-delay`/`*-min-*`/`*-max-*` bounds (negative amounts = poison/
   starve zones). **Extended state**: `glow`, `experience-multiplier`. **Movement/teleport** (batch

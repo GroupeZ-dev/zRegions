@@ -188,6 +188,21 @@ public final class Flags {
     public static final Flag<Boolean> TELEPORT_IN = state("teleport-in");
     public static final Flag<Boolean> TELEPORT_OUT = state("teleport-out");
 
+    // --- fine damage causes (batch B12), player-condition: silent, no bypass ---
+    public static final Flag<Boolean> FIRE_DAMAGE = state("fire-damage");
+    public static final Flag<Boolean> LAVA_DAMAGE = state("lava-damage");
+    public static final Flag<Boolean> DROWNING_DAMAGE = state("drowning-damage");
+    public static final Flag<Boolean> SUFFOCATION_DAMAGE = state("suffocation-damage");
+    public static final Flag<Boolean> CONTACT_DAMAGE = state("contact-damage");
+    public static final Flag<Boolean> VOID_DAMAGE = state("void-damage");
+    public static final Flag<Boolean> FREEZE_DAMAGE = state("freeze-damage");
+    public static final Flag<Boolean> STARVATION_DAMAGE = state("starvation-damage");
+    public static final Flag<Boolean> LIGHTNING_DAMAGE = state("lightning-damage");
+    public static final Flag<Boolean> DRAGON_BREATH_DAMAGE = state("dragon-breath-damage");
+    public static final Flag<Boolean> HOT_FLOOR_DAMAGE = state("hot-floor-damage");
+    public static final Flag<Boolean> FLY_INTO_WALL_DAMAGE = state("fly-into-wall-damage");
+    public static final Flag<Boolean> CRAMMING_DAMAGE = state("cramming-damage");
+
     // --- zone ---
     public static final Flag<Boolean> ENTRY = state("entry");
     public static final Flag<Boolean> EXIT = state("exit");
@@ -229,6 +244,9 @@ public final class Flags {
             HEAL_AMOUNT, HEAL_DELAY, HEAL_MIN_HEALTH, HEAL_MAX_HEALTH,
             FEED_AMOUNT, FEED_DELAY, FEED_MIN_HUNGER, FEED_MAX_HUNGER, GLOW, EXPERIENCE_MULTIPLIER,
             PORTAL_USE, MOVE, TELEPORT_IN, TELEPORT_OUT,
+            FIRE_DAMAGE, LAVA_DAMAGE, DROWNING_DAMAGE, SUFFOCATION_DAMAGE, CONTACT_DAMAGE,
+            VOID_DAMAGE, FREEZE_DAMAGE, STARVATION_DAMAGE, LIGHTNING_DAMAGE, DRAGON_BREATH_DAMAGE,
+            HOT_FLOOR_DAMAGE, FLY_INTO_WALL_DAMAGE, CRAMMING_DAMAGE,
             ENTRY, EXIT, GREETING, FAREWELL, TITLE, SUBTITLE, ACTION_BAR);
 
     private Flags() {

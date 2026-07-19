@@ -200,6 +200,21 @@ public final class FlagMaterials {
         BY_FLAG.put("move", Material.CHAIN);
         BY_FLAG.put("teleport-in", Material.ENDER_PEARL);
         BY_FLAG.put("teleport-out", Material.CHORUS_FRUIT);
+
+        // batch B12 — fine damage causes
+        BY_FLAG.put("fire-damage", Material.BLAZE_POWDER);
+        BY_FLAG.put("lava-damage", Material.MAGMA_CREAM);
+        BY_FLAG.put("drowning-damage", Material.PUFFERFISH);
+        BY_FLAG.put("suffocation-damage", Material.SAND);
+        BY_FLAG.put("contact-damage", Material.CACTUS);
+        BY_FLAG.put("void-damage", Material.BEDROCK);
+        BY_FLAG.put("freeze-damage", Material.POWDER_SNOW_BUCKET);
+        BY_FLAG.put("starvation-damage", Material.BOWL);
+        BY_FLAG.put("lightning-damage", Material.TRIDENT);
+        BY_FLAG.put("dragon-breath-damage", Material.DRAGON_BREATH);
+        BY_FLAG.put("hot-floor-damage", Material.MAGMA_BLOCK);
+        BY_FLAG.put("fly-into-wall-damage", Material.COBWEB);
+        BY_FLAG.put("cramming-damage", Material.HAY_BLOCK);
     }
 
     private FlagMaterials() {

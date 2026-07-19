@@ -40,6 +40,13 @@ public final class PlayerStateListener implements Listener {
             event.setCancelled(true);
             return;
         }
+        // environmental damage causes (fire, lava, drowning, void, freeze…): a region
+        // denying the matching flag makes players inside immune to that cause only
+        Flag<Boolean> causeFlag = damageCauseFlag(event.getCause());
+        if (causeFlag != null && !resolve(causeFlag, player)) {
+            event.setCancelled(true);
+            return;
+        }
         // mob->player damage lives here, not in ProtectionListener: it protects the
         // victim (no bypass, silent) and EntityDamageByEntityEvent shares this
         // event's HandlerList anyway — a second handler would double-fire.
@@ -48,6 +55,30 @@ public final class PlayerStateListener implements Listener {
                 && !resolve(Flags.MOB_DAMAGE, player)) {
             event.setCancelled(true);
         }
+    }
+
+    /**
+     * The state flag governing a given environmental damage cause, or {@code null}
+     * for causes handled elsewhere (fall, explosions, mob/player attacks). All
+     * default to allow, so a region only grants immunity once it denies one.
+     */
+    private static Flag<Boolean> damageCauseFlag(EntityDamageEvent.DamageCause cause) {
+        return switch (cause) {
+            case FIRE, FIRE_TICK -> Flags.FIRE_DAMAGE;
+            case LAVA -> Flags.LAVA_DAMAGE;
+            case DROWNING -> Flags.DROWNING_DAMAGE;
+            case SUFFOCATION -> Flags.SUFFOCATION_DAMAGE;
+            case CONTACT -> Flags.CONTACT_DAMAGE;
+            case VOID -> Flags.VOID_DAMAGE;
+            case FREEZE -> Flags.FREEZE_DAMAGE;
+            case STARVATION -> Flags.STARVATION_DAMAGE;
+            case LIGHTNING -> Flags.LIGHTNING_DAMAGE;
+            case DRAGON_BREATH -> Flags.DRAGON_BREATH_DAMAGE;
+            case HOT_FLOOR -> Flags.HOT_FLOOR_DAMAGE;
+            case FLY_INTO_WALL -> Flags.FLY_INTO_WALL_DAMAGE;
+            case CRAMMING -> Flags.CRAMMING_DAMAGE;
+            default -> null;
+        };
     }
 
     /** A non-player entity, projectiles-shot-by-players excluded (that is pvp's job). */

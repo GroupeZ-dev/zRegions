@@ -20,7 +20,7 @@ class FlagsTest {
 
     @Test
     void allContainsEveryBuiltInFlag() {
-        assertEquals(149, Flags.all().size());
+        assertEquals(162, Flags.all().size());
     }
 
     @Test
@@ -67,6 +67,16 @@ class FlagsTest {
         assertTrue(Flags.MOB_DAMAGE.getDefaultValue());
         assertFalse(Flags.INVINCIBLE.getDefaultValue(), "players are vulnerable by default");
         assertFalse(Flags.KEEP_INVENTORY.getDefaultValue(), "death drops everything by default");
+    }
+
+    @Test
+    void damageCauseFlagsDefaultToAllow() {
+        // fine damage causes leave vanilla damage on until a region denies one
+        assertTrue(Flags.FIRE_DAMAGE.getDefaultValue());
+        assertTrue(Flags.LAVA_DAMAGE.getDefaultValue());
+        assertTrue(Flags.VOID_DAMAGE.getDefaultValue());
+        assertTrue(Flags.FREEZE_DAMAGE.getDefaultValue());
+        assertTrue(Flags.CRAMMING_DAMAGE.getDefaultValue());
     }
 
     @Test
