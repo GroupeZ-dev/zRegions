@@ -17,6 +17,18 @@ messages:
   # stesso giocatore, così spingere contro un confine non intasa la chat.
   deny-throttle-milliseconds: 2000
 
+  # Palette di colori di tutti i messaggi del plugin: sei ruoli semantici,
+  # ognuno un colore hex (#RRGGBB, il "#" è opzionale). Modificali per rinnovare
+  # tutto il plugin; un valore vuoto o non valido usa il valore predefinito.
+  # Applicato con /rg reload.
+  palette:
+    primary: '#38BDF8'   # titoli e intestazioni
+    accent: '#FBBF24'    # valori e nomi (l'elemento da guardare)
+    success: '#4ADE80'   # conferme
+    error: '#FB7185'     # rifiuti ed errori
+    body: '#CBD5E1'      # testo normale
+    muted: '#64748B'     # punteggiatura e dettagli secondari
+
 # Comportamento delle regioni.
 regions:
   # Se true (predefinito), /rg create aggiunge il creatore come owner della regione.

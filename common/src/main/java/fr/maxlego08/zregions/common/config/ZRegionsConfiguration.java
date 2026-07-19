@@ -1,5 +1,8 @@
 package fr.maxlego08.zregions.common.config;
 
+import fr.maxlego08.zregions.common.locale.Palette;
+import net.kyori.adventure.text.format.TextColor;
+
 import java.util.Locale;
 
 /**
@@ -20,6 +23,7 @@ public final class ZRegionsConfiguration {
 
     private volatile String bypassPermission = DEFAULT_BYPASS_PERMISSION;
     private volatile long denyMessageThrottleMillis = DEFAULT_DENY_THROTTLE_MILLIS;
+    private volatile Palette palette = Palette.DEFAULT;
 
     public ZRegionsConfiguration(ConfigurationAdapter adapter) {
         this.adapter = adapter;
@@ -35,6 +39,36 @@ public final class ZRegionsConfiguration {
         this.bypassPermission = this.adapter.getString("permissions.bypass", DEFAULT_BYPASS_PERMISSION);
         this.denyMessageThrottleMillis = Math.max(0,
                 this.adapter.getInt("messages.deny-throttle-milliseconds", (int) DEFAULT_DENY_THROTTLE_MILLIS));
+        this.palette = buildPalette();
+    }
+
+    /**
+     * The configured message colour palette (built once per reload, since it is on
+     * the render path). Each {@code messages.palette.*} colour is a hex string
+     * ({@code #RRGGBB}, the {@code #} optional); an unset or invalid entry falls back
+     * to its built-in default, so a typo never blanks the messages.
+     */
+    public Palette getPalette() {
+        return this.palette;
+    }
+
+    private Palette buildPalette() {
+        return new Palette(
+                paletteColor("primary", Palette.PRIMARY),
+                paletteColor("accent", Palette.ACCENT),
+                paletteColor("success", Palette.SUCCESS),
+                paletteColor("error", Palette.ERROR),
+                paletteColor("body", Palette.BODY),
+                paletteColor("muted", Palette.MUTED));
+    }
+
+    private TextColor paletteColor(String role, TextColor def) {
+        String value = this.adapter.getString("messages.palette." + role, "").trim();
+        if (value.isEmpty()) {
+            return def;
+        }
+        TextColor parsed = TextColor.fromHexString(value.startsWith("#") ? value : "#" + value);
+        return parsed != null ? parsed : def;
     }
 
     /** The permission node bypassing every protection. HOT PATH — cached. */

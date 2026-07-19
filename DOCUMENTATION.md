@@ -384,6 +384,12 @@ translated. The language itself is **not** a config.yml key — see §8.
 | `debug` | `false` | Verbose logging |
 | `permissions.bypass` | `zregions.bypass` | Permission node bypassing every protection |
 | `messages.deny-throttle-milliseconds` | `2000` | Minimum delay between two "denied" messages to the same player |
+| `messages.palette.primary` | `#38BDF8` | Colour of headers/titles — a hex colour (`#RRGGBB`, `#` optional); invalid/empty falls back to the default |
+| `messages.palette.accent` | `#FBBF24` | Colour of values & names (the emphasis colour) |
+| `messages.palette.success` | `#4ADE80` | Colour of confirmations |
+| `messages.palette.error` | `#FB7185` | Colour of refusals & errors |
+| `messages.palette.body` | `#CBD5E1` | Colour of ordinary text |
+| `messages.palette.muted` | `#64748B` | Colour of punctuation & secondary detail |
 | `regions.creator-becomes-owner` | `true` | Whether `/rg create` adds the creator as the region's owner; `false` = new regions have no owner (admin-managed only, `zregions.admin`) |
 | `selection.wand-item` | `BLAZE_ROD` | Bukkit Material of the `/rg wand` item (invalid names fall back to BLAZE_ROD) |
 | `borders.particle` | `FLAME` | Bukkit particle used by `/rg show` (invalid names fall back to FLAME) |
@@ -423,9 +429,10 @@ the language of the **default files** the plugin extracts from its jar: `config.
   The inventory files use zMenu's classic `&`/hex color codes and `%placeholder%` tokens.
 - **Colour palette**: messages use **semantic tags** — `<primary>` (#38BDF8), `<accent>` (#FBBF24),
   `<success>` (#4ADE80), `<error>` (#FB7185), `<body>` (#CBD5E1), `<muted>` (#64748B) — instead of
-  vanilla colour names. This gives a fixed, high-contrast theme that looks the same on every client;
-  retune the whole look by editing the six hex values in one place (`Palette`). You can still use any
-  MiniMessage colour/tag in your own edits.
+  vanilla colour names. This gives a fixed, high-contrast theme that looks the same on every client.
+  The six hex values are **configurable** under `messages.palette.*` in **config.yml** (see §7): change
+  them there to reskin every message at once (applied on `/rg reload`; an invalid value falls back to
+  its default). You can still use any MiniMessage colour/tag directly in your own message edits.
 - **Interactive messages**: several messages carry click/hover actions (the `/rg remove`
   confirmation button, clickable `/rg list` and `/rg help` entries, and the `/rg flags` catalogue).
   The interactivity is attached by the plugin — you only translate the visible text.
@@ -565,9 +572,11 @@ use them. An unrecognized `%zregions_…%` placeholder is left untouched.
   **paginated**, like `/rg flags`) entries click-insert their command; both pages are navigable with
   clickable `«`/`»` arrows. Interactivity is attached in Java with the region's UUID as the click target,
   so region names, world names and descriptions never need MiniMessage escaping.
-- **Recoloured messages**: all chat messages moved off vanilla colour names to a fixed high-contrast hex
-  palette exposed as **semantic tags** — `<primary>`/`<accent>`/`<success>`/`<error>`/`<body>`/`<muted>`
-  (new `Palette`, resolved by `MessageService`) — retunable in one place. Applied across the English
+- **Recoloured, configurable messages**: all chat messages moved off vanilla colour names to a
+  high-contrast hex palette exposed as **semantic tags** — `<primary>`/`<accent>`/`<success>`/`<error>`/
+  `<body>`/`<muted>` (new `Palette`, resolved by `MessageService`). The six colours are **configurable**
+  under `messages.palette.*` in config.yml (hex, per-key fallback to the default, refreshed on `/rg
+  reload`), so the whole message theme can be reskinned without touching code. Applied across the English
   defaults and all four language files.
 - **13 new flags** (149 → 162, batch B12), all enforced. **Fine damage causes** (in the player-state
   listener, silent, no bypass — each protects players from one `EntityDamageEvent` cause while

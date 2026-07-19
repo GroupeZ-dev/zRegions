@@ -5,46 +5,83 @@ import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 
 /**
- * The zRegions message palette: a small set of high-contrast hex colours exposed
- * two ways — as {@link TextColor} constants (for Components built in Java, e.g.
- * interactive command lines) and as MiniMessage <em>semantic tags</em>
+ * The zRegions message palette: six high-contrast colours addressed by role rather
+ * than by name. Exposed two ways — as {@link TextColor} accessors (for Components
+ * built in Java, e.g. the pagination arrows) and as MiniMessage <em>semantic tags</em>
  * ({@code <primary>}, {@code <accent>}, {@code <success>}, {@code <error>},
  * {@code <body>}, {@code <muted>}) via {@link #resolver()}, so message strings never
- * hard-code raw hex and the whole theme is retuned here in one place.
+ * hard-code raw hex.
  *
- * <p>Deliberately avoids the vanilla named colours (which vary wildly between
- * clients/resource packs); every value is a fixed hex chosen for contrast on a
- * dark chat background.</p>
+ * <p>A palette is immutable; the built-in {@link #DEFAULT} (Sky &amp; Amber) is used
+ * until the server's configured one is loaded (see {@code messages.palette.*} in
+ * config.yml). Deliberately avoids the vanilla named colours, which vary between
+ * clients and resource packs.</p>
  */
 public final class Palette {
 
-    /** Brand blue — headers, titles, the plugin identity (matches the prefix gradient). */
+    /** Default "Sky &amp; Amber" values — also the per-key fallback for an invalid config colour. */
     public static final TextColor PRIMARY = TextColor.color(0x38BDF8);
-    /** Warm amber — values, names, anything the reader should focus on. */
     public static final TextColor ACCENT = TextColor.color(0xFBBF24);
-    /** Green — confirmations and successful outcomes. */
     public static final TextColor SUCCESS = TextColor.color(0x4ADE80);
-    /** Rose — refusals and errors (softer than pure red, still clearly a warning). */
     public static final TextColor ERROR = TextColor.color(0xFB7185);
-    /** Light slate — ordinary sentence text. */
     public static final TextColor BODY = TextColor.color(0xCBD5E1);
-    /** Slate — punctuation, separators, secondary detail. */
     public static final TextColor MUTED = TextColor.color(0x64748B);
 
-    private static final TagResolver RESOLVER = TagResolver.builder()
-            .tag("primary", Tag.styling(PRIMARY))
-            .tag("accent", Tag.styling(ACCENT))
-            .tag("success", Tag.styling(SUCCESS))
-            .tag("error", Tag.styling(ERROR))
-            .tag("body", Tag.styling(BODY))
-            .tag("muted", Tag.styling(MUTED))
-            .build();
+    /** The built-in palette, used before the configured one loads (and in tests). */
+    public static final Palette DEFAULT = new Palette(PRIMARY, ACCENT, SUCCESS, ERROR, BODY, MUTED);
 
-    private Palette() {
+    private final TextColor primary;
+    private final TextColor accent;
+    private final TextColor success;
+    private final TextColor error;
+    private final TextColor body;
+    private final TextColor muted;
+    private final TagResolver resolver;
+
+    public Palette(TextColor primary, TextColor accent, TextColor success, TextColor error,
+                   TextColor body, TextColor muted) {
+        this.primary = primary;
+        this.accent = accent;
+        this.success = success;
+        this.error = error;
+        this.body = body;
+        this.muted = muted;
+        this.resolver = TagResolver.builder()
+                .tag("primary", Tag.styling(primary))
+                .tag("accent", Tag.styling(accent))
+                .tag("success", Tag.styling(success))
+                .tag("error", Tag.styling(error))
+                .tag("body", Tag.styling(body))
+                .tag("muted", Tag.styling(muted))
+                .build();
     }
 
-    /** The semantic-colour tags, resolved into every message the plugin renders. */
-    public static TagResolver resolver() {
-        return RESOLVER;
+    public TextColor primary() {
+        return this.primary;
+    }
+
+    public TextColor accent() {
+        return this.accent;
+    }
+
+    public TextColor success() {
+        return this.success;
+    }
+
+    public TextColor error() {
+        return this.error;
+    }
+
+    public TextColor body() {
+        return this.body;
+    }
+
+    public TextColor muted() {
+        return this.muted;
+    }
+
+    /** The semantic-colour tags for MiniMessage, built once for this palette. */
+    public TagResolver resolver() {
+        return this.resolver;
     }
 }

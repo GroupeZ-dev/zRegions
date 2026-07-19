@@ -20,14 +20,23 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
  */
 public final class MessageService {
 
-    private static final TagResolver PALETTE = Palette.resolver();
-
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
     private volatile ConfigurationAdapter adapter;
+    private volatile Palette palette = Palette.DEFAULT;
 
     /** Loads (or reloads) the language file backing the messages. May be null in tests. */
     public void load(ConfigurationAdapter adapter) {
         this.adapter = adapter;
+    }
+
+    /** Swaps in the configured colour palette (refreshed on reload). */
+    public void setPalette(Palette palette) {
+        this.palette = palette;
+    }
+
+    /** The active palette — for Components built in Java (e.g. pagination arrows). */
+    public Palette palette() {
+        return this.palette;
     }
 
     public String raw(Message message) {
@@ -56,7 +65,7 @@ public final class MessageService {
     /** prefix + palette + the (key,value) pairs as unparsed placeholders. */
     private TagResolver.Builder baseResolvers(String... placeholders) {
         TagResolver.Builder resolvers = TagResolver.builder();
-        resolvers.resolver(PALETTE);
+        resolvers.resolver(this.palette.resolver());
         resolvers.resolver(Placeholder.parsed("prefix", raw(Message.PREFIX)));
         for (int i = 0; i + 1 < placeholders.length; i += 2) {
             resolvers.resolver(Placeholder.unparsed(placeholders[i], placeholders[i + 1]));

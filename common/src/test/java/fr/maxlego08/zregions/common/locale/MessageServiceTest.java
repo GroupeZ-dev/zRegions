@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextColor;
 import org.junit.jupiter.api.Test;
+// Palette is in the same package (fr.maxlego08.zregions.common.locale) — no import needed
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,18 @@ class MessageServiceTest {
         assertEquals(Palette.BODY, colorOf(segments, "a"));
         assertEquals(Palette.ERROR, colorOf(segments, "b"));
         assertEquals(Palette.BODY, colorOf(segments, "c"), "the closing </error> must pop back to body");
+    }
+
+    @Test
+    void aConfiguredPaletteReplacesTheColours() {
+        Palette custom = new Palette(
+                TextColor.color(0x111111), TextColor.color(0x222222), TextColor.color(0x333333),
+                TextColor.color(0x444444), TextColor.color(0x555555), TextColor.color(0x666666));
+        messages.setPalette(custom);
+        List<Segment> segments = flatten(messages.formatRaw("<primary>a<accent>b<muted>c"));
+        assertEquals(TextColor.color(0x111111), colorOf(segments, "a"));
+        assertEquals(TextColor.color(0x222222), colorOf(segments, "b"));
+        assertEquals(TextColor.color(0x666666), colorOf(segments, "c"));
     }
 
     @Test

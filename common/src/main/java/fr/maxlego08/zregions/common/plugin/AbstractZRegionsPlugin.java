@@ -124,9 +124,10 @@ public abstract class AbstractZRegionsPlugin implements ZRegionsPlugin {
         setupSenderFactory();
         setupPlayerFactory();
 
-        // 2. messages
+        // 2. messages (+ the configured colour palette from config.yml)
         this.messages = new MessageService();
         this.messages.load(provideConfigurationAdapter(resolveMessagesFile()));
+        this.messages.setPalette(this.configuration.getPalette());
 
         // 3. flags (before regions: stored values need the registry to parse)
         this.flagRegistry = new ZFlagRegistry();
@@ -170,6 +171,7 @@ public abstract class AbstractZRegionsPlugin implements ZRegionsPlugin {
         ensureDefaultFile("config.yml", "languages/" + this.language + "/config.yml");
         this.configuration.reload();
         this.messages.load(provideConfigurationAdapter(resolveMessagesFile()));
+        this.messages.setPalette(this.configuration.getPalette());
         this.guiService.reload();
     }
 

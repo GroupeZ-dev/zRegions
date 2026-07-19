@@ -17,6 +17,17 @@ messages:
   # same player, so pushing against a border does not spam the chat.
   deny-throttle-milliseconds: 2000
 
+  # Colour palette of every plugin message: six semantic roles, each a hex colour
+  # (#RRGGBB, the "#" is optional). Change these to reskin the whole plugin; an
+  # empty or invalid value falls back to the built-in default. Applied on /rg reload.
+  palette:
+    primary: '#38BDF8'   # headers and titles
+    accent: '#FBBF24'    # values and names (the thing to look at)
+    success: '#4ADE80'   # confirmations
+    error: '#FB7185'     # refusals and errors
+    body: '#CBD5E1'      # ordinary text
+    muted: '#64748B'     # punctuation and secondary detail
+
 # Region behaviour.
 regions:
   # When true (default), /rg create adds the creator as the region's owner.

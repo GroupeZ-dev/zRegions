@@ -4,13 +4,13 @@ import fr.maxlego08.zregions.api.region.Region;
 import fr.maxlego08.zregions.common.command.tabcomplete.CompletionSupplier;
 import fr.maxlego08.zregions.common.command.util.ArgumentList;
 import fr.maxlego08.zregions.common.locale.Message;
-import fr.maxlego08.zregions.common.locale.Palette;
 import fr.maxlego08.zregions.common.platform.RegionPlayer;
 import fr.maxlego08.zregions.common.plugin.ZRegionsPlugin;
 import fr.maxlego08.zregions.common.selection.SelectionShapeBuilder;
 import fr.maxlego08.zregions.common.sender.RegionSender;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.TextColor;
 
 import java.util.List;
 import java.util.Optional;
@@ -192,14 +192,15 @@ public abstract class RegionCommand {
                 "pages", String.valueOf(pages));
         // clickless root: the arrows carry their own click, the label must NOT inherit one
         // (children inherit a parent's click event, so the label can't be a child of an arrow)
+        TextColor arrow = plugin.getMessages().palette().accent();
         Component footer = Component.empty();
         if (page > 1) {
-            footer = footer.append(Component.text("« ", Palette.ACCENT)
+            footer = footer.append(Component.text("« ", arrow)
                     .clickEvent(ClickEvent.runCommand("/rg " + subCommand + " " + (page - 1))));
         }
         footer = footer.append(label);
         if (page < pages) {
-            footer = footer.append(Component.text(" »", Palette.ACCENT)
+            footer = footer.append(Component.text(" »", arrow)
                     .clickEvent(ClickEvent.runCommand("/rg " + subCommand + " " + (page + 1))));
         }
         return footer;
