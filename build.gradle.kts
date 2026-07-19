@@ -1,12 +1,21 @@
 plugins {
     id("java-library")
     id("com.gradleup.shadow") version "9.0.0" apply false
+    id("re.alwyn974.groupez.repository") version "1.0.0"
 }
 
 version = "1.0.0"
 
+// Publishing metadata: the API module's jar is published to repo.groupez.dev (and target-api/)
+// for third-party addons. The CI passes -Darchive.classifier / -Dgithub.sha.
+extra.set("targetFolder", file("target/"))
+extra.set("apiFolder", file("target-api/"))
+extra.set("classifier", System.getProperty("archive.classifier"))
+extra.set("sha", System.getProperty("github.sha"))
+
 allprojects {
     apply(plugin = "java-library")
+    apply(plugin = "re.alwyn974.groupez.repository")
 
     group = "fr.maxlego08.zregions"
     version = "1.0.0"
