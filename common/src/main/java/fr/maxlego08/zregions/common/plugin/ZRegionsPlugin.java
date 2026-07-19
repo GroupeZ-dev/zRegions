@@ -4,6 +4,7 @@ import fr.maxlego08.zregions.api.flag.FlagRegistry;
 import fr.maxlego08.zregions.api.manager.RegionManager;
 import fr.maxlego08.zregions.common.command.RegionCommandManager;
 import fr.maxlego08.zregions.common.config.ZRegionsConfiguration;
+import fr.maxlego08.zregions.common.gui.GuiService;
 import fr.maxlego08.zregions.common.locale.MessageService;
 import fr.maxlego08.zregions.common.movement.RegionMovementTracker;
 import fr.maxlego08.zregions.common.plugin.bootstrap.ZRegionsBootstrap;
@@ -43,6 +44,19 @@ public interface ZRegionsPlugin {
     RegionMovementTracker getMovementTracker();
 
     BorderDisplayManager getBorderDisplay();
+
+    /** The optional GUI backend — {@link GuiService#NONE} unless a hook installed one. */
+    default GuiService getGuiService() {
+        return GuiService.NONE;
+    }
+
+    /**
+     * The language of the bundled default files, resolved from language.yml
+     * ({@code auto} → JVM locale, always one of the bundled languages).
+     */
+    default String getLanguage() {
+        return "en";
+    }
 
     /** Re-reads config.yml and the messages file of the (possibly changed) language. */
     void reload();

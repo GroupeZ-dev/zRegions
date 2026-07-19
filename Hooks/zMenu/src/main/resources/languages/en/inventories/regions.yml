@@ -1,0 +1,37 @@
+# zRegions — region list (requires zMenu). Extracted to plugins/zRegions/inventories/
+# on first use; customize freely, then /rg reload.
+name: "&8zRegions &7— Regions &f%page%&8/&f%max-page%"
+size: 54
+
+items:
+
+  regions:
+    type: ZREGIONS_REGIONS
+    slots:
+      - 0-44
+    item:
+      material: PAPER
+      name: "&e%region%"
+      lore:
+        - "&7World: &f%world%"
+        - "&7Shape: &f%shape%"
+        - "&7Priority: &f%priority%"
+        - "&7Members: &f%members%"
+        - ""
+        - "&8• &eClick &7to manage"
+
+  previous:
+    type: PREVIOUS
+    is-permanent: true
+    slot: 45
+    item:
+      material: ARROW
+      name: "&7Previous page"
+
+  next:
+    type: NEXT
+    is-permanent: true
+    slot: 53
+    item:
+      material: ARROW
+      name: "&7Next page"

@@ -1,0 +1,57 @@
+# zRegions — menú de gestión de una región (requiere zMenu). Extraído en
+# plugins/zRegions/inventories/ en el primer uso; personalízalo libremente y luego /rg reload.
+name: "&8zRegions &7— Región"
+size: 27
+
+items:
+
+  info:
+    type: ZREGIONS_REGION_INFO
+    slot: 4
+    item:
+      material: FILLED_MAP
+      name: "&e%region%"
+      lore:
+        - "&7Mundo: &f%world%"
+        - "&7Forma: &f%shape%"
+        - "&7Prioridad: &f%priority%"
+        - "&7Miembros: &f%members%"
+        - "&7Padre: &f%parent%"
+
+  flags:
+    type: ZREGIONS_OPEN_FLAGS
+    slot: 11
+    item:
+      material: COMPARATOR
+      name: "&eFlags"
+      lore:
+        - "&8• &eClic &7para editar los flags"
+
+  members:
+    type: ZREGIONS_OPEN_MEMBERS
+    slot: 13
+    item:
+      material: PLAYER_HEAD
+      name: "&eMiembros"
+      lore:
+        - "&7Añadir, quitar, cambiar roles."
+        - ""
+        - "&8• &eClic &7para gestionar"
+
+  show:
+    type: ZREGIONS_SHOW_BORDERS
+    slot: 15
+    item:
+      material: BLAZE_POWDER
+      name: "&eMostrar los bordes"
+      lore:
+        - "&7Contorno de partículas que solo tú ves."
+        - ""
+        - "&8• &eClic &7para mostrar"
+
+  back:
+    type: ZREGIONS_OPEN_LIST
+    slot: 22
+    item:
+      material: ARROW
+      name: "&7Volver a la lista de regiones"

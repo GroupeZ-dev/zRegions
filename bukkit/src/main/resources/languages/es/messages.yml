@@ -25,6 +25,7 @@ commands:
     remove: 'Elimina una región'
     list: 'Lista las regiones de un mundo'
     info: 'Muestra los detalles de una región'
+    menu: 'Abre la interfaz de regiones (requiere zMenu)'
     show: 'Muestra los bordes de una región con partículas (solo tú las ves)'
     flag: 'Establece, elimina o segmenta un flag de región'
     addmember: 'Añade un propietario o miembro a una región'
@@ -89,6 +90,11 @@ flag:
   unknown: '<prefix><red>Flag <yellow><flag></yellow> desconocido.'
   invalid-value: '<prefix><red>Valor <yellow><value></yellow> inválido para el flag <yellow><flag></yellow>.'
   invalid-target: '<prefix><red>Objetivo <yellow><target></yellow> desconocido. Usa <yellow>owner</yellow>, <yellow>member</yellow>, <yellow>visitor</yellow> o <yellow>all</yellow>.'
+
+gui:
+  unavailable: '<prefix><red>La interfaz requiere el plugin <yellow>zMenu</yellow>. Todo sigue disponible por comandos — ver <yellow>/rg help</yellow>.'
+  region-gone: '<prefix><red>Esta región ya no existe.'
+  flag-command-only: '<prefix><gray>El flag <yellow><flag></yellow> contiene un valor — defínelo con <yellow>/rg flag <region> <flag> …</yellow>.'
 
 border:
   shown: '<prefix><green>Mostrando los bordes de <yellow><region></yellow> durante <yellow><seconds></yellow>s (solo tú puedes verlos).'

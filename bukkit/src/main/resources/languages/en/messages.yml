@@ -25,6 +25,7 @@ commands:
     remove: 'Deletes a region'
     list: 'Lists the regions of a world'
     info: 'Shows the details of a region'
+    menu: 'Opens the region GUI (requires zMenu)'
     show: 'Outlines the borders of a region with particles (only you see them)'
     flag: 'Sets, unsets or targets a region flag'
     addmember: 'Adds an owner or member to a region'
@@ -89,6 +90,11 @@ flag:
   unknown: '<prefix><red>Unknown flag <yellow><flag></yellow>.'
   invalid-value: '<prefix><red>Invalid value <yellow><value></yellow> for flag <yellow><flag></yellow>.'
   invalid-target: '<prefix><red>Unknown target <yellow><target></yellow>. Use <yellow>owner</yellow>, <yellow>member</yellow>, <yellow>visitor</yellow> or <yellow>all</yellow>.'
+
+gui:
+  unavailable: '<prefix><red>The GUI requires the <yellow>zMenu</yellow> plugin. Everything stays available through commands — see <yellow>/rg help</yellow>.'
+  region-gone: '<prefix><red>This region no longer exists.'
+  flag-command-only: '<prefix><gray>Flag <yellow><flag></yellow> holds a value — set it with <yellow>/rg flag <region> <flag> …</yellow>.'
 
 border:
   shown: '<prefix><green>Showing the borders of <yellow><region></yellow> for <yellow><seconds></yellow>s (only you can see them).'

@@ -16,7 +16,7 @@ never the whole region set.
 | **Java** | 21+ |
 | **Bedrock** | Playable through Geyser/Floodgate (server-side plugin, no client mod) |
 | **Storage** | SQLite (default) · MySQL · MariaDB |
-| **Soft dependencies** | zMenu, PlaceholderAPI, WorldEdit, LuckPerms *(integrations planned — none required)*. WorldGuard regions are importable via `/rg import` (file-based, works without WorldGuard) |
+| **Soft dependencies** | **zMenu** (optional GUI — see §11), PlaceholderAPI, WorldEdit, LuckPerms *(planned — none required)*. WorldGuard regions are importable via `/rg import` (file-based, works without WorldGuard) |
 
 ---
 
@@ -31,19 +31,22 @@ never the whole region set.
   `visitor` or `all`.
 - **Priorities and inheritance**: overlapping regions resolve highest-priority-first; a region can
   inherit flags from a parent region.
-- **Multi-language**: per-language folders, only the configured language is extracted and loaded.
+- **Multi-language**: `language.yml` (loaded first, `auto` locale detection) picks the language
+  of every default file — messages, config comments and the zMenu menus (en/fr/es/it bundled).
 - **Multi-server-ready data model** (shared MySQL, `origin_server` column) — the cross-server
   messaging layer ships in v2.
-- **100 % command-driven** — a GUI (zMenu) is a planned optional add-on, never a requirement.
+- **100 % command-driven** — with an **optional zMenu GUI** on top (`/rg menu`: region list,
+  per-region menu, flag editor), never a requirement.
 
 ## 2. Installation
 
 1. Drop `zRegions.jar` into `plugins/`.
-2. Restart the server. `plugins/zRegions/config.yml` and `plugins/zRegions/languages/<lang>/messages.yml`
-   are created (SQLite database `regions.db` on first write). The **initial config.yml is picked in
-   the language of your server's system locale** (bundled: en/fr/es/it, English otherwise) — a
-   French machine gets a French-commented config with `language: fr` preset.
-3. Optional: set `language`, storage backend and permission nodes in `config.yml`, then `/rg reload`.
+2. Restart the server. `plugins/zRegions/` is populated with `language.yml`, `config.yml` and
+   `messages.yml` (plus `inventories/` when zMenu is installed; SQLite database `regions.db` on
+   first write). **`language.yml` is loaded first and picks the language of every default file**
+   — its default `language: auto` detects the server's system locale (bundled: en/fr/es/it,
+   English otherwise), so a French machine gets French files out of the box.
+3. Optional: adjust `language.yml`, storage backend and permission nodes, then `/rg reload`.
 
 ## 3. Commands
 
@@ -64,6 +67,7 @@ subcommands currently live under `/rg`)*.
 | `/rg remove <name>` | Deletes a region | `zregions.admin` |
 | `/rg list [world]` | Lists regions (your world by default; every world from console) | `zregions.use` |
 | `/rg info [name]` | Region details — without argument: the highest-priority region at your position | `zregions.use` |
+| `/rg menu [region]` | Opens the region GUI — the region list, or one region's menu (**requires zMenu**; without it the command points back to `/rg help`) | `zregions.admin` |
 | `/rg show [name] [seconds]` | Outlines a region's borders with particles **only you can see** (shape-aware: box edges, circles, sphere rings, polygon edges); without argument: the region at your position. The optional duration overrides `borders.display-seconds` (capped at 3600 s); `/rg show 30` reads a plain number matching no region name as the duration. Re-running replaces the outline | `zregions.use` |
 | `/rg flag <region> <flag> <value…\|unset> [-t <target>]` | Sets, unsets or targets a flag value | `zregions.admin` |
 | `/rg addmember <region> <player> [owner\|member]` | Adds a player (default role: member) | `zregions.admin` |
@@ -200,13 +204,12 @@ until you deny something.
 
 ## 7. Configuration reference (`config.yml`)
 
-The default config.yml is shipped **translated** (`languages/<lang>/config.yml` in the jar —
-same keys everywhere, only the comments differ) and the first boot extracts the translation
-matching the server's system locale. Keys are never translated.
+The default config.yml is shipped **translated** (same keys everywhere, only the comments
+differ) and the first boot extracts the translation matching `language.yml`. Keys are never
+translated. The language itself is **not** a config.yml key — see §8.
 
 | Key | Default | Description |
 |---|---|---|
-| `language` | `en` | Language folder to load (`languages/<language>/messages.yml`) |
 | `debug` | `false` | Verbose logging |
 | `permissions.bypass` | `zregions.bypass` | Permission node bypassing every protection |
 | `messages.deny-throttle-milliseconds` | `2000` | Minimum delay between two "denied" messages to the same player |
@@ -222,26 +225,30 @@ matching the server's system locale. Keys are never translated.
 | `storage.table-prefix` | `zregions_` | Prefix of every zRegions table |
 | `storage.database.*` | — | Host/port/database/user/password for MySQL/MariaDB |
 
-`/rg reload` re-reads `config.yml` (including the cached hot-path values above) and the messages
-of the configured language.
+`/rg reload` re-reads `language.yml`, `config.yml` (including the cached hot-path values
+above), `messages.yml` and the zMenu inventories — deleted default files regenerate in the
+`language.yml` language.
 
 ## 8. Languages
 
-Everything language-specific lives in **one folder per language**:
-`languages/<language>/messages.yml` on disk, plus a translated `config.yml` template per
-language inside the jar.
+The language system follows the zAuctionHouse model: **`language.yml`** sits at the root of
+`plugins/zRegions/`, is loaded **before every other file** and is never translated. It selects
+the language of the **default files** the plugin extracts from its jar: `config.yml`
+(translated comments), **`messages.yml` at the plugin-folder root**, and the zMenu
+`inventories/` menus.
 
-- Only the folder matching `language` in `config.yml` is **extracted from the jar and loaded** —
-  bundled languages: `en`, `fr`, `es`, `it`.
-- The **default config.yml** extracted on first boot is the translation matching the server's
-  system locale (fallback: English); an existing config.yml is never overwritten.
-- **Custom language**: create `languages/<code>/messages.yml` yourself (copy the English one) and
-  set `language: <code>`. A language with neither a folder on disk nor a bundled default falls
-  back to English.
-- A **missing key** in any file falls back to the built-in English default — an outdated language
+- `language: auto` (the default) detects the server's system locale; explicit codes: `en`,
+  `fr`, `es`, `it`. An unknown code warns and falls back to English.
+- The plugin **never overwrites an existing file**. To change language after the first boot:
+  edit `language.yml`, delete the files to regenerate (`config.yml`, `messages.yml`,
+  `inventories/` — keep `language.yml` and `regions.db`), then restart or `/rg reload`.
+- **Custom language / customization**: edit the extracted `messages.yml` and `inventories/`
+  files directly, in any language — they are plain files, no folder convention needed.
+- A **missing key** in `messages.yml` falls back to the built-in English default — an outdated
   file never breaks the plugin.
-- Format: [MiniMessage](https://docs.advntr.dev/minimessage/format.html). Placeholders like
-  `<region>` or `<player>` are filled by the plugin and must be kept verbatim.
+- Format: [MiniMessage](https://docs.advntr.dev/minimessage/format.html) for messages.
+  Placeholders like `<region>` or `<player>` are filled by the plugin and must be kept verbatim.
+  The inventory files use zMenu's classic `&`/hex color codes and `%placeholder%` tokens.
 
 ## 9. Storage & multi-server
 
@@ -300,7 +307,31 @@ The chat shows a summary; **every skipped item is detailed in the server log**. 
 option (anything other than `--dry-run`) aborts with the usage line instead of silently running
 the real import.
 
-## 11. For developers
+## 11. GUI (optional, zMenu)
+
+When the [zMenu](https://groupez.dev) plugin is installed, `/rg menu` opens a chest GUI —
+without it, **every feature stays available through commands** (the GUI is a layer, never a
+requirement; the command then points back to `/rg help`).
+
+- **Region list** (`/rg menu`): every region, paginated, world then name order; click to manage.
+- **Region menu** (`/rg menu <region>` or a list click): details, flag editor, member manager,
+  border outline (same per-player particles as `/rg show`), back to the list.
+- **Flag editor**: all flags paginated with their current explicit value and default;
+  left-clicking a state flag cycles unset → deny → allow → unset, right-clicking removes the
+  value directly (values apply to the `all` target — use `/rg flag … -t <target>` for per-role
+  values); text/list flags point back to `/rg flag`.
+- **Member manager**: the region's members paginated, owners first; left click toggles the role
+  owner ↔ member, right click removes. The **add** button lists online players not yet members —
+  click to add as member (offline players go through `/rg addmember`).
+
+The five inventories ship in the jar **in the four bundled languages** and are extracted to
+`plugins/zRegions/inventories/` (`regions.yml`, `region.yml`, `flags.yml`, `members.yml`,
+`add-member.yml`) on first use, in the `language.yml` language — customize them like any zMenu
+inventory (`%region%`, `%world%`, `%flag%`, `%value%`, `%player%`, `%role%`… placeholders are
+provided by zRegions button types `ZREGIONS_*`), then `/rg reload`. A region deleted while its
+menu is open closes the menu with a message instead of going stale.
+
+## 12. For developers
 
 - The **`api` module** has zero platform dependencies. On Bukkit the entry point is registered in
   the ServicesManager:
@@ -315,7 +346,7 @@ the real import.
   (`RegionShape.sampleBorder(spacing)` yields the outline points used by `/rg show`).
 - Architecture (LuckPerms model — `api` / `common` / `bukkit`): see `ARCHITECTURE.md`.
 
-## 12. Version history
+## 13. Version history
 
 ### 1.0.0 — Unreleased
 - Region engine: cuboid/cylinder/sphere/polygon shapes, per-world chunk index, priorities,
@@ -334,12 +365,21 @@ the real import.
   WorldGuard installed; reproduces WG's implicit non-member build protection and its
   non-members-only `entry`/`exit` semantics (visitor target); every skipped item is reported in
   the server log, never dropped silently.
+- **Optional zMenu GUI** (`/rg menu [region]`): paginated region list, per-region menu
+  (details, border outline, flag editor with click-to-cycle / right-click-unset state flags,
+  member manager with add / remove / role toggle from the online-player list) — five
+  customizable YAML inventories, loaded through the new `Hooks/` infrastructure
+  (present-and-enabled check + reflection, never linked without zMenu) behind the common
+  `GuiService` abstraction; full command fallback when zMenu is absent.
 - Commands: help, pos1/pos2, create, redefine, remove, list, info, flag (multi-word values,
   targets, unset), addmember/removemember, setpriority, setparent, reload.
 - Per-language folders with on-demand extraction (en/fr/es/it bundled); localized command
   descriptions; configurable bypass permission and deny-message throttle.
-- Translated config.yml templates (en/fr/es/it) — the first boot extracts the one matching the
-  server's system locale, presetting `language:` accordingly.
+- **zAuctionHouse-style language system**: root `language.yml` (loaded first, never translated,
+  `language: auto` locale detection) picks the language of every default file; `messages.yml`
+  now lives at the plugin-folder **root**, and the zMenu inventories ship translated
+  (en/fr/es/it) and extract in the chosen language. Regenerating defaults = delete the file(s)
+  and reload.
 - In-game creation of **all four shapes** (`/rg create <name> [shape]`, `/rg redefine <name>
   [shape]`), polygon vertices (`/rg addpoint`/`clearpoints`), star generator (`/rg star`) and a
   configurable selection wand (`/rg wand`, PDC-marked item).

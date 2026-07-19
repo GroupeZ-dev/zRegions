@@ -1,10 +1,8 @@
 # zRegions - configurazione principale
 # Documentazione: https://docs.groupez.dev/zregions
 
-# Lingua dei messaggi. Viene estratta e caricata solo la cartella
-# languages/<lingua>/ corrispondente (incluse: en, fr, es, it — aggiungi la tua
-# cartella per qualsiasi altra lingua). Le chiavi mancanti ricadono sull'inglese.
-language: it
+# La lingua si sceglie in language.yml (caricato per primo, mai tradotto):
+# seleziona i valori predefiniti di config.yml, messages.yml e dei menu.
 
 # Attiva i log dettagliati (utile quando si segnala un problema).
 debug: false

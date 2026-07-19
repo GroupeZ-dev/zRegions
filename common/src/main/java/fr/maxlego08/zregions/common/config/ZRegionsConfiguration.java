@@ -37,10 +37,6 @@ public final class ZRegionsConfiguration {
                 this.adapter.getInt("messages.deny-throttle-milliseconds", (int) DEFAULT_DENY_THROTTLE_MILLIS));
     }
 
-    public String getLanguage() {
-        return this.adapter.getString("language", "en").toLowerCase(Locale.ROOT);
-    }
-
     /** The permission node bypassing every protection. HOT PATH — cached. */
     public String getBypassPermission() {
         return this.bypassPermission;

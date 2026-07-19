@@ -1,0 +1,45 @@
+# zRegions — flag editor (requires zMenu). Extracted to plugins/zRegions/inventories/
+# on first use; customize freely, then /rg reload.
+name: "&8zRegions &7— Flags &f%page%&8/&f%max-page%"
+size: 54
+
+items:
+
+  flags:
+    type: ZREGIONS_FLAGS
+    slots:
+      - 0-44
+    item:
+      material: NAME_TAG
+      name: "&e%flag%"
+      lore:
+        - "&7Value: &f%value%"
+        - "&7Default: &8%default%"
+        - ""
+        - "&8• &eLeft click&7: unset → deny → allow"
+        - "&8• &eRight click&7: unset"
+        - "&8• &7Text flags: &f/rg flag"
+
+  previous:
+    type: PREVIOUS
+    is-permanent: true
+    slot: 45
+    item:
+      material: ARROW
+      name: "&7Previous page"
+
+  back:
+    type: ZREGIONS_OPEN_REGION
+    is-permanent: true
+    slot: 49
+    item:
+      material: FILLED_MAP
+      name: "&7Back to the region menu"
+
+  next:
+    type: NEXT
+    is-permanent: true
+    slot: 53
+    item:
+      material: ARROW
+      name: "&7Next page"

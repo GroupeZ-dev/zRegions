@@ -1,10 +1,8 @@
 # zRegions - configuration principale
 # Documentation : https://docs.groupez.dev/zregions
 
-# Langue des messages. Seul le dossier languages/<langue>/ correspondant est
-# extrait et chargé (fournis : en, fr, es, it — ajoutez votre propre dossier
-# pour toute autre langue). Les clés manquantes retombent sur l'anglais.
-language: fr
+# La langue se choisit dans language.yml (chargé en premier, jamais traduit) :
+# il sélectionne les défauts embarqués de config.yml, messages.yml et des menus.
 
 # Active les logs détaillés (utile pour signaler un problème).
 debug: false

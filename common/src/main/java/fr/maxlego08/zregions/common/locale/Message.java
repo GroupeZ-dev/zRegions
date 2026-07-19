@@ -1,9 +1,9 @@
 package fr.maxlego08.zregions.common.locale;
 
 /**
- * Every user-facing text key, with its English MiniMessage default. The per-language
- * languages/<lang>/messages.yml files override these; a missing key falls back to
- * the default so an outdated language file never breaks the plugin.
+ * Every user-facing text key, with its English MiniMessage default. The root
+ * messages.yml (extracted in the language.yml language) overrides these; a
+ * missing key falls back to the default so an outdated file never breaks the plugin.
  */
 public enum Message {
 
@@ -66,6 +66,10 @@ public enum Message {
     FLAG_UNKNOWN("flag.unknown", "<prefix><red>Unknown flag <yellow><flag></yellow>."),
     FLAG_VALUE_INVALID("flag.invalid-value", "<prefix><red>Invalid value <yellow><value></yellow> for flag <yellow><flag></yellow>."),
     FLAG_TARGET_INVALID("flag.invalid-target", "<prefix><red>Unknown target <yellow><target></yellow>. Use <yellow>owner</yellow>, <yellow>member</yellow>, <yellow>visitor</yellow> or <yellow>all</yellow>."),
+
+    GUI_UNAVAILABLE("gui.unavailable", "<prefix><red>The GUI requires the <yellow>zMenu</yellow> plugin. Everything stays available through commands — see <yellow>/rg help</yellow>."),
+    GUI_REGION_GONE("gui.region-gone", "<prefix><red>This region no longer exists."),
+    GUI_FLAG_COMMAND_ONLY("gui.flag-command-only", "<prefix><gray>Flag <yellow><flag></yellow> holds a value — set it with <yellow>/rg flag <region> <flag> …</yellow>."),
 
     BORDER_SHOWN("border.shown", "<prefix><green>Showing the borders of <yellow><region></yellow> for <yellow><seconds></yellow>s (only you can see them)."),
     BORDER_GLOBAL("border.global", "<prefix><red>The global region covers the whole world — there is nothing to outline."),

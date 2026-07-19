@@ -11,6 +11,7 @@ import fr.maxlego08.zregions.common.command.commands.HelpCommand;
 import fr.maxlego08.zregions.common.command.commands.ImportCommand;
 import fr.maxlego08.zregions.common.command.commands.InfoCommand;
 import fr.maxlego08.zregions.common.command.commands.ListCommand;
+import fr.maxlego08.zregions.common.command.commands.MenuCommand;
 import fr.maxlego08.zregions.common.command.commands.Pos1Command;
 import fr.maxlego08.zregions.common.command.commands.Pos2Command;
 import fr.maxlego08.zregions.common.command.commands.RedefineCommand;
@@ -60,6 +61,7 @@ public class RegionCommandManager {
         register(new RemoveCommand());
         register(new ListCommand());
         register(new InfoCommand());
+        register(new MenuCommand());
         register(new ShowCommand());
         register(new FlagCommand());
         register(new AddMemberCommand());

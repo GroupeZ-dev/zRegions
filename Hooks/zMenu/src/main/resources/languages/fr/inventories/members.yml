@@ -1,0 +1,54 @@
+# zRegions — gestion des membres (nécessite zMenu). Extrait dans plugins/zRegions/inventories/
+# à la première utilisation ; personnalisez librement, puis /rg reload.
+name: "&8zRegions &7— Membres &f%page%&8/&f%max-page%"
+size: 54
+
+items:
+
+  members:
+    type: ZREGIONS_MEMBERS
+    slots:
+      - 0-44
+    item:
+      material: PLAYER_HEAD
+      name: "&e%player%"
+      lore:
+        - "&7Rôle : &f%role%"
+        - ""
+        - "&8• &eClic gauche &7pour basculer owner/membre"
+        - "&8• &eClic droit &7pour retirer"
+
+  add:
+    type: ZREGIONS_OPEN_ADD_MEMBER
+    is-permanent: true
+    slot: 48
+    item:
+      material: EMERALD
+      name: "&aAjouter un membre"
+      lore:
+        - "&7Choisissez un joueur en ligne."
+        - "&8Hors ligne : &f/rg addmember"
+
+  previous:
+    type: PREVIOUS
+    is-permanent: true
+    slot: 45
+    item:
+      material: ARROW
+      name: "&7Page précédente"
+
+  back:
+    type: ZREGIONS_OPEN_REGION
+    is-permanent: true
+    slot: 50
+    item:
+      material: FILLED_MAP
+      name: "&7Retour au menu de la région"
+
+  next:
+    type: NEXT
+    is-permanent: true
+    slot: 53
+    item:
+      material: ARROW
+      name: "&7Page suivante"

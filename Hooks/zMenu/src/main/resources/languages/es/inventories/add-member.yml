@@ -1,0 +1,40 @@
+# zRegions — añadir un miembro (requiere zMenu). Extraído en plugins/zRegions/inventories/
+# en el primer uso; personalízalo libremente y luego /rg reload.
+name: "&8zRegions &7— Añadir un miembro &f%page%&8/&f%max-page%"
+size: 54
+
+items:
+
+  players:
+    type: ZREGIONS_ADD_MEMBER
+    slots:
+      - 0-44
+    item:
+      material: PLAYER_HEAD
+      name: "&a%player%"
+      lore:
+        - "&8• &eClic &7para añadir como miembro"
+
+  previous:
+    type: PREVIOUS
+    is-permanent: true
+    slot: 45
+    item:
+      material: ARROW
+      name: "&7Página anterior"
+
+  back:
+    type: ZREGIONS_OPEN_MEMBERS
+    is-permanent: true
+    slot: 49
+    item:
+      material: PLAYER_HEAD
+      name: "&7Volver a los miembros"
+
+  next:
+    type: NEXT
+    is-permanent: true
+    slot: 53
+    item:
+      material: ARROW
+      name: "&7Página siguiente"

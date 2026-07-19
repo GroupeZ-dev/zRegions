@@ -1,0 +1,36 @@
+# ============================================================================
+#  zRegions — Language configuration
+#
+#  This file controls the language of every DEFAULT file the plugin creates
+#  (config.yml, messages.yml, the zMenu inventories). It is loaded FIRST,
+#  before any other file, and is never translated.
+#
+#  Documentation: https://docs.groupez.dev/zregions
+# ============================================================================
+
+# Available options:
+#   - auto : automatic detection from the server's system locale (recommended)
+#   - en   : English (default fallback)
+#   - fr   : French  (Français)
+#   - es   : Spanish (Español)
+#   - it   : Italian (Italiano)
+language: auto
+
+# ============================================================================
+#  HOW TO CHANGE THE LANGUAGE
+#
+#  The plugin never overwrites an existing file. To regenerate the defaults in
+#  another language:
+#
+#  1. Edit 'language' above (e.g. language: fr)
+#  2. Delete the files you want regenerated:
+#       - config.yml
+#       - messages.yml
+#       - inventories/   (the zMenu menus, entire folder)
+#     Keep language.yml (this file) and regions.db (your database).
+#  3. Restart the server (or /rg reload).
+#
+#  To translate into an unbundled language, keep any 'language' and edit the
+#  extracted messages.yml / inventories/ files directly — a missing message key
+#  always falls back to the built-in English default.
+# ============================================================================

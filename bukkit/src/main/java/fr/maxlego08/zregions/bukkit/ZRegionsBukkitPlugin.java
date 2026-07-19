@@ -7,13 +7,17 @@ import fr.maxlego08.zregions.bukkit.listener.PlayerStateListener;
 import fr.maxlego08.zregions.bukkit.listener.ProtectionListener;
 import fr.maxlego08.zregions.bukkit.listener.WandListener;
 import fr.maxlego08.zregions.common.config.ConfigurationAdapter;
+import fr.maxlego08.zregions.common.gui.GuiService;
 import fr.maxlego08.zregions.common.platform.RegionPlayer;
+import fr.maxlego08.zregions.common.platform.RegionPlayerFactory;
 import fr.maxlego08.zregions.common.plugin.AbstractZRegionsPlugin;
+import fr.maxlego08.zregions.common.plugin.ZRegionsPlugin;
 import fr.maxlego08.zregions.common.sender.RegionSender;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -80,9 +84,26 @@ public final class ZRegionsBukkitPlugin extends AbstractZRegionsPlugin {
         }
     }
 
+    /**
+     * Optional integrations. Hook classes are referenced only by name and
+     * instantiated after the target plugin's presence check — the JVM never
+     * links them on a server without the plugin (same guard as the Folia
+     * scheduler adapter in the bootstrap).
+     */
     @Override
     protected void setupPlatformHooks() {
-        // Optional integrations (zMenu, WorldEdit, PlaceholderAPI…) plug in here later.
+        Plugin zMenu = Bukkit.getPluginManager().getPlugin("zMenu");
+        if (zMenu != null && zMenu.isEnabled()) {
+            try {
+                Class<?> clazz = Class.forName("fr.maxlego08.zregions.hooks.zmenu.ZMenuGuiService");
+                setGuiService((GuiService) clazz
+                        .getConstructor(ZRegionsPlugin.class, JavaPlugin.class, RegionPlayerFactory.class)
+                        .newInstance(this, this.bootstrap.getLoader(), this.playerFactory));
+                getLogger().info("Hooked into zMenu " + zMenu.getDescription().getVersion() + " — GUI enabled.");
+            } catch (Throwable throwable) {
+                getLogger().warn("Unable to hook into zMenu, the GUI stays disabled (commands still work).", throwable);
+            }
+        }
     }
 
     @Override
