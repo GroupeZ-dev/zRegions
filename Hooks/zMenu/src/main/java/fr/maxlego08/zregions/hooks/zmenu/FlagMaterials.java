@@ -99,6 +99,23 @@ public final class FlagMaterials {
         BY_FLAG.put("exit-deny-message", Material.SPRUCE_HANGING_SIGN);
         BY_FLAG.put("farewell-title", Material.NAME_TAG);
         BY_FLAG.put("farewell-subtitle", Material.BOOK);
+
+        // batch B3 — environment / world control
+        BY_FLAG.put("lightning", Material.LIGHTNING_ROD);
+        BY_FLAG.put("lava-fire", Material.MAGMA_BLOCK);
+        BY_FLAG.put("water-flow", Material.WATER_BUCKET);
+        BY_FLAG.put("lava-flow", Material.LAVA_BUCKET);
+        BY_FLAG.put("fire-burn", Material.CAMPFIRE);
+        BY_FLAG.put("block-spread", Material.VINE);
+        BY_FLAG.put("snow-fall", Material.SNOWBALL);
+        BY_FLAG.put("snow-melt", Material.SNOW_BLOCK);
+        BY_FLAG.put("ice-form", Material.ICE);
+        BY_FLAG.put("ice-melt", Material.PACKED_ICE);
+        BY_FLAG.put("frosted-ice-form", Material.FROSTED_ICE);
+        BY_FLAG.put("frosted-ice-melt", Material.BLUE_ICE);
+        BY_FLAG.put("soil-dry", Material.FARMLAND);
+        BY_FLAG.put("coral-fade", Material.TUBE_CORAL);
+        BY_FLAG.put("snowman-trails", Material.CARVED_PUMPKIN);
     }
 
     private FlagMaterials() {

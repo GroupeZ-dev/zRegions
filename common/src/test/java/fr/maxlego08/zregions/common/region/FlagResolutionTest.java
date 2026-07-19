@@ -141,6 +141,34 @@ class FlagResolutionTest {
         assertTrue(this.manager.getRegionsAt(WORLD, 10, 10, 10).isEmpty(), "the index must forget the region");
     }
 
+    @Test
+    void resolveFlagOrGeneralFallsBackToGeneralWhenSpecificUnset() {
+        Region region = this.manager.createRegion(WORLD, "canal", new CuboidShape(0, 0, 0, 30, 30, 30), 10, null);
+        this.manager.setFlag(region, Flags.FLUID_FLOW, GroupTarget.ALL, false);
+
+        assertFalse(this.manager.resolveFlagOrGeneral(WORLD, 5, 5, 5, Flags.WATER_FLOW, Flags.FLUID_FLOW, null),
+                "no water-flow set → the general fluid-flow deny applies");
+    }
+
+    @Test
+    void resolveFlagOrGeneralPrefersTheSpecificWhenSet() {
+        Region region = this.manager.createRegion(WORLD, "canal", new CuboidShape(0, 0, 0, 30, 30, 30), 10, null);
+        this.manager.setFlag(region, Flags.FLUID_FLOW, GroupTarget.ALL, false);
+        this.manager.setFlag(region, Flags.WATER_FLOW, GroupTarget.ALL, true);
+
+        assertTrue(this.manager.resolveFlagOrGeneral(WORLD, 5, 5, 5, Flags.WATER_FLOW, Flags.FLUID_FLOW, null),
+                "water-flow allow overrides the fluid-flow deny");
+        assertFalse(this.manager.resolveFlagOrGeneral(WORLD, 5, 5, 5, Flags.LAVA_FLOW, Flags.FLUID_FLOW, null),
+                "lava (no specific) still follows the general fluid-flow deny");
+    }
+
+    @Test
+    void resolveFlagOrGeneralUsesDefaultWhenNothingIsSet() {
+        this.manager.createRegion(WORLD, "plain", new CuboidShape(0, 0, 0, 30, 30, 30), 10, null);
+        assertTrue(this.manager.resolveFlagOrGeneral(WORLD, 5, 5, 5, Flags.WATER_FLOW, Flags.FLUID_FLOW, null),
+                "both unset → the general flag's default (allow)");
+    }
+
     private static StoredRegion stored(UUID id, String name, String shapeData, int priority, UUID parentId,
                                        boolean global, List<StoredRegion.StoredFlag> flags,
                                        List<StoredRegion.StoredMember> members) {

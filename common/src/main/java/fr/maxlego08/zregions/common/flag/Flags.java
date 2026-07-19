@@ -87,6 +87,23 @@ public final class Flags {
     public static final Flag<String> FAREWELL_TITLE = new StringFlag("farewell-title", "");
     public static final Flag<String> FAREWELL_SUBTITLE = new StringFlag("farewell-subtitle", "");
 
+    // --- environment / world control (batch B3) ---
+    public static final Flag<Boolean> LIGHTNING = state("lightning");
+    public static final Flag<Boolean> LAVA_FIRE = state("lava-fire");
+    public static final Flag<Boolean> WATER_FLOW = state("water-flow");
+    public static final Flag<Boolean> LAVA_FLOW = state("lava-flow");
+    public static final Flag<Boolean> FIRE_BURN = state("fire-burn");
+    public static final Flag<Boolean> BLOCK_SPREAD = state("block-spread");
+    public static final Flag<Boolean> SNOW_FALL = state("snow-fall");
+    public static final Flag<Boolean> SNOW_MELT = state("snow-melt");
+    public static final Flag<Boolean> ICE_FORM = state("ice-form");
+    public static final Flag<Boolean> ICE_MELT = state("ice-melt");
+    public static final Flag<Boolean> FROSTED_ICE_FORM = state("frosted-ice-form");
+    public static final Flag<Boolean> FROSTED_ICE_MELT = state("frosted-ice-melt");
+    public static final Flag<Boolean> SOIL_DRY = state("soil-dry");
+    public static final Flag<Boolean> CORAL_FADE = state("coral-fade");
+    public static final Flag<Boolean> SNOWMAN_TRAILS = state("snowman-trails");
+
     // --- zone ---
     public static final Flag<Boolean> ENTRY = state("entry");
     public static final Flag<Boolean> EXIT = state("exit");
@@ -110,6 +127,9 @@ public final class Flags {
             VILLAGER_TRADE, SHEAR, LEASH, ANIMAL_BREEDING, SIGN_EDIT, FISHING_HOOK,
             PROJECTILE_LAUNCH, RECEIVE_CHAT, COMMAND_WHITELIST,
             DENY_MESSAGE, ENTRY_DENY_MESSAGE, EXIT_DENY_MESSAGE, FAREWELL_TITLE, FAREWELL_SUBTITLE,
+            LIGHTNING, LAVA_FIRE, WATER_FLOW, LAVA_FLOW, FIRE_BURN, BLOCK_SPREAD,
+            SNOW_FALL, SNOW_MELT, ICE_FORM, ICE_MELT, FROSTED_ICE_FORM, FROSTED_ICE_MELT,
+            SOIL_DRY, CORAL_FADE, SNOWMAN_TRAILS,
             ENTRY, EXIT, GREETING, FAREWELL, TITLE, SUBTITLE, ACTION_BAR);
 
     private Flags() {

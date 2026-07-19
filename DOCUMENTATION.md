@@ -22,8 +22,8 @@ never the whole region set.
 
 ## 1. Overview
 
-- **Region protection** driven by **66 flags** (blocks, environment, entities, players, zone,
-  fine interactions), every one of them actually enforced by a listener — no dead flags.
+- **Region protection** driven by **81 flags** (blocks, environment, entities, players, zone,
+  fine interactions, world/weather cycles), every one of them actually enforced by a listener — no dead flags.
 - **Enter/exit engine**: `entry`/`exit` enforcement, `greeting`/`farewell` messages plus
   `title`/`subtitle`/`action-bar` displays (MiniMessage), recomputed only when a player crosses
   a block boundary.
@@ -234,6 +234,26 @@ until you deny something.
 | `entry-deny-message` · `exit-deny-message` | text | MiniMessage replacing the generic entry/exit refusal (region-scoped); placeholders `<player>`, `<region>` |
 | `farewell-title` · `farewell-subtitle` | text | MiniMessage title shown on leave — symmetric to `title`/`subtitle` on enter; same placeholders |
 
+**Environment — world, weather & natural cycles** — all silent (no player to message):
+
+| Flag | Blocks when denied |
+|---|---|
+| `lightning` | Lightning striking inside the region |
+| `lava-fire` | Lava setting fire nearby (specific of `fire-spread`) |
+| `fire-burn` | Fire consuming blocks (specific of `fire-spread`) |
+| `water-flow` · `lava-flow` | Water / lava flowing (each a specific of `fluid-flow`) |
+| `block-spread` | Non-fire spreading: grass, mycelium, mushrooms, vines, sculk… |
+| `snow-fall` · `snow-melt` | Snow layers forming / melting |
+| `ice-form` · `ice-melt` | Ice forming / melting |
+| `frosted-ice-form` · `frosted-ice-melt` | Frost-walker frosted ice forming / melting |
+| `soil-dry` | Farmland reverting to dirt |
+| `coral-fade` | Coral dying out of water |
+| `snowman-trails` | Snow golems leaving snow trails |
+
+**General → specific resolution**: `water-flow`/`lava-flow` override `fluid-flow`, and `lava-fire`/`fire-burn`
+override `fire-spread` — but only where the specific flag is actually set; everywhere else the general flag
+decides. So `fluid-flow deny` stops every fluid, then `water-flow allow` in a sub-region lets water through.
+
 ## 7. Configuration reference (`config.yml`)
 
 The default config.yml is shipped **translated** (same keys everywhere, only the comments
@@ -404,6 +424,13 @@ use them. An unrecognized `%zregions_…%` placeholder is left untouched.
 ## 14. Version history
 
 ### 1.0.0 — Unreleased
+- **15 environment flags** (66 → 81), all enforced: `lightning`, `lava-fire`, `water-flow`,
+  `lava-flow`, `fire-burn`, `block-spread`, `snow-fall`, `snow-melt`, `ice-form`, `ice-melt`,
+  `frosted-ice-form`, `frosted-ice-melt`, `soil-dry`, `coral-fade`, `snowman-trails`. Introduces
+  **general→specific flag resolution** (`RegionManager.resolveFlagOrGeneral`): `water-flow`/`lava-flow`
+  override `fluid-flow` and `lava-fire`/`fire-burn` override `fire-spread`, but only where the specific
+  flag is set. WorldGuard import now maps these (and re-points `water-flow`/`lava-flow` to the dedicated
+  flags instead of the general `fluid-flow`).
 - **20 new flags** (46 → 66), all enforced. Interactions & entities: `ride`, `sleep`,
   `respawn-anchor`, `item-frame-rotation`, `use-anvil`, `beacon`, `villager-trade`, `shear`,
   `leash`, `animal-breeding`, `sign-edit`, `fishing-hook`, `projectile-launch`, `receive-chat`,

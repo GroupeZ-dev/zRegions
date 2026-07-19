@@ -331,12 +331,12 @@ class WorldGuardImporterTest {
                     type: cuboid
                     min: {x: 0, y: 0, z: 0}
                     max: {x: 5, y: 5, z: 5}
-                    flags: {snow-fall: deny, pvp-group: members, pvp: deny}
+                    flags: {heal-amount: 5, pvp-group: members, pvp: deny}
                 """, false);
 
         assertEquals(1, report.getFlagsApplied());
         assertEquals(2, report.getFlagsSkipped());
-        assertTrue(report.getDetails().stream().anyMatch(line -> line.contains("snow-fall")));
+        assertTrue(report.getDetails().stream().anyMatch(line -> line.contains("heal-amount")));
         assertTrue(report.getDetails().stream().anyMatch(line -> line.contains("pvp-group")));
     }
 
@@ -419,7 +419,7 @@ class WorldGuardImporterTest {
                     min: {x: 0, y: 0, z: 0}
                     max: {x: 5, y: 5, z: 5}
                     priority: 10
-                    flags: {pvp: deny, snow-fall: allow}
+                    flags: {pvp: deny, heal-amount: 5}
                     owners: {unique-ids: [%s]}
                     parent: ghost
                 """.formatted(OWNER), true);

@@ -64,6 +64,16 @@ public interface RegionManager {
     <T> T resolveFlag(String worldName, double x, double y, double z, Flag<T> flag, UUID playerId);
 
     /**
+     * The effective value of {@code specific} at a position when any region (or the
+     * world's global region) explicitly defines it, otherwise the effective value of
+     * {@code general}. This is the general→specific flag-family override — e.g.
+     * {@code water-flow} taking precedence over {@code fluid-flow} only where it is
+     * actually set, falling back to the general flag everywhere else. HOT PATH.
+     */
+    <T> T resolveFlagOrGeneral(String worldName, double x, double y, double z,
+                               Flag<T> specific, Flag<T> general, UUID playerId);
+
+    /**
      * The effective value of {@code flag} for a player in this specific region
      * (region, then its parent chain, then the flag default — no positional lookup,
      * no global fallback). Used for region-scoped checks such as entry/exit.
