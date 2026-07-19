@@ -4,13 +4,17 @@ import fr.maxlego08.zregions.api.region.Region;
 import fr.maxlego08.zregions.common.command.tabcomplete.CompletionSupplier;
 import fr.maxlego08.zregions.common.command.util.ArgumentList;
 import fr.maxlego08.zregions.common.locale.Message;
+import fr.maxlego08.zregions.common.locale.Palette;
 import fr.maxlego08.zregions.common.platform.RegionPlayer;
 import fr.maxlego08.zregions.common.plugin.ZRegionsPlugin;
 import fr.maxlego08.zregions.common.selection.SelectionShapeBuilder;
 import fr.maxlego08.zregions.common.sender.RegionSender;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -118,6 +122,17 @@ public abstract class RegionCommand {
      * just return.
      */
     protected Optional<Region> resolveRegion(ZRegionsPlugin plugin, RegionSender sender, String input) {
+        // interactive click commands target the region by UUID: space/colon-free, so it
+        // survives Bukkit's space-splitting even for worlds whose name contains a space,
+        // and it is unambiguous. A stale UUID (region deleted) falls through to the name path.
+        Optional<UUID> id = parseUuid(input);
+        if (id.isPresent()) {
+            Optional<Region> byId = plugin.getRegionManager().getRegion(id.get());
+            if (byId.isPresent()) {
+                return byId;
+            }
+        }
+
         int colon = input.indexOf(':');
         if (colon > 0 && colon < input.length() - 1) {
             Optional<Region> exact = plugin.getRegionManager()
@@ -153,8 +168,40 @@ public abstract class RegionCommand {
         return Optional.empty();
     }
 
+    private static Optional<UUID> parseUuid(String input) {
+        try {
+            return Optional.of(UUID.fromString(input));
+        } catch (IllegalArgumentException exception) {
+            return Optional.empty();
+        }
+    }
+
     /** Completions over the names of all known regions. */
     protected CompletionSupplier regionNames(ZRegionsPlugin plugin) {
         return CompletionSupplier.startsWith(() -> plugin.getRegionManager().getRegions().stream().map(Region::getName));
+    }
+
+    /**
+     * A "« Page x/y »" footer for paginated commands; the arrows re-run
+     * {@code /rg <subCommand> <page±1>} (raw click targets, so no escaping needed).
+     * Shared by {@code /rg help} and {@code /rg flags}.
+     */
+    protected Component pageFooter(ZRegionsPlugin plugin, String subCommand, int page, int pages) {
+        Component label = plugin.getMessages().format(Message.COMMANDS_PAGE,
+                "page", String.valueOf(page),
+                "pages", String.valueOf(pages));
+        // clickless root: the arrows carry their own click, the label must NOT inherit one
+        // (children inherit a parent's click event, so the label can't be a child of an arrow)
+        Component footer = Component.empty();
+        if (page > 1) {
+            footer = footer.append(Component.text("« ", Palette.ACCENT)
+                    .clickEvent(ClickEvent.runCommand("/rg " + subCommand + " " + (page - 1))));
+        }
+        footer = footer.append(label);
+        if (page < pages) {
+            footer = footer.append(Component.text(" »", Palette.ACCENT)
+                    .clickEvent(ClickEvent.runCommand("/rg " + subCommand + " " + (page + 1))));
+        }
+        return footer;
     }
 }

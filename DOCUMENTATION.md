@@ -57,7 +57,7 @@ subcommands currently live under `/rg`)*.
 
 | Command | Description | Permission |
 |---|---|---|
-| `/rg help` | Lists the commands you may use | `zregions.use` |
+| `/rg help [page]` | Lists the commands you may use — paginated, each entry click-inserts its command | `zregions.use` |
 | `/rg wand` | Gives the selection wand (left click = pos1, right click = pos2; item configurable, marker survives renaming) | `zregions.admin` |
 | `/rg pos1` · `/rg pos2` | Sets a selection corner at your position | `zregions.admin` |
 | `/rg addpoint` | Adds a polygon vertex at your position | `zregions.admin` |
@@ -66,9 +66,10 @@ subcommands currently live under `/rg`)*.
 | `/rg create <name> [shape] [priority]` | Creates a region from your selection — shape `cuboid` (default), `cylinder`, `sphere` or `polygon` | `zregions.admin` |
 | `/rg global [world]` | Creates the world-wide **global region** of a world (yours by default; the console must name one). Get-or-create: reports the existing one instead of failing | `zregions.admin` |
 | `/rg redefine <name> [shape]` | Replaces a region's shape with your current selection, in its current shape type or an explicit one (same world only) | `zregions.admin` |
-| `/rg remove <name>` | Deletes a region | `zregions.admin` |
-| `/rg list [world]` | Lists regions (your world by default; every world from console) | `zregions.use` |
+| `/rg remove <name>` | Deletes a region — **asks for confirmation** first (a clickable `[✔ Confirm]` button that runs `/rg remove <name> confirm`); the deletion only happens on confirm | `zregions.admin` |
+| `/rg list [world]` | Lists regions (your world by default; every world from console) — each entry is **clickable** to open its `/rg info` | `zregions.use` |
 | `/rg info [name]` | Region details — without argument: the highest-priority region at your position | `zregions.use` |
+| `/rg flags [page]` | **Flag catalogue**: every registered flag, with its description on hover and click-to-start a `/rg flag` command (paginated) | `zregions.use` |
 | `/rg menu [region]` | Opens the region GUI — the region list, or one region's menu (**requires zMenu**; without it the command points back to `/rg help`) | `zregions.admin` |
 | `/rg show [name] [seconds]` | Outlines a region's borders with particles **only you can see** (shape-aware: box edges, circles, sphere rings, polygon edges); without argument: the region at your position. The optional duration overrides `borders.display-seconds` (capped at 3600 s); `/rg show 30` reads a plain number matching no region name as the duration. Re-running replaces the outline | `zregions.use` |
 | `/rg teleport <region>` · `/rg tp` | Teleports you to a safe standable spot at the region's bounding-box centre column — refused for the shapeless global region, and messaged when no safe spot exists | `zregions.teleport` |
@@ -95,7 +96,7 @@ subcommands currently live under `/rg`)*.
 
 | Node | Default | Grants |
 |---|---|---|
-| `zregions.use` | everyone | `/rg help`, `/rg list`, `/rg info` |
+| `zregions.use` | everyone | `/rg help`, `/rg list`, `/rg info`, `/rg flags` |
 | `zregions.admin` | op | Every region management command |
 | `zregions.teleport` | op | `/rg teleport` / `/rg tp` |
 | `zregions.bypass` | op | Bypasses **every** region protection, including `entry`/`exit` |
@@ -147,7 +148,9 @@ fallback): a border and its messages are properties of their region. `deny-messa
 ### Catalog
 
 All state flags default to **allow** unless stated — a freshly created region changes nothing
-until you deny something.
+until you deny something. Every flag also carries a **one-line description** (localized, under
+`flags.<key>` in the language file): run **`/rg flags`** to browse the whole catalogue with the
+description on hover, or read it in the zMenu flag editor's item lore.
 
 **Blocks (player actions)** — denial cancels the action and messages the player (throttled):
 
@@ -418,6 +421,17 @@ the language of the **default files** the plugin extracts from its jar: `config.
 - Format: [MiniMessage](https://docs.advntr.dev/minimessage/format.html) for messages.
   Placeholders like `<region>` or `<player>` are filled by the plugin and must be kept verbatim.
   The inventory files use zMenu's classic `&`/hex color codes and `%placeholder%` tokens.
+- **Colour palette**: messages use **semantic tags** — `<primary>` (#38BDF8), `<accent>` (#FBBF24),
+  `<success>` (#4ADE80), `<error>` (#FB7185), `<body>` (#CBD5E1), `<muted>` (#64748B) — instead of
+  vanilla colour names. This gives a fixed, high-contrast theme that looks the same on every client;
+  retune the whole look by editing the six hex values in one place (`Palette`). You can still use any
+  MiniMessage colour/tag in your own edits.
+- **Interactive messages**: several messages carry click/hover actions (the `/rg remove`
+  confirmation button, clickable `/rg list` and `/rg help` entries, and the `/rg flags` catalogue).
+  The interactivity is attached by the plugin — you only translate the visible text.
+- **Flag descriptions** live under a `flags:` section (`flags.<key>`), one line per flag, in every
+  language file. They feed both `/rg flags` (on hover) and the zMenu flag editor lore. A missing key
+  falls back to the built-in English description, so the catalogue is never blank.
 
 ## 9. Storage & multi-server
 
@@ -540,6 +554,21 @@ use them. An unrecognized `%zregions_…%` placeholder is left untouched.
 ## 14. Version history
 
 ### 1.0.0 — Unreleased
+- **Flag descriptions + `/rg flags`**: every one of the 162 flags now has a localized one-line
+  description (`flags.<key>` in each language file — en/fr/es/it), surfaced by the new **`/rg flags`**
+  catalogue command (hover for the description, click to start a `/rg flag` command; paginated) and in
+  the zMenu flag editor lore. Backed by a `FlagDescriptions` English fallback so the catalogue is never
+  blank.
+- **Interactive messages** (MiniMessage click/hover): `/rg remove` now requires a **confirmation** — a
+  clickable `[✔ Confirm]` button (running `/rg remove <name> confirm`) — so a region is never deleted by
+  a single command. `/rg list` entries are clickable to their `/rg info`, and `/rg help` (now
+  **paginated**, like `/rg flags`) entries click-insert their command; both pages are navigable with
+  clickable `«`/`»` arrows. Interactivity is attached in Java with the region's UUID as the click target,
+  so region names, world names and descriptions never need MiniMessage escaping.
+- **Recoloured messages**: all chat messages moved off vanilla colour names to a fixed high-contrast hex
+  palette exposed as **semantic tags** — `<primary>`/`<accent>`/`<success>`/`<error>`/`<body>`/`<muted>`
+  (new `Palette`, resolved by `MessageService`) — retunable in one place. Applied across the English
+  defaults and all four language files.
 - **13 new flags** (149 → 162, batch B12), all enforced. **Fine damage causes** (in the player-state
   listener, silent, no bypass — each protects players from one `EntityDamageEvent` cause while
   `invincible` still blocks all): `fire-damage`, `lava-damage`, `drowning-damage`, `suffocation-damage`,

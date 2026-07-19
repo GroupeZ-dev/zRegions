@@ -13,6 +13,8 @@ items:
       material: NAME_TAG
       name: "&e%flag%"
       lore:
+        - "&7%description%"
+        - ""
         - "&7Valor: &f%value%"
         - "&7Por defecto: &8%default%"
         - ""

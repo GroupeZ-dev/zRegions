@@ -6,6 +6,7 @@ import fr.maxlego08.zregions.common.command.commands.AddPointCommand;
 import fr.maxlego08.zregions.common.command.commands.ClearPointsCommand;
 import fr.maxlego08.zregions.common.command.commands.CreateCommand;
 import fr.maxlego08.zregions.common.command.commands.FlagCommand;
+import fr.maxlego08.zregions.common.command.commands.FlagsCommand;
 import fr.maxlego08.zregions.common.command.commands.GlobalCommand;
 import fr.maxlego08.zregions.common.command.commands.HelpCommand;
 import fr.maxlego08.zregions.common.command.commands.ImportCommand;
@@ -68,6 +69,7 @@ public class RegionCommandManager {
         register(new ShowCommand());
         register(new TeleportCommand());
         register(new FlagCommand());
+        register(new FlagsCommand());
         register(new AddMemberCommand());
         register(new RemoveMemberCommand());
         register(new SetPriorityCommand());

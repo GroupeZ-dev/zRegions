@@ -52,6 +52,8 @@ public final class RegionFlagsButton extends PaginateButton {
             placeholders.register("flag", flag.getKey());
             placeholders.register("value", explicitValue(region, flag).orElse("unset"));
             placeholders.register("default", serializeDefault(flag));
+            // localized one-line description, same source as /rg flags (flags.<key> in messages.yml)
+            placeholders.register("description", this.service.getPlugin().getMessages().flagDescription(flag.getKey()));
             // a telling icon per flag; unknown flags keep the YAML template material
             ItemStack item = getItemStack().build(player, false, placeholders);
             Material material = FlagMaterials.resolve(flag.getKey());

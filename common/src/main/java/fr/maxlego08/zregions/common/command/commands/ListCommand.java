@@ -6,9 +6,13 @@ import fr.maxlego08.zregions.common.command.tabcomplete.CompletionSupplier;
 import fr.maxlego08.zregions.common.command.tabcomplete.TabCompleter;
 import fr.maxlego08.zregions.common.command.util.ArgumentList;
 import fr.maxlego08.zregions.common.locale.Message;
+import fr.maxlego08.zregions.common.locale.MessageService;
 import fr.maxlego08.zregions.common.platform.RegionPlayer;
 import fr.maxlego08.zregions.common.plugin.ZRegionsPlugin;
 import fr.maxlego08.zregions.common.sender.RegionSender;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 
 import java.util.Collection;
 import java.util.List;
@@ -57,14 +61,21 @@ public class ListCommand extends RegionCommand {
             plugin.getMessages().send(sender, Message.REGION_LIST_EMPTY);
             return;
         }
-        plugin.getMessages().send(sender, Message.REGION_LIST_HEADER,
+        MessageService messages = plugin.getMessages();
+        messages.send(sender, Message.REGION_LIST_HEADER,
                 "world", worldName,
                 "count", String.valueOf(regions.size()));
+        Component hover = messages.format(Message.REGION_LIST_HOVER);
         for (Region region : regions) {
-            plugin.getMessages().send(sender, Message.REGION_LIST_ENTRY,
-                    "region", region.getName(),
-                    "shape", shapeName(region),
-                    "priority", String.valueOf(region.getPriority()));
+            // whole line clicks to /rg info (read-only, so safe to run directly); target by
+            // UUID so it stays unambiguous and space-free regardless of the world name
+            Component line = messages.format(Message.REGION_LIST_ENTRY,
+                            "region", region.getName(),
+                            "shape", shapeName(region),
+                            "priority", String.valueOf(region.getPriority()))
+                    .clickEvent(ClickEvent.runCommand("/rg info " + region.getId()))
+                    .hoverEvent(HoverEvent.showText(hover));
+            sender.sendMessage(line);
         }
     }
 
