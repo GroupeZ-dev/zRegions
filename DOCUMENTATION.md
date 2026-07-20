@@ -22,7 +22,7 @@ never the whole region set.
 
 ## 1. Overview
 
-- **Region protection** driven by **162 flags** (blocks, environment, entities, players, zone,
+- **Region protection** driven by **168 flags** (blocks, environment, entities, players, zone,
   fine interactions, world/weather cycles, growth, fine spawns & explosions, item lifecycle,
   persistent player state, heal/feed, movement & teleport, fine damage causes), every one of them
   actually enforced by a listener — no dead flags.
@@ -55,6 +55,12 @@ never the whole region set.
 Root command: **`/region`** (alias **`/rg`**). Admin root: **`/zregions`** *(reserved — admin
 subcommands currently live under `/rg`)*.
 
+> **Brigadier**: on **Paper/Folia** the commands register as a native Brigadier tree (sub-command
+> literals with client-side completion and inline argument suggestions); on **Spigot** completions come
+> from the classic Bukkit tab-completer, optionally enriched by commodore on older builds (Spigot ≤1.19).
+> The routing, permissions, execution and tab-complete data are identical everywhere — the Brigadier
+> layer only binds to the shared command engine, so behaviour never differs by platform.
+
 | Command | Description | Permission |
 |---|---|---|
 | `/rg help [page]` | Lists the commands you may use — paginated, each entry click-inserts its command | `zregions.use` |
@@ -72,7 +78,7 @@ subcommands currently live under `/rg`)*.
 | `/rg flags [page]` | **Flag catalogue**: every registered flag, with its description on hover and click-to-start a `/rg flag` command (paginated) | `zregions.use` |
 | `/rg menu [region]` | Opens the region GUI — the region list, or one region's menu (**requires zMenu**; without it the command points back to `/rg help`) | `zregions.admin` |
 | `/rg show [name] [seconds]` | Outlines a region's borders with particles **only you can see** (shape-aware: box edges, circles, sphere rings, polygon edges); without argument: the region at your position. The optional duration overrides `borders.display-seconds` (capped at 3600 s); `/rg show 30` reads a plain number matching no region name as the duration. Re-running replaces the outline | `zregions.use` |
-| `/rg teleport <region>` · `/rg tp` | Teleports you to a safe standable spot at the region's bounding-box centre column — refused for the shapeless global region, and messaged when no safe spot exists | `zregions.teleport` |
+| `/rg teleport <region>` · `/rg tp` | Teleports you to the region's `teleport` flag location if set, otherwise a safe standable spot at the bounding-box centre column — refused for the shapeless global region, when no safe spot exists, and (for non-bypass players) when the region's `spawn-teleport` flag is denied | `zregions.teleport` |
 | `/rg flag <region> <flag> <value…\|unset> [-t <target>]` | Sets, unsets or targets a flag value | `zregions.admin` |
 | `/rg addmember <region> <player> [owner\|member]` | Adds a player (default role: member) | `zregions.admin` |
 | `/rg removemember <region> <player>` | Removes a member | `zregions.admin` |
@@ -353,6 +359,19 @@ decides. So `fluid-flow deny` stops every fluid, then `water-flow allow` in a su
 | `move` | Moving inside — freezes the player at their block (bypass exempt; a teleport still works) |
 | `teleport-in` · `teleport-out` | Teleporting **into** / **out of** the region (bypass exempt) |
 
+**Region spawn & teleport** — value and control flags around `/rg teleport` and respawning. Set a
+`location` flag by standing where you want it and running `/rg flag <region> <flag> here` (raw
+`world;x;y;z;yaw;pitch` also works):
+
+| Flag | Type / default | Effect |
+|---|---|---|
+| `teleport` | location, unset | Destination `/rg teleport <region>` sends players to — overrides the bounding-box centre; the custom spot is used as-is (no safe-spot search) |
+| `spawn` | location, unset | Where players respawn after dying anywhere inside the region (highest-priority region wins), set on `PlayerRespawnEvent` |
+| `teleport-message` | text, empty | MiniMessage sent after a `/rg teleport` into the region instead of the generic confirmation; placeholders `<player>`, `<region>` |
+| `spawn-teleport` | allow | Deny stops non-bypass players using `/rg teleport` to reach the region |
+| `exit-via-teleport` | allow | With `exit` denied, a **teleport** may still leave (a walk cannot) — never traps players; deny locks even teleports in |
+| `exit-override` | deny | Allow always permits leaving the region, ignoring every `exit` denial |
+
 **Fine damage causes** — each protects **players** inside from one damage cause; silent, no bypass. All
 default to **allow** (vanilla damage stays on). `invincible` (allow) still blocks *every* cause outright;
 these are the finer controls for when you only want to neutralise one source.
@@ -561,6 +580,26 @@ use them. An unrecognized `%zregions_…%` placeholder is left untouched.
 ## 14. Version history
 
 ### 1.0.0 — Unreleased
+- **Brigadier commands**: `/region`, `/rg` and `/zregions` now register through Brigadier as a binding
+  layer over the unchanged common `RegionCommandManager` (routing/permissions/execution stay platform-
+  agnostic). **Paper/Folia** get a native tree (sub-command literals + inline suggestions, with an
+  unknown-sub-command fallback that keeps zRegions' own message) via the Paper `LifecycleEvents.COMMANDS`
+  registrar in the isolated `paper` sourceSet, loaded by name so its Paper types never link on Spigot.
+  **Spigot** keeps the Bukkit executor and adds commodore completions where supported (older builds);
+  commodore degrades to a no-op on Spigot 1.20+, leaving standard Bukkit tab-completion. Validated by
+  booting Paper 1.21.7 and Spigot 1.20.4. Brigadier itself is server-provided (never shaded); commodore
+  is shaded + relocated.
+- **6 new flags** (162 → 168, batch B10 finish — teleport & location). A new **`LocationFlag`** value
+  type (`teleport`/`spawn`, serialised as `world;x;y;z;yaw;pitch`, round-trips through storage and the
+  WorldGuard import): **`teleport`** overrides `/rg teleport`'s bounding-box-centre destination (the
+  custom spot is used as-is), **`spawn`** sets the respawn point when a player dies inside the region
+  (new `RespawnListener` on `PlayerRespawnEvent`), **`teleport-message`** replaces the generic teleport
+  confirmation, **`spawn-teleport`** (allow) gates non-bypass players' `/rg teleport` access per region,
+  and **`exit-via-teleport`** (allow) / **`exit-override`** (deny) keep a denied `exit` from ever
+  trapping players — a teleport escapes an `exit` lockdown by default, and `exit-override` always allows
+  leaving (a new `MovementCause` is threaded through the movement check). Adds the region-scoped
+  `RegionManager.resolveFlagIfSet` and the `region.teleport-denied` message; WorldGuard import maps
+  `teleport`/`spawn` (location) and `exit-via-teleport`/`exit-override` (state).
 - **Flag descriptions + `/rg flags`**: every one of the 162 flags now has a localized one-line
   description (`flags.<key>` in each language file — en/fr/es/it), surfaced by the new **`/rg flags`**
   catalogue command (hover for the description, click to start a `/rg flag` command; paginated) and in

@@ -7,6 +7,9 @@ import fr.maxlego08.zregions.bukkit.listener.ItemListener;
 import fr.maxlego08.zregions.bukkit.listener.MovementListener;
 import fr.maxlego08.zregions.bukkit.listener.PlayerStateListener;
 import fr.maxlego08.zregions.bukkit.listener.ProtectionListener;
+import fr.maxlego08.zregions.bukkit.command.CommodoreCommands;
+import fr.maxlego08.zregions.bukkit.command.PlatformCommands;
+import fr.maxlego08.zregions.bukkit.listener.RespawnListener;
 import fr.maxlego08.zregions.bukkit.listener.WandListener;
 import fr.maxlego08.zregions.common.config.ConfigurationAdapter;
 import fr.maxlego08.zregions.common.gui.GuiService;
@@ -76,6 +79,7 @@ public final class ZRegionsBukkitPlugin extends AbstractZRegionsPlugin {
         pluginManager.registerEvents(new ItemListener(this), loader);
         pluginManager.registerEvents(new PlayerStateListener(this), loader);
         pluginManager.registerEvents(new MovementListener(this), loader);
+        pluginManager.registerEvents(new RespawnListener(this), loader);
         pluginManager.registerEvents(new WandListener(this), loader);
     }
 
@@ -90,6 +94,44 @@ public final class ZRegionsBukkitPlugin extends AbstractZRegionsPlugin {
             }
             command.setExecutor(this.commandExecutor);
             command.setTabCompleter(this.commandExecutor);
+        }
+        setupBrigadier();
+    }
+
+    /**
+     * Enriches the commands with Brigadier on top of the always-present
+     * {@link BukkitCommandExecutor}: Paper gets a native tree (isolated {@code paper}
+     * sourceSet, referenced only by name so its Paper types never link on Spigot),
+     * Spigot gets commodore completions. Both delegate to the common command manager;
+     * a failure degrades to plain Bukkit tab-completion.
+     */
+    private void setupBrigadier() {
+        if (classPresent("io.papermc.paper.command.brigadier.Commands")) {
+            try {
+                Class<?> clazz = Class.forName("fr.maxlego08.zregions.paper.PaperBrigadierCommands");
+                PlatformCommands paper = (PlatformCommands) clazz
+                        .getConstructor(ZRegionsBukkitPlugin.class).newInstance(this);
+                paper.register();
+                getLogger().info("Registered native Paper Brigadier commands.");
+                return;
+            } catch (Throwable throwable) {
+                getLogger().warn("Unable to register Paper Brigadier commands, falling back to Bukkit.", throwable);
+                return;
+            }
+        }
+        try {
+            new CommodoreCommands(this).register();
+        } catch (Throwable throwable) {
+            getLogger().warn("Unable to register commodore command completions, using Bukkit tab-completion.", throwable);
+        }
+    }
+
+    private static boolean classPresent(String className) {
+        try {
+            Class.forName(className);
+            return true;
+        } catch (Throwable throwable) {
+            return false;
         }
     }
 

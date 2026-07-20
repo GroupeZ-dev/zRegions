@@ -1,6 +1,7 @@
 package fr.maxlego08.zregions.common.movement;
 
 import fr.maxlego08.zregions.api.flag.GroupTarget;
+import fr.maxlego08.zregions.api.region.MovementCause;
 import fr.maxlego08.zregions.api.region.Region;
 import fr.maxlego08.zregions.common.flag.Flags;
 import fr.maxlego08.zregions.common.platform.RegionLocation;
@@ -91,6 +92,38 @@ class RegionMovementTrackerTest {
 
         assertFalse(this.tracker.handleMove(this.player, at(50, 5, 50), false));
         assertTrue(this.tracker.getRegionIds(this.player.getUniqueId()).contains(this.region.getId()), "the set must still contain the region");
+    }
+
+    @Test
+    void exitOverrideAlwaysAllowsLeaving() {
+        assertTrue(this.tracker.handleMove(this.player, at(5, 5, 5), false), "entry is free");
+        this.manager.setFlag(this.region, Flags.EXIT, GroupTarget.ALL, false);
+        this.manager.setFlag(this.region, Flags.EXIT_OVERRIDE, GroupTarget.ALL, true);
+
+        assertTrue(this.tracker.checkMove(this.player, at(50, 5, 50), false, MovementCause.WALK),
+                "exit-override lets the player walk out of an exit-deny region");
+    }
+
+    @Test
+    void exitViaTeleportLetsATeleportEscapeButNotAWalk() {
+        assertTrue(this.tracker.handleMove(this.player, at(5, 5, 5), false), "entry is free");
+        this.manager.setFlag(this.region, Flags.EXIT, GroupTarget.ALL, false);
+
+        // exit-via-teleport defaults to allow: a teleport already escapes, a walk does not
+        assertFalse(this.tracker.checkMove(this.player, at(50, 5, 50), false, MovementCause.WALK),
+                "walking out of an exit-deny region is still refused");
+        assertTrue(this.tracker.checkMove(this.player, at(50, 5, 50), false, MovementCause.TELEPORT),
+                "a teleport escapes the exit-deny by default");
+    }
+
+    @Test
+    void denyingExitViaTeleportTrapsEvenTeleports() {
+        assertTrue(this.tracker.handleMove(this.player, at(5, 5, 5), false), "entry is free");
+        this.manager.setFlag(this.region, Flags.EXIT, GroupTarget.ALL, false);
+        this.manager.setFlag(this.region, Flags.EXIT_VIA_TELEPORT, GroupTarget.ALL, false);
+
+        assertFalse(this.tracker.checkMove(this.player, at(50, 5, 50), false, MovementCause.TELEPORT),
+                "denying exit-via-teleport keeps even teleports inside");
     }
 
     @Test

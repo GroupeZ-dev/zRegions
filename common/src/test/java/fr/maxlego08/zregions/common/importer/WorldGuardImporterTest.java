@@ -5,6 +5,7 @@ import fr.maxlego08.zregions.api.region.MemberRole;
 import fr.maxlego08.zregions.api.region.Region;
 import fr.maxlego08.zregions.api.shape.ShapeType;
 import fr.maxlego08.zregions.common.flag.Flags;
+import fr.maxlego08.zregions.common.platform.RegionLocation;
 import fr.maxlego08.zregions.common.region.TestPluginFixture;
 import fr.maxlego08.zregions.common.region.ZRegionManager;
 import fr.maxlego08.zregions.common.shape.CuboidShape;
@@ -376,6 +377,46 @@ class WorldGuardImporterTest {
         assertEquals(2, report.getMembersSkipped());
         assertTrue(report.getDetails().stream().anyMatch(line -> line.contains("Notch")));
         assertTrue(report.getDetails().stream().anyMatch(line -> line.contains("vip")));
+    }
+
+    @Test
+    void exitOverrideAndExitViaTeleportImportAsStates() {
+        importYaml("""
+                regions:
+                  arena:
+                    type: cuboid
+                    min: {x: 0, y: 0, z: 0}
+                    max: {x: 5, y: 5, z: 5}
+                    flags: {exit: deny, exit-override: true, exit-via-teleport: deny}
+                """, false);
+
+        Region region = this.manager.getRegion(WORLD, "arena").orElseThrow();
+        assertTrue(this.manager.resolveFlag(region, Flags.EXIT_OVERRIDE, null),
+                "WG boolean exit-override imports as a state");
+        assertFalse(this.manager.resolveFlag(region, Flags.EXIT_VIA_TELEPORT, null));
+    }
+
+    @Test
+    void teleportAndSpawnLocationsAreImported() {
+        importYaml("""
+                regions:
+                  hub:
+                    type: cuboid
+                    min: {x: 0, y: 0, z: 0}
+                    max: {x: 5, y: 5, z: 5}
+                    flags:
+                      teleport: {world: world, x: 12.5, y: 64.0, z: -8.5, yaw: 90.0, pitch: 0.0}
+                      spawn: {x: 1.0, y: 65.0, z: 2.0}
+                """, false);
+
+        Region region = this.manager.getRegion(WORLD, "hub").orElseThrow();
+        RegionLocation teleport = this.manager.resolveFlagIfSet(region, Flags.TELEPORT, null).orElseThrow();
+        assertEquals(12.5, teleport.getX(), 1e-9);
+        assertEquals(-8.5, teleport.getZ(), 1e-9);
+        assertEquals(90.0f, teleport.getYaw(), 1e-6f);
+        RegionLocation spawn = this.manager.resolveFlagIfSet(region, Flags.SPAWN, null).orElseThrow();
+        assertEquals("world", spawn.getWorldName(), "a spawn without a world falls back to the region world");
+        assertEquals(65.0, spawn.getY(), 1e-9);
     }
 
     @Test

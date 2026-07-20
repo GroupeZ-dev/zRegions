@@ -268,6 +268,11 @@ public class ZRegionManager implements RegionManager {
     }
 
     @Override
+    public <T> Optional<T> resolveFlagIfSet(Region region, Flag<T> flag, UUID playerId) {
+        return lookupWithParents(region, flag, playerId);
+    }
+
+    @Override
     public void setMember(Region region, UUID playerId, MemberRole role) {
         this.writeLock.lock();
         try {

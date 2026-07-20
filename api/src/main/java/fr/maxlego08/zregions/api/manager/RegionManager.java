@@ -89,6 +89,15 @@ public interface RegionManager {
      */
     <T> T resolveFlag(Region region, Flag<T> flag, UUID playerId);
 
+    /**
+     * The value of {@code flag} in this specific region (region, then its parent
+     * chain) when it is explicitly set, otherwise empty — the region-scoped
+     * counterpart of {@link #resolveFlagIfSet(String, double, double, double, Flag, UUID)},
+     * with no positional lookup and no global fallback. Used for region-scoped
+     * value flags with no meaningful default, such as {@code teleport}/{@code spawn}.
+     */
+    <T> Optional<T> resolveFlagIfSet(Region region, Flag<T> flag, UUID playerId);
+
     /** Sets a flag value on the region (cache first), then persists it asynchronously. */
     <T> void setFlag(Region region, Flag<T> flag, GroupTarget target, T value);
 

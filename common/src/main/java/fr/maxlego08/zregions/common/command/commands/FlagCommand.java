@@ -8,8 +8,11 @@ import fr.maxlego08.zregions.common.command.abstraction.RegionCommand;
 import fr.maxlego08.zregions.common.command.tabcomplete.CompletionSupplier;
 import fr.maxlego08.zregions.common.command.tabcomplete.TabCompleter;
 import fr.maxlego08.zregions.common.command.util.ArgumentList;
+import fr.maxlego08.zregions.common.flag.LocationFlag;
 import fr.maxlego08.zregions.common.locale.Message;
 import fr.maxlego08.zregions.common.locale.MessageService;
+import fr.maxlego08.zregions.common.platform.RegionLocation;
+import fr.maxlego08.zregions.common.platform.RegionPlayer;
 import fr.maxlego08.zregions.common.plugin.ZRegionsPlugin;
 import fr.maxlego08.zregions.common.sender.RegionSender;
 import net.kyori.adventure.text.Component;
@@ -100,6 +103,23 @@ public class FlagCommand extends RegionCommand {
             return;
         }
 
+        // location flags: "here" captures the sender's current position (raw
+        // "world;x;y;z;yaw;pitch" still works, parsed by the flag below)
+        if (flag.get() instanceof LocationFlag && value.equalsIgnoreCase("here")) {
+            Optional<RegionPlayer> player = sender.asPlayer();
+            if (player.isEmpty()) {
+                plugin.getMessages().send(sender, Message.PLAYER_ONLY);
+                return;
+            }
+            RegionLocation location = player.get().getLocation();
+            applyLocation(plugin, region.get(), flag.get(), target, location);
+            sender.sendMessage(messages.format(Message.FLAG_SET, flagLink(messages, region.get(), flag.get()),
+                    "value", location.toString(),
+                    "target", target.name(),
+                    "region", region.get().getName()));
+            return;
+        }
+
         Optional<String> applied = apply(plugin, region.get(), flag.get(), target, value);
         if (applied.isEmpty()) {
             sender.sendMessage(messages.format(Message.FLAG_VALUE_INVALID, flagLink(messages, region.get(), flag.get()),
@@ -139,6 +159,13 @@ public class FlagCommand extends RegionCommand {
         }
         plugin.getRegionManager().setFlag(region, flag, target, value.get());
         return Optional.of(flag.serialize(value.get()));
+    }
+
+    /** Stores a {@link RegionLocation} on a {@link LocationFlag} (the "here" path). */
+    @SuppressWarnings("unchecked")
+    private void applyLocation(ZRegionsPlugin plugin, Region region, Flag<?> flag, GroupTarget target,
+                               RegionLocation location) {
+        plugin.getRegionManager().setFlag(region, (Flag<RegionLocation>) flag, target, location);
     }
 
     @Override

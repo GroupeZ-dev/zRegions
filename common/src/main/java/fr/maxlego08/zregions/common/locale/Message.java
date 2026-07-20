@@ -48,6 +48,7 @@ public enum Message {
     REGION_TELEPORTED("region.teleported", "<prefix><success>Teleported to <accent><region></accent>."),
     REGION_TELEPORT_GLOBAL("region.teleport-global", "<prefix><error>The global region covers the whole world — there is nowhere specific to teleport to."),
     REGION_TELEPORT_NO_SAFE("region.teleport-no-safe", "<prefix><error>No safe spot found to teleport into <accent><region></accent>."),
+    REGION_TELEPORT_DENIED("region.teleport-denied", "<prefix><error>You can't teleport to <accent><region></accent>."),
 
     REGION_LIST_HEADER("region.list.header", "<prefix><primary>Regions in <accent><world></accent> <muted>(<count>)<primary>:"),
     REGION_LIST_ENTRY("region.list.entry", "<muted> • <accent><region></accent> <muted>(<body><shape></body>, priority <body><priority></body><muted>)"),

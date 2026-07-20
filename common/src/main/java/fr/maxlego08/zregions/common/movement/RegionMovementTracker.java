@@ -2,6 +2,7 @@ package fr.maxlego08.zregions.common.movement;
 
 import fr.maxlego08.zregions.api.flag.Flag;
 import fr.maxlego08.zregions.api.manager.RegionManager;
+import fr.maxlego08.zregions.api.region.MovementCause;
 import fr.maxlego08.zregions.api.region.Region;
 import fr.maxlego08.zregions.common.flag.Flags;
 import fr.maxlego08.zregions.common.locale.Message;
@@ -50,16 +51,28 @@ public final class RegionMovementTracker {
         this.plugin = plugin;
     }
 
+    /** {@link #checkMove(RegionPlayer, RegionLocation, boolean, MovementCause)} for a plain walk. */
+    public boolean checkMove(RegionPlayer player, RegionLocation to, boolean bypass) {
+        return checkMove(player, to, bypass, MovementCause.WALK);
+    }
+
     /**
-     * Judges a move (walk or teleport) to {@code to} WITHOUT touching the tracked
-     * state. Returns {@code false} when the move must be refused: an entered
-     * region denies {@code entry}, or a left region denies {@code exit}. Each
-     * region's border is enforced independently, parents included (deliberately
-     * region-scoped, not positional — a border is a property of its region).
+     * Judges a move to {@code to} WITHOUT touching the tracked state. Returns
+     * {@code false} when the move must be refused: an entered region denies
+     * {@code entry}, or a left region denies {@code exit}. Each region's border is
+     * enforced independently, parents included (deliberately region-scoped, not
+     * positional — a border is a property of its region).
+     *
+     * <p>A denied {@code exit} still lets the player out in two cases, so no claim
+     * ever traps them: {@code exit-override} always permits leaving, and — for a
+     * {@link MovementCause#TELEPORT} — {@code exit-via-teleport} (default allow)
+     * lets a teleport escape a walk-only lockdown. Both are only consulted once
+     * {@code exit} has actually denied, so they add no cost to the common path.</p>
      *
      * @param bypass skips enforcement entirely (admin bypass permission)
+     * @param cause  how the player is moving — only the {@code exit} loosening reads it
      */
-    public boolean checkMove(RegionPlayer player, RegionLocation to, boolean bypass) {
+    public boolean checkMove(RegionPlayer player, RegionLocation to, boolean bypass, MovementCause cause) {
         if (bypass) {
             return true;
         }
@@ -81,10 +94,20 @@ public final class RegionMovementTracker {
                 continue;
             }
             Region region = manager.getRegion(regionId).orElse(null);
-            if (region != null && !manager.resolveFlag(region, Flags.EXIT, playerId)) {
-                sendBorderDenied(player, region, Flags.EXIT_DENY_MESSAGE, Message.EXIT_DENIED);
-                return false;
+            if (region == null || manager.resolveFlag(region, Flags.EXIT, playerId)) {
+                continue;
             }
+            // exit is denied — but the player is never trapped: exit-override always
+            // lets them out, and a teleport escapes unless exit-via-teleport is denied.
+            if (manager.resolveFlag(region, Flags.EXIT_OVERRIDE, playerId)) {
+                continue;
+            }
+            if (cause == MovementCause.TELEPORT
+                    && manager.resolveFlag(region, Flags.EXIT_VIA_TELEPORT, playerId)) {
+                continue;
+            }
+            sendBorderDenied(player, region, Flags.EXIT_DENY_MESSAGE, Message.EXIT_DENIED);
+            return false;
         }
         return true;
     }

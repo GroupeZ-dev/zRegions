@@ -7,6 +7,7 @@ import fr.maxlego08.zregions.api.region.MemberRole;
 import fr.maxlego08.zregions.api.region.Region;
 import fr.maxlego08.zregions.api.shape.RegionShape;
 import fr.maxlego08.zregions.common.flag.Flags;
+import fr.maxlego08.zregions.common.platform.RegionLocation;
 import fr.maxlego08.zregions.common.plugin.ZRegionsPlugin;
 import fr.maxlego08.zregions.common.shape.CuboidShape;
 import fr.maxlego08.zregions.common.shape.PolygonShape;
@@ -104,7 +105,9 @@ public final class WorldGuardImporter {
             entry("respawn-anchors", Flags.RESPAWN_ANCHOR),
             entry("item-frame-rotation", Flags.ITEM_FRAME_ROTATION),
             entry("use-anvil", Flags.USE_ANVIL),
-            entry("receive-chat", Flags.RECEIVE_CHAT));
+            entry("receive-chat", Flags.RECEIVE_CHAT),
+            entry("exit-via-teleport", Flags.EXIT_VIA_TELEPORT),
+            entry("exit-override", Flags.EXIT_OVERRIDE));
 
     /** WG text flag → zRegions text flag (values imported verbatim). */
     private static final Map<String, Flag<String>> TEXT_FLAGS = Map.of(
@@ -113,6 +116,11 @@ public final class WorldGuardImporter {
             "greeting-title", Flags.TITLE,
             "deny-message", Flags.DENY_MESSAGE,
             "farewell-title", Flags.FAREWELL_TITLE);
+
+    /** WG location flag → zRegions location flag (WG serializes a world/x/y/z/yaw/pitch map). */
+    private static final Map<String, Flag<RegionLocation>> LOCATION_FLAGS = Map.of(
+            "teleport", Flags.TELEPORT,
+            "spawn", Flags.SPAWN);
 
     private final ZRegionsPlugin plugin;
 
@@ -201,7 +209,7 @@ public final class WorldGuardImporter {
                 }
 
                 Map<String, Object> flags = asMap(data.get("flags"));
-                applyFlags(region, flags, context, report);
+                applyFlags(region, flags, worldName, context, report);
                 if (!type.equals("global")) {
                     applyImplicitProtection(region, flags);
                 }
@@ -308,10 +316,12 @@ public final class WorldGuardImporter {
 
     // --- flags ---
 
-    private void applyFlags(Region region, Map<String, Object> flags, String context, ImportReport report) {
+    private void applyFlags(Region region, Map<String, Object> flags, String worldName,
+                            String context, ImportReport report) {
         // several WG flags can feed one zRegions flag (the explosion family): deny wins
         Map<Flag<Boolean>, Boolean> states = new LinkedHashMap<>();
         Map<Flag<String>, String> texts = new LinkedHashMap<>();
+        Map<Flag<RegionLocation>, RegionLocation> locations = new LinkedHashMap<>();
         List<String> blockedCommands = List.of();
 
         for (Map.Entry<String, Object> entry : flags.entrySet()) {
@@ -358,6 +368,16 @@ public final class WorldGuardImporter {
                 texts.put(textFlag, String.valueOf(value));
                 continue;
             }
+            Flag<RegionLocation> locationFlag = LOCATION_FLAGS.get(key);
+            if (locationFlag != null) {
+                RegionLocation location = parseLocation(asMap(value), worldName);
+                if (location == null) {
+                    report.flagSkipped(context + ": flag '" + key + "' skipped — unreadable location value");
+                } else {
+                    locations.put(locationFlag, location);
+                }
+                continue;
+            }
             report.flagSkipped(context + ": flag '" + key + "' skipped — no zRegions equivalent");
         }
 
@@ -371,6 +391,10 @@ public final class WorldGuardImporter {
             report.flagApplied();
         });
         texts.forEach((flag, value) -> {
+            if (region != null) manager.setFlag(region, flag, GroupTarget.ALL, value);
+            report.flagApplied();
+        });
+        locations.forEach((flag, value) -> {
             if (region != null) manager.setFlag(region, flag, GroupTarget.ALL, value);
             report.flagApplied();
         });
@@ -471,5 +495,24 @@ public final class WorldGuardImporter {
 
     private static int blockCoordinate(Object value) {
         return (int) Math.floor(asDouble(value));
+    }
+
+    /**
+     * A WG location flag value ({@code {world, x, y, z, yaw, pitch}} map) → a
+     * {@link RegionLocation}. Missing x/y/z (or a non-map) makes the flag
+     * unreadable; a missing {@code world} falls back to the region's own world,
+     * and yaw/pitch default to 0.
+     */
+    private static RegionLocation parseLocation(Map<String, Object> map, String worldName) {
+        Object x = map.get("x");
+        Object y = map.get("y");
+        Object z = map.get("z");
+        if (!(x instanceof Number xn) || !(y instanceof Number yn) || !(z instanceof Number zn)) {
+            return null;
+        }
+        String world = map.get("world") != null ? String.valueOf(map.get("world")) : worldName;
+        float yaw = map.get("yaw") instanceof Number number ? number.floatValue() : 0f;
+        float pitch = map.get("pitch") instanceof Number number ? number.floatValue() : 0f;
+        return new RegionLocation(world, xn.doubleValue(), yn.doubleValue(), zn.doubleValue(), yaw, pitch);
     }
 }

@@ -9,6 +9,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -20,7 +21,7 @@ class FlagsTest {
 
     @Test
     void allContainsEveryBuiltInFlag() {
-        assertEquals(162, Flags.all().size());
+        assertEquals(168, Flags.all().size());
     }
 
     @Test
@@ -91,5 +92,16 @@ class FlagsTest {
     @Test
     void commandBlacklistDefaultsToAnEmptyList() {
         assertTrue(Flags.COMMAND_BLACKLIST.getDefaultValue().isEmpty(), "no command is blocked by default");
+    }
+
+    @Test
+    void teleportAndLocationFlagDefaults() {
+        // location flags have no default; the exit escapes default to allow, exit-override to deny
+        assertNull(Flags.TELEPORT.getDefaultValue(), "an unset teleport location is null");
+        assertNull(Flags.SPAWN.getDefaultValue());
+        assertEquals("", Flags.TELEPORT_MESSAGE.getDefaultValue());
+        assertTrue(Flags.SPAWN_TELEPORT.getDefaultValue(), "players may teleport to a region by default");
+        assertTrue(Flags.EXIT_VIA_TELEPORT.getDefaultValue(), "a teleport escapes an exit-deny by default");
+        assertFalse(Flags.EXIT_OVERRIDE.getDefaultValue(), "exit-override is off by default");
     }
 }

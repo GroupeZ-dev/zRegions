@@ -2,6 +2,7 @@ package fr.maxlego08.zregions.common.flag;
 
 import fr.maxlego08.zregions.api.flag.Flag;
 import fr.maxlego08.zregions.api.flag.FlagRegistry;
+import fr.maxlego08.zregions.common.platform.RegionLocation;
 
 import java.util.List;
 
@@ -187,6 +188,12 @@ public final class Flags {
     public static final Flag<Boolean> MOVE = state("move");
     public static final Flag<Boolean> TELEPORT_IN = state("teleport-in");
     public static final Flag<Boolean> TELEPORT_OUT = state("teleport-out");
+    public static final Flag<RegionLocation> TELEPORT = new LocationFlag("teleport");
+    public static final Flag<RegionLocation> SPAWN = new LocationFlag("spawn");
+    public static final Flag<String> TELEPORT_MESSAGE = new StringFlag("teleport-message", "");
+    public static final Flag<Boolean> SPAWN_TELEPORT = state("spawn-teleport");
+    public static final Flag<Boolean> EXIT_VIA_TELEPORT = state("exit-via-teleport");
+    public static final Flag<Boolean> EXIT_OVERRIDE = new StateFlag("exit-override", false);
 
     // --- fine damage causes (batch B12), player-condition: silent, no bypass ---
     public static final Flag<Boolean> FIRE_DAMAGE = state("fire-damage");
@@ -244,6 +251,7 @@ public final class Flags {
             HEAL_AMOUNT, HEAL_DELAY, HEAL_MIN_HEALTH, HEAL_MAX_HEALTH,
             FEED_AMOUNT, FEED_DELAY, FEED_MIN_HUNGER, FEED_MAX_HUNGER, GLOW, EXPERIENCE_MULTIPLIER,
             PORTAL_USE, MOVE, TELEPORT_IN, TELEPORT_OUT,
+            TELEPORT, SPAWN, TELEPORT_MESSAGE, SPAWN_TELEPORT, EXIT_VIA_TELEPORT, EXIT_OVERRIDE,
             FIRE_DAMAGE, LAVA_DAMAGE, DROWNING_DAMAGE, SUFFOCATION_DAMAGE, CONTACT_DAMAGE,
             VOID_DAMAGE, FREEZE_DAMAGE, STARVATION_DAMAGE, LIGHTNING_DAMAGE, DRAGON_BREATH_DAMAGE,
             HOT_FLOOR_DAMAGE, FLY_INTO_WALL_DAMAGE, CRAMMING_DAMAGE,

@@ -200,6 +200,12 @@ public final class FlagMaterials {
         BY_FLAG.put("move", Material.CHAIN);
         BY_FLAG.put("teleport-in", Material.ENDER_PEARL);
         BY_FLAG.put("teleport-out", Material.CHORUS_FRUIT);
+        BY_FLAG.put("teleport", Material.COMPASS);
+        BY_FLAG.put("spawn", Material.WHITE_BED);
+        BY_FLAG.put("teleport-message", Material.WRITTEN_BOOK);
+        BY_FLAG.put("spawn-teleport", Material.END_PORTAL_FRAME);
+        BY_FLAG.put("exit-via-teleport", Material.CHORUS_FLOWER);
+        BY_FLAG.put("exit-override", Material.LADDER);
 
         // batch B12 — fine damage causes
         BY_FLAG.put("fire-damage", Material.BLAZE_POWDER);

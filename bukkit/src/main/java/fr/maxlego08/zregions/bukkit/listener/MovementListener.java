@@ -1,6 +1,7 @@
 package fr.maxlego08.zregions.bukkit.listener;
 
 import fr.maxlego08.zregions.api.flag.Flag;
+import fr.maxlego08.zregions.api.region.MovementCause;
 import fr.maxlego08.zregions.bukkit.ZRegionsBukkitPlugin;
 import fr.maxlego08.zregions.common.flag.Flags;
 import fr.maxlego08.zregions.common.locale.Message;
@@ -112,7 +113,7 @@ public final class MovementListener implements Listener {
             return;
         }
 
-        if (!checkArrivalAt(nativePlayer, to)) {
+        if (!checkArrivalAt(nativePlayer, to, MovementCause.TELEPORT)) {
             event.setCancelled(true);
         }
     }
@@ -133,7 +134,7 @@ public final class MovementListener implements Listener {
             return;
         }
         Location to = event.getTo();
-        if (to != null && !checkArrivalAt(player, to)) {
+        if (to != null && !checkArrivalAt(player, to, MovementCause.PORTAL)) {
             event.setCancelled(true);
         }
     }
@@ -177,10 +178,10 @@ public final class MovementListener implements Listener {
 
     // --- helpers ---
 
-    private boolean checkArrivalAt(Player nativePlayer, Location to) {
+    private boolean checkArrivalAt(Player nativePlayer, Location to, MovementCause cause) {
         RegionPlayer player = this.plugin.getPlayerFactory().wrap(nativePlayer);
         boolean bypass = nativePlayer.hasPermission(this.plugin.getConfiguration().getBypassPermission());
-        return this.plugin.getMovementTracker().checkMove(player, toRegionLocation(to), bypass);
+        return this.plugin.getMovementTracker().checkMove(player, toRegionLocation(to), bypass, cause);
     }
 
     /** Commits the final destination to the tracker (state + greeting/farewell). */

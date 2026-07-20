@@ -7,6 +7,11 @@ plugins {
     id("com.gradleup.shadow") version "9.0.0"
 }
 
+repositories {
+    // Brigadier (Mojang) — pour le compileOnly du sourceSet main (voir plus bas).
+    maven("https://libraries.minecraft.net")
+}
+
 val paper: SourceSet by sourceSets.creating
 
 dependencies {
@@ -14,6 +19,16 @@ dependencies {
 
     // sourceSet main : SPIGOT uniquement — tout appel Paper-only est refusé à la compilation.
     compileOnly("org.spigotmc:spigot-api:1.20.4-R0.1-SNAPSHOT")
+    // Brigadier : fourni par le serveur (Spigot ET Paper l'embarquent depuis 1.13) → compileOnly,
+    // JAMAIS shadé. Sert à construire l'arbre de complétions commodore côté Spigot.
+    compileOnly("com.mojang:brigadier:1.0.18")
+    // commodore : attache un arbre de complétions Brigadier à la commande Bukkit sur Spigot
+    // (dégradation propre via CommodoreProvider.isSupported()). Shadé + relocalisé.
+    // On EXCLUT le Brigadier transitif : il est fourni par le serveur (jamais shadé, jamais
+    // relocalisé — commodore réfléchit dans le com.mojang.brigadier du serveur).
+    implementation("me.lucko:commodore:2.2") {
+        exclude(group = "com.mojang", module = "brigadier")
+    }
     // Envoi Adventure identique sur Spigot ET Paper (jamais l'Adventure natif Paper).
     implementation("net.kyori:adventure-platform-bukkit:4.3.4")
     // Télémétrie bStats (shadée + relocalisée pour éviter tout conflit inter-plugins).
@@ -52,6 +67,8 @@ tasks {
         relocate("org.yaml.snakeyaml", "fr.maxlego08.zregions.libs.snakeyaml")
         // bStats impose la relocation (sinon conflit si un autre plugin l'embarque non relocalisé)
         relocate("org.bstats", "fr.maxlego08.zregions.libs.bstats")
+        // commodore relocalisé (Brigadier lui-même reste fourni par le serveur, non shadé)
+        relocate("me.lucko.commodore", "fr.maxlego08.zregions.libs.commodore")
     }
 
     build { dependsOn(shadowJar) }
